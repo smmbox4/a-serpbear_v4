@@ -67,6 +67,17 @@ describe('Domains Page', () => {
       );
       expect(container.querySelector('.domItem')).toBeInTheDocument();
    });
+
+   it('wraps page content with the shared body gutter', () => {
+      const { container } = render(
+          <QueryClientProvider client={queryClient}>
+              <Domains />
+          </QueryClientProvider>,
+      );
+      const layoutWrapper = container.querySelector('.max-w-8xl');
+      expect(layoutWrapper).toBeInTheDocument();
+      expect(layoutWrapper).toHaveClass('py-6');
+   });
    it('Should Display Add Domain Modal on relveant Button Click.', async () => {
       render(<QueryClientProvider client={queryClient}><Domains /></QueryClientProvider>);
       const button = screen.getByTestId('addDomainButton');

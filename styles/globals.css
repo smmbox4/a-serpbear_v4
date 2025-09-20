@@ -4,16 +4,34 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+   --layout-inline: clamp(1.5rem, 5vw, 10rem);
+}
+
 body {
    background-color: #f8f9ff;
+   padding-inline: var(--layout-inline);
 }
 
-.max-w-7xl {
-   max-width: 90rem;
-}
-
+.max-w-5xl,
+.max-w-7xl,
 .max-w-8xl {
    max-width: 105rem;
+}
+
+.topbar {
+   position: relative;
+}
+
+.topbar__back {
+   position: absolute;
+}
+
+@media (min-width: 1024px) {
+   .topbar__back {
+      left: var(--layout-inline);
+      right: auto;
+   }
 }
 
 .domKeywords {

@@ -28,6 +28,7 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Stable Search Console Emails:** Email summaries gracefully skip Search Console stats when cached data is unavailable, keeping Docker builds and cron runs healthy.
 - **Automated Security Scans:** GitHub CodeQL now reviews every push, pull request, and weekly schedule for vulnerabilities across the JavaScript/TypeScript codebase.
 - **Simplified Footer:** The in-app changelog drawer has been removed; the footer now only shows the installed version without fetching GitHub releases on load.
+- **Consistent Layout Gutters:** A shared clamp-based body padding now aligns the TopBar back button and domain dashboards across breakpoints while widening the large content containers.
 
 ### Requirements
 
