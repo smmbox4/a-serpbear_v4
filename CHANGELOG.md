@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Changed
 
+* Added a global clamp-based body gutter, widened the `max-w-*` wrappers to a shared 105rem layout, and refreshed the TopBar/domains views to consume the new spacing helpers.
 * Removed the in-app changelog panel and related GitHub release polling; the footer now only displays the installed version label.
 * Updated migration error handling tests to require Umzug migration modules without explicit `.js` extensions so Node's resolver stays compatible with both ESM-aware loaders and Jest.
 * Hardened the settings API to tolerate absent Next.js runtime config while still returning version metadata when available.

@@ -58,6 +58,13 @@ describe('SingleDomain Page', () => {
       render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
       expect(screen.getByTestId('domain-header')).toBeInTheDocument();
    });
+
+   it('applies gutter spacing between the sidebar and content area', () => {
+      const { container } = render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
+      const layoutWrapper = container.querySelector('.max-w-8xl');
+      expect(layoutWrapper).toBeInTheDocument();
+      expect(layoutWrapper).toHaveClass('gap-6');
+   });
    it('Should Call the useFetchDomains hook on render.', async () => {
       render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
       expect(useFetchDomains).toHaveBeenCalled();
