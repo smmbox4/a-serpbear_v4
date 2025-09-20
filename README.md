@@ -140,6 +140,7 @@ The Scraping Robot integration now explicitly sends both Google locale parameter
 - Run `npm run lint` before committing. ESLint 9's native flat configuration (`eslint.config.mjs`) layers Next.js core web vitals, React, accessibility, and import presets, and the run fails if any custom rules are violated.
 - Use `npm run lint -- --fix` to auto-fix issues where possible; re-run the command to confirm the codebase is clean.
 - Continue running `npm run lint:css` for Stylelint checks when you update global CSS.
+- Editors should respect the root `.editorconfig` (two-space indentation, UTF-8, LF endings, and final newlines) to match repository formatting; JSON, YAML, and other structured data continue to use two spaces as well.
 - Stylelint is now bundled locally; run `npm install` after pulling so `npm run lint:css` remains available. The dependency graph resolves without `--legacy-peer-deps`.
 - The ESLint flat config now ignores the `.next` build output so running `npm run build` before `npm run lint` no longer floods the linter with errors from generated chunks.
 
