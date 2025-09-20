@@ -21,6 +21,7 @@ module.exports = {
          }
       } catch (error) {
          console.log('error :', error);
+         throw error;
       }
      });
    },
@@ -34,6 +35,7 @@ module.exports = {
             }
          } catch (error) {
             console.log('error :', error);
+            throw error;
          }
       });
    },
