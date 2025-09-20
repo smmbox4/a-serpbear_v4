@@ -5,6 +5,32 @@ import getConfig from 'next/config';
 import verifyUser from '../../utils/verifyUser';
 import allScrapers from '../../scrapers/index';
 
+const SETTINGS_DEFAULTS: SettingsType = {
+   scraper_type: 'none',
+   scaping_api: '',
+   proxy: '',
+   notification_interval: 'never',
+   notification_email: '',
+   notification_email_from: '',
+   notification_email_from_name: 'SerpBear',
+   smtp_server: '',
+   smtp_port: '',
+   smtp_username: '',
+   smtp_password: '',
+   scrape_interval: '',
+   scrape_delay: '',
+   scrape_retry: false,
+   search_console: true,
+   search_console_client_email: '',
+   search_console_private_key: '',
+   adwords_client_id: '',
+   adwords_client_secret: '',
+   adwords_refresh_token: '',
+   adwords_developer_token: '',
+   adwords_account_id: '',
+   keywordsColumns: ['Best', 'History', 'Volume', 'Search Console'],
+};
+
 type SettingsGetResponse = {
    settings?: object | null,
    error?: string,
@@ -84,8 +110,9 @@ export const getAppSettings = async () : Promise<SettingsType> => {
       const settingsRaw = await readFile(`${process.cwd()}/data/settings.json`, { encoding: 'utf-8' });
       const failedQueueRaw = await readFile(`${process.cwd()}/data/failed_queue.json`, { encoding: 'utf-8' });
       const failedQueue: string[] = failedQueueRaw ? JSON.parse(failedQueueRaw) : [];
-      const settings: SettingsType = settingsRaw ? JSON.parse(settingsRaw) : {};
-      let decryptedSettings = settings;
+      const settings: Partial<SettingsType> = settingsRaw ? JSON.parse(settingsRaw) : {};
+      const baseSettings: SettingsType = { ...SETTINGS_DEFAULTS, ...settings };
+      let decryptedSettings: SettingsType = baseSettings;
 
       try {
          const cryptr = new Cryptr(process.env.SECRET as string);
@@ -99,15 +126,11 @@ export const getAppSettings = async () : Promise<SettingsType> => {
          const adwords_account_id = settings.adwords_account_id ? cryptr.decrypt(settings.adwords_account_id) : '';
 
          decryptedSettings = {
-            ...settings,
+            ...baseSettings,
             scaping_api,
             smtp_password,
             search_console_client_email,
             search_console_private_key,
-            search_console_integrated: !!(process.env.SEARCH_CONSOLE_PRIVATE_KEY && process.env.SEARCH_CONSOLE_CLIENT_EMAIL)
-            || !!(search_console_client_email && search_console_private_key),
-            available_scapers: allScrapers.map((scraper) => ({ label: scraper.name, value: scraper.id, allowsCity: !!scraper.allowsCity })),
-            failed_queue: failedQueue,
             adwords_client_id,
             adwords_client_secret,
             adwords_developer_token,
@@ -117,31 +140,33 @@ export const getAppSettings = async () : Promise<SettingsType> => {
          console.log('Error Decrypting Settings API Keys!');
       }
 
-      return decryptedSettings;
+      return {
+         ...SETTINGS_DEFAULTS,
+         ...decryptedSettings,
+         search_console_integrated:
+            !!(process.env.SEARCH_CONSOLE_PRIVATE_KEY && process.env.SEARCH_CONSOLE_CLIENT_EMAIL)
+            || !!(decryptedSettings.search_console_client_email && decryptedSettings.search_console_private_key),
+         available_scapers: allScrapers.map((scraper) => ({
+            label: scraper.name,
+            value: scraper.id,
+            allowsCity: !!scraper.allowsCity,
+         })),
+         failed_queue: failedQueue,
+      };
    } catch (error) {
       console.log('[ERROR] Getting App Settings. ', error);
-      const settings: SettingsType = {
-         scraper_type: 'none',
-         notification_interval: 'never',
-         notification_email: '',
-         notification_email_from: '',
-         notification_email_from_name: 'SerpBear',
-         smtp_server: '',
-         smtp_port: '',
-         smtp_username: '',
-         smtp_password: '',
-         scrape_retry: false,
-         search_console: true,
-         search_console_client_email: '',
-         search_console_private_key: '',
-         keywordsColumns: ['Best', 'History', 'Volume', 'Search Console'],
-      };
-      const otherSettings = {
-         available_scapers: allScrapers.map((scraper) => ({ label: scraper.name, value: scraper.id })),
-         failed_queue: [],
-      };
-      await writeFile(`${process.cwd()}/data/settings.json`, JSON.stringify(settings), { encoding: 'utf-8' });
+      const defaults = { ...SETTINGS_DEFAULTS };
+      await writeFile(`${process.cwd()}/data/settings.json`, JSON.stringify(defaults), { encoding: 'utf-8' });
       await writeFile(`${process.cwd()}/data/failed_queue.json`, JSON.stringify([]), { encoding: 'utf-8' });
-      return { ...settings, ...otherSettings };
+      return {
+         ...defaults,
+         available_scapers: allScrapers.map((scraper) => ({
+            label: scraper.name,
+            value: scraper.id,
+            allowsCity: !!scraper.allowsCity,
+         })),
+         failed_queue: [],
+         search_console_integrated: false,
+      };
    }
 };
