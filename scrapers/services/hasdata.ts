@@ -14,7 +14,7 @@ const hasdata:ScraperSettings = {
    headers: (keyword, settings) => {
       return {
          'Content-Type': 'application/json',
-         'x-api-key': settings.scaping_api,
+         'x-api-key': settings.scraping_api,
       };
    },
    scrapeURL: (keyword, settings) => {

@@ -64,7 +64,7 @@ export const dummyKeywords = [
 ];
 
 export const dummySettings = {
-   scaping_api: '',
+   scraping_api: '',
    scraper_type: 'none',
    notification_interval: 'never',
    notification_email: '',

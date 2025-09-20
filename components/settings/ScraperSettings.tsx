@@ -61,9 +61,9 @@ const ScraperSettings = ({ settings, settingsError, updateSettings }:ScraperSett
                <SecretField
                label='Scraper API Key or Token'
                placeholder={'API Key/Token'}
-               value={settings?.scaping_api || ''}
+               value={settings?.scraping_api || ''}
                hasError={settingsError?.type === 'no_api_key'}
-               onChange={(value:string) => updateSettings('scaping_api', value)}
+               onChange={(value:string) => updateSettings('scraping_api', value)}
                />
             </div>
          )}

@@ -54,9 +54,9 @@ const getAppSettings = async () => {
 
          try {
             const cryptr = new Cryptr(process.env.SECRET);
-            const scaping_api = settings.scaping_api ? cryptr.decrypt(settings.scaping_api) : '';
+            const scraping_api = settings.scraping_api ? cryptr.decrypt(settings.scraping_api) : '';
             const smtp_password = settings.smtp_password ? cryptr.decrypt(settings.smtp_password) : '';
-            decryptedSettings = { ...settings, scaping_api, smtp_password };
+            decryptedSettings = { ...settings, scraping_api, smtp_password };
          } catch (error) {
             console.log('Error Decrypting Settings API Keys!');
          }
