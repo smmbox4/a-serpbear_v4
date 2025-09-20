@@ -42,6 +42,7 @@ All notable changes to this project will be documented in this file. See [standa
 * Enabled GitHub Actions build cache exports for Docker image publishing.
 * Upgraded `google-auth-library` to `^10.3.0`, pulling in `gaxios@7`/`node-fetch@3` to silence Node.js 22 `fetch()` deprecation warnings and keep Google Ads integrations working on current LTS releases.
 * Removed package manifests from the runtime container layer, relying on the standalone server bundle and production dependencies that ship with the image.
+* Updated the Docker health check to `require('http')` before calling `.get()` so Node always loads the built-in module when probing the domains API endpoint.
 - Raised ESLint to `^9.15.0`, replaced the Airbnb preset with native flat-config presets, and wired the Next.js 15 core web vitals runner directly into `eslint.config.mjs`.
 - Preserved explicit SQLite `null` bindings so prepared statements receive them during execution instead of stripping them alongside optional callbacks.
 - Downgraded ESLint to `^8.57.1` to keep the flat config workflow compatible with `eslint-config-airbnb-base@15` while preserving existing lint rules.
