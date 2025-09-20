@@ -57,7 +57,7 @@ EXPOSE 3000
 
 # Health check for container monitoring
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/domains', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" || exit 1
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" || exit 1
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["node", "server.js"]
