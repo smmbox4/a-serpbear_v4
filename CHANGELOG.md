@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Changed
 
-* Pinned local development, Docker builds, and CI runs to Node.js 20.18.0 via `.nvmrc` to keep tooling consistent across environments.
+* Added a GitHub Actions CI workflow to lint, test, and build on every pull request and on pushes to the `main` and `dev` branches.
 * Aligned keyword and settings API response typings with their JSON payloads by adding the optional `details` error field so TypeScript stays consistent with runtime responses.
 * Taught ESLint and Git attributes to ignore generated `.next` chunks so build artifacts no longer trigger enormous lint failures after running the production build.
 * Preserved explicit SQLite `null` bindings so prepared statements receive them during execution instead of stripping them alongside optional callbacks.
