@@ -2,15 +2,20 @@
 
 // CLI Migration
 module.exports = {
-   up: async (queryInterface, Sequelize) => {
+   up: async function up(params = {}, legacySequelize) {
+      const queryInterface = params?.context ?? params;
+      const SequelizeLib = params?.Sequelize
+         ?? legacySequelize
+         ?? queryInterface?.sequelize?.constructor
+         ?? require('sequelize');
       return queryInterface.sequelize.transaction(async (t) => {
          try {
             const keywordTableDefinition = await queryInterface.describeTable('keyword');
             if (keywordTableDefinition) {
                if (!keywordTableDefinition.volume) {
                   await queryInterface.addColumn('keyword', 'volume', {
-                      type: Sequelize.DataTypes.STRING, allowNull: false, defaultValue: 0,
-                  }, { transaction: t });
+                     type: SequelizeLib.DataTypes.STRING, allowNull: false, defaultValue: 0,
+                 }, { transaction: t });
                }
             }
          } catch (error) {
@@ -18,7 +23,8 @@ module.exports = {
          }
       });
    },
-   down: (queryInterface) => {
+   down: async function down(params = {}) {
+      const queryInterface = params?.context ?? params;
       return queryInterface.sequelize.transaction(async (t) => {
          try {
             const keywordTableDefinition = await queryInterface.describeTable('keyword');

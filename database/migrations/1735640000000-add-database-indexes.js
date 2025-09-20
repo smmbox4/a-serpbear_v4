@@ -1,7 +1,8 @@
 // Migration: Add database indexes for better query performance
 
 module.exports = {
-   up: async (queryInterface, Sequelize) => {
+   up: async function up(params = {}) {
+      const queryInterface = params?.context ?? params;
       return queryInterface.sequelize.transaction(async (t) => {
          try {
             // Add index on keyword.domain for faster domain-based queries
@@ -41,7 +42,8 @@ module.exports = {
       });
    },
 
-   down: async (queryInterface) => {
+   down: async function down(params = {}) {
+      const queryInterface = params?.context ?? params;
       return queryInterface.sequelize.transaction(async (t) => {
          try {
             await queryInterface.removeIndex('keyword', 'keyword_domain_idx', { transaction: t });

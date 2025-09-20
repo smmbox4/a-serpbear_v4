@@ -170,20 +170,44 @@ class Database extends EventEmitter {
 
     try {
       const statement = this.driver.prepare(sql);
-      let result;
-      if (method === 'run') {
+      const fallbackToRun = () => {
         const info = applyStatement(statement, 'run', preparedBindings);
         if (info && typeof info.lastInsertRowid !== 'undefined') {
           const rowId = info.lastInsertRowid;
           context.lastID = Number(rowId);
         }
         context.changes = info ? info.changes || 0 : 0;
+        return info;
+      };
+      const shouldFallback = (err) =>
+        Boolean(err && typeof err.message === 'string' && err.message.includes('Use run() instead'));
+      let result;
+      if (method === 'run') {
+        fallbackToRun();
       } else if (method === 'all') {
-        result = applyStatement(statement, 'all', preparedBindings);
-        context.changes = Array.isArray(result) ? result.length : 0;
+        try {
+          result = applyStatement(statement, 'all', preparedBindings);
+          context.changes = Array.isArray(result) ? result.length : 0;
+        } catch (err) {
+          if (shouldFallback(err)) {
+            fallbackToRun();
+            result = [];
+          } else {
+            throw err;
+          }
+        }
       } else if (method === 'get') {
-        result = applyStatement(statement, 'get', preparedBindings);
-        context.changes = result ? 1 : 0;
+        try {
+          result = applyStatement(statement, 'get', preparedBindings);
+          context.changes = result ? 1 : 0;
+        } catch (err) {
+          if (shouldFallback(err)) {
+            fallbackToRun();
+            result = undefined;
+          } else {
+            throw err;
+          }
+        }
       } else {
         result = applyStatement(statement, method, preparedBindings);
       }

@@ -2,19 +2,39 @@
 
 // CLI Migration
 module.exports = {
-   up: async (queryInterface, Sequelize) => {
+   up: async function up(params = {}, legacySequelize) {
+      const queryInterface = params?.context ?? params;
+      const SequelizeLib = params?.Sequelize
+         ?? legacySequelize
+         ?? queryInterface?.sequelize?.constructor
+         ?? require('sequelize');
       return queryInterface.sequelize.transaction(async (t) => {
          try {
             const keywordTableDefinition = await queryInterface.describeTable('keyword');
             if (keywordTableDefinition) {
                if (!keywordTableDefinition.city) {
-                  await queryInterface.addColumn('keyword', 'city', { type: Sequelize.DataTypes.STRING }, { transaction: t });
+                  await queryInterface.addColumn(
+                     'keyword',
+                     'city',
+                     { type: SequelizeLib.DataTypes.STRING },
+                     { transaction: t }
+                  );
                }
                if (!keywordTableDefinition.latlong) {
-                  await queryInterface.addColumn('keyword', 'latlong', { type: Sequelize.DataTypes.STRING }, { transaction: t });
+                  await queryInterface.addColumn(
+                     'keyword',
+                     'latlong',
+                     { type: SequelizeLib.DataTypes.STRING },
+                     { transaction: t }
+                  );
                }
                if (!keywordTableDefinition.settings) {
-                  await queryInterface.addColumn('keyword', 'settings', { type: Sequelize.DataTypes.STRING }, { transaction: t });
+                  await queryInterface.addColumn(
+                     'keyword',
+                     'settings',
+                     { type: SequelizeLib.DataTypes.STRING },
+                     { transaction: t }
+                  );
                }
             }
          } catch (error) {
@@ -22,7 +42,8 @@ module.exports = {
          }
       });
    },
-   down: (queryInterface) => {
+   down: async function down(params = {}) {
+      const queryInterface = params?.context ?? params;
       return queryInterface.sequelize.transaction(async (t) => {
          try {
             const keywordTableDefinition = await queryInterface.describeTable('keyword');
