@@ -23,7 +23,7 @@ async function run() {
 
   try {
     const umzug = new Umzug({
-      migrations: { glob: 'database/migrations/*.js' },
+      migrations: { glob: 'database/migrations/*' },
       context: sequelize.getQueryInterface(),
       storage: new SequelizeStorage({ sequelize }),
       logger: undefined,
