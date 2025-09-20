@@ -14,7 +14,7 @@ const serply:ScraperSettings = {
       return {
          'Content-Type': 'application/json',
          'X-User-Agent': keyword.device === 'mobile' ? 'mobile' : 'desktop',
-         'X-Api-Key': settings.scaping_api,
+         'X-Api-Key': settings.scraping_api,
          'X-Proxy-Location': country,
       };
    },

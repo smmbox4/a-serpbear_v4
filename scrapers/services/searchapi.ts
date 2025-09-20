@@ -14,7 +14,7 @@ const searchapi:ScraperSettings = {
   headers: (keyword, settings) => {
      return {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${settings.scaping_api}`,
+        Authorization: `Bearer ${settings.scraping_api}`,
      };
   },
   scrapeURL: (keyword) => {

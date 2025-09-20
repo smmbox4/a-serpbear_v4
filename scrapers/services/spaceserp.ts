@@ -19,7 +19,7 @@ const spaceSerp:ScraperSettings = {
       const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
       const device = keyword.device === 'mobile' ? '&device=mobile' : '';
       const lang = countryData[country][2];
-      return `https://api.spaceserp.com/google/search?apiKey=${settings.scaping_api}&q=${encodeURIComponent(keyword.keyword)}&pageSize=100&gl=${country}&hl=${lang}${location}${device}&resultBlocks=`;
+      return `https://api.spaceserp.com/google/search?apiKey=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&pageSize=100&gl=${country}&hl=${lang}${location}${device}&resultBlocks=`;
    },
    resultObjectKey: 'organic_results',
    serpExtractor: (content) => {

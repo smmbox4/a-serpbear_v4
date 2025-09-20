@@ -12,7 +12,7 @@ const scrapingAnt:ScraperSettings = {
       const country = scraperCountries.includes(keyword.country.toUpperCase()) ? keyword.country : 'US';
       const lang = countryData[country][2];
       const url = encodeURI(`https://www.google.com/search?num=100&hl=${lang}&q=${keyword.keyword}`);
-      return `https://api.scrapingant.com/v2/extended?url=${url}&x-api-key=${settings.scaping_api}&proxy_country=${country}&browser=false`;
+      return `https://api.scrapingant.com/v2/extended?url=${url}&x-api-key=${settings.scraping_api}&proxy_country=${country}&browser=false`;
    },
    resultObjectKey: 'result',
 };

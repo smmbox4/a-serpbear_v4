@@ -60,7 +60,7 @@ const Settings = ({ closeSettings }:SettingsProps) => {
 
    const performUpdate = async () => {
       let error: null|SettingsError = null;
-      const { notification_interval, notification_email, notification_email_from, scraper_type, smtp_port, smtp_server, scaping_api } = settings;
+      const { notification_interval, notification_email, notification_email_from, scraper_type, smtp_port, smtp_server, scraping_api } = settings;
       if (notification_interval !== 'never') {
          if (!settings.notification_email) {
             error = { type: 'no_email', msg: 'Insert a Valid Email address' };
@@ -73,7 +73,7 @@ const Settings = ({ closeSettings }:SettingsProps) => {
          }
       }
 
-      if (scraper_type !== 'proxy' && scraper_type !== 'none' && !scaping_api) {
+      if (scraper_type !== 'proxy' && scraper_type !== 'none' && !scraping_api) {
          error = { type: 'no_api_key', msg: 'Insert a Valid API Key or Token for the Scraper Service.' };
       }
 

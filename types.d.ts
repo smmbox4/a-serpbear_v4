@@ -80,7 +80,7 @@ type DomainSettings = {
 
 type SettingsType = {
    scraper_type: string,
-   scaping_api?: string,
+   scraping_api?: string,
    proxy?: string,
    notification_interval: string,
    notification_email: string,

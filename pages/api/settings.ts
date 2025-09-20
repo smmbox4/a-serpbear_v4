@@ -7,7 +7,7 @@ import allScrapers from '../../scrapers/index';
 
 const SETTINGS_DEFAULTS: SettingsType = {
    scraper_type: 'none',
-   scaping_api: '',
+   scraping_api: '',
    proxy: '',
    notification_interval: 'never',
    notification_email: '',
@@ -75,7 +75,7 @@ const updateSettings = async (req: NextApiRequest, res: NextApiResponse<Settings
    }
    try {
       const cryptr = new Cryptr(process.env.SECRET as string);
-      const scaping_api = settings.scaping_api ? cryptr.encrypt(settings.scaping_api.trim()) : '';
+      const scraping_api = settings.scraping_api ? cryptr.encrypt(settings.scraping_api.trim()) : '';
       const smtp_password = settings.smtp_password ? cryptr.encrypt(settings.smtp_password.trim()) : '';
       const search_console_client_email = settings.search_console_client_email ? cryptr.encrypt(settings.search_console_client_email.trim()) : '';
       const search_console_private_key = settings.search_console_private_key ? cryptr.encrypt(settings.search_console_private_key.trim()) : '';
@@ -86,7 +86,7 @@ const updateSettings = async (req: NextApiRequest, res: NextApiResponse<Settings
 
       const securedSettings = {
          ...settings,
-         scaping_api,
+         scraping_api,
          smtp_password,
          search_console_client_email,
          search_console_private_key,
@@ -116,7 +116,7 @@ export const getAppSettings = async () : Promise<SettingsType> => {
 
       try {
          const cryptr = new Cryptr(process.env.SECRET as string);
-         const scaping_api = settings.scaping_api ? cryptr.decrypt(settings.scaping_api) : '';
+         const scraping_api = settings.scraping_api ? cryptr.decrypt(settings.scraping_api) : '';
          const smtp_password = settings.smtp_password ? cryptr.decrypt(settings.smtp_password) : '';
          const search_console_client_email = settings.search_console_client_email ? cryptr.decrypt(settings.search_console_client_email) : '';
          const search_console_private_key = settings.search_console_private_key ? cryptr.decrypt(settings.search_console_private_key) : '';
@@ -127,7 +127,7 @@ export const getAppSettings = async () : Promise<SettingsType> => {
 
          decryptedSettings = {
             ...baseSettings,
-            scaping_api,
+            scraping_api,
             smtp_password,
             search_console_client_email,
             search_console_private_key,

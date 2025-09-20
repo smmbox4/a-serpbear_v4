@@ -7,7 +7,7 @@ describe('scrapingRobot scraper', () => {
       country: 'US',
       device: 'desktop',
     } as any;
-    const settings = { scaping_api: 'token-123' } as any;
+    const settings = { scraping_api: 'token-123' } as any;
     const countryData = {
       US: ['United States', 'Washington, D.C.', 'en', 2840],
     } as any;

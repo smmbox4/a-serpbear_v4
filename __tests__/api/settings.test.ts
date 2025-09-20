@@ -80,7 +80,7 @@ describe('PUT /api/settings validation and errors', () => {
 
     const req = {
       method: 'PUT',
-      body: { settings: { scaping_api: 'value', smtp_password: 'password' } },
+      body: { settings: { scraping_api: 'value', smtp_password: 'password' } },
       headers: {},
     } as unknown as NextApiRequest;
 
@@ -171,7 +171,7 @@ describe('GET /api/settings and configuration requirements', () => {
 
     expect(settings).toMatchObject({
       scraper_type: 'none',
-      scaping_api: '',
+      scraping_api: '',
       proxy: '',
       notification_interval: 'never',
       notification_email: '',
