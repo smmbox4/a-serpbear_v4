@@ -26,6 +26,8 @@ All notable changes to this project will be documented in this file. See [standa
 * Upgraded ESLint and related tooling to v9 flat config (`eslint.config.mjs`) and refreshed linting instructions.
 * Pruned Docker runtime image to copy production `node_modules` so cron jobs and migrations keep their dependencies at runtime.
 * Bundled `sequelize-cli` as a production dependency so database migration scripts work without manual CLI installs.
+* Migrated legacy Sequelize migrations to Umzug v3’s object signature while keeping `sequelize-cli` compatibility by normalising the received parameters.
+* Updated the custom SQLite dialect to call `run()` for non-reader statements invoked through `.all()`, allowing Umzug’s Sequelize storage to create metadata tables with `better-sqlite3`.
 * Added configurable cron timezone and schedule environment variables for scraping, retries, and notification jobs.
 * Google Search Console email summaries reuse cached data for the active cron day to avoid redundant refreshes.
 * Hardened `/api/notify` to require authentication before sending notification emails.

@@ -84,6 +84,8 @@ Local and self-hosted installs can apply schema changes with the bundled npm scr
 
 The project now ships `sequelize-cli` as a production dependency, so the migration scripts work out of the box without manually installing the CLI or adding it globally.
 
+Migrations now conform to Umzug v3’s object signature, which means the Docker entrypoint and `/api/dbmigrate` endpoint can run them directly. The legacy `sequelize-cli` workflow still works because each migration normalises its parameters before calling the query interface. On a brand-new database, start the app once (or run a short script that calls `sequelize.sync()`) before invoking the migration scripts so the base `domain` and `keyword` tables exist.
+
 ### SQLite driver upgrade
 
 - **Why:** The legacy `sqlite3` native module depended on deprecated `node-gyp` glue. The project now ships a lightweight wrapper around `better-sqlite3`, which bundles modern tooling and offers prebuilt binaries for current Node.js releases.
