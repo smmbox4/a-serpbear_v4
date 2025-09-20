@@ -31,6 +31,10 @@ const verifyUserMock = verifyUser as unknown as jest.Mock;
 const writeFileMock = writeFile as unknown as jest.Mock;
 const getConfigMock = getConfig as unknown as jest.Mock;
 const originalEnv = process.env;
+const getEnvWithoutScreenshot = () => {
+  const { SCREENSHOT_API: _ignored, ...envWithoutScreenshot } = { ...originalEnv };
+  return envWithoutScreenshot;
+};
 
 jest.mock('cryptr', () => ({
   __esModule: true,
@@ -114,7 +118,8 @@ describe('GET /api/settings and configuration requirements', () => {
   });
 
   it('returns 500 when loading settings fails', async () => {
-    process.env = { ...originalEnv, SECRET: 'secret' };
+    const envWithoutScreenshot = getEnvWithoutScreenshot();
+    process.env = { ...envWithoutScreenshot, SECRET: 'secret' };
 
     const req = {
       method: 'GET',
@@ -165,7 +170,8 @@ describe('GET /api/settings and configuration requirements', () => {
   });
 
   it('throws when SCREENSHOT_API is not configured', async () => {
-    process.env = { ...originalEnv, SECRET: 'secret' };
+    const envWithoutScreenshot = getEnvWithoutScreenshot();
+    process.env = { ...envWithoutScreenshot, SECRET: 'secret' };
 
     await expect(settingsApi.getAppSettings()).rejects.toThrow('SCREENSHOT_API environment variable is required');
   });
