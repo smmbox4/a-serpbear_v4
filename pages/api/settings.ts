@@ -141,7 +141,6 @@ export const getAppSettings = async () : Promise<SettingsType> => {
       }
 
       return {
-         ...SETTINGS_DEFAULTS,
          ...decryptedSettings,
          search_console_integrated:
             !!(process.env.SEARCH_CONSOLE_PRIVATE_KEY && process.env.SEARCH_CONSOLE_CLIENT_EMAIL)
