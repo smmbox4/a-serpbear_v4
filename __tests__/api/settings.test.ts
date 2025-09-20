@@ -1,5 +1,6 @@
 import { writeFile, readFile } from 'fs/promises';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import getConfig from 'next/config';
 import handler from '../../pages/api/settings';
 import * as settingsApi from '../../pages/api/settings';
 import verifyUser from '../../utils/verifyUser';
@@ -14,6 +15,11 @@ jest.mock('../../scrapers/index', () => ({
   default: [],
 }));
 
+jest.mock('next/config', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
 jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
   writeFile: jest.fn(),
@@ -23,6 +29,7 @@ const encryptMock = jest.fn((value: string) => value);
 const readFileMock = readFile as unknown as jest.Mock;
 const verifyUserMock = verifyUser as unknown as jest.Mock;
 const writeFileMock = writeFile as unknown as jest.Mock;
+const getConfigMock = getConfig as unknown as jest.Mock;
 const originalEnv = process.env;
 
 jest.mock('cryptr', () => ({
@@ -35,6 +42,8 @@ jest.mock('cryptr', () => ({
 describe('PUT /api/settings validation and errors', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    getConfigMock.mockReset();
+    getConfigMock.mockReturnValue({ publicRuntimeConfig: { version: '1.0.0' } });
     process.env = { ...originalEnv, SECRET: 'secret', SCREENSHOT_API: 'test-key' };
     verifyUserMock.mockReturnValue('authorized');
     encryptMock.mockClear();
@@ -91,6 +100,8 @@ describe('PUT /api/settings validation and errors', () => {
 describe('GET /api/settings and configuration requirements', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    getConfigMock.mockReset();
+    getConfigMock.mockReturnValue({ publicRuntimeConfig: { version: '1.0.0' } });
     process.env = { ...originalEnv, SECRET: 'secret', SCREENSHOT_API: 'test-key' };
     verifyUserMock.mockReturnValue('authorized');
     encryptMock.mockClear();
@@ -123,6 +134,33 @@ describe('GET /api/settings and configuration requirements', () => {
     expect(res.json).toHaveBeenCalledWith({
       error: 'Failed to load settings.',
       details: 'SCREENSHOT_API environment variable is required to capture keyword screenshots.',
+    });
+  });
+
+  it('returns settings when runtime config is missing', async () => {
+    getConfigMock.mockReturnValue(undefined);
+    readFileMock.mockResolvedValueOnce(JSON.stringify({})).mockResolvedValueOnce(JSON.stringify([]));
+
+    const req = {
+      method: 'GET',
+      headers: {},
+      query: {},
+    } as unknown as NextApiRequest;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as NextApiResponse;
+
+    await handler(req, res);
+
+    expect(getConfigMock).toHaveBeenCalledTimes(1);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      settings: expect.objectContaining({
+        version: undefined,
+        screenshot_key: 'test-key',
+      }),
     });
   });
 

@@ -31,8 +31,8 @@ const getSettings = async (req: NextApiRequest, res: NextApiResponse<SettingsGet
       if (!settings) {
          return res.status(500).json({ error: 'Settings could not be loaded.' });
       }
-      const { publicRuntimeConfig } = getConfig();
-      const version = publicRuntimeConfig?.version;
+      const config = getConfig();
+      const version = config?.publicRuntimeConfig?.version;
       return res.status(200).json({ settings: { ...settings, version } });
    } catch (error) {
       console.log('[ERROR] Loading App Settings. ', error);
