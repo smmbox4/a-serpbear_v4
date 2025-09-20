@@ -117,9 +117,10 @@ describe('GET /api/settings and configuration requirements', () => {
     process.env = originalEnv;
   });
 
-  it('returns 500 when loading settings fails', async () => {
+  it('returns settings when loading settings succeeds without screenshot API', async () => {
     const envWithoutScreenshot = getEnvWithoutScreenshot();
     process.env = { ...envWithoutScreenshot, SECRET: 'secret' };
+    readFileMock.mockResolvedValueOnce(JSON.stringify({})).mockResolvedValueOnce(JSON.stringify([]));
 
     const req = {
       method: 'GET',
@@ -135,10 +136,12 @@ describe('GET /api/settings and configuration requirements', () => {
     await handler(req, res);
 
     expect(verifyUserMock).toHaveBeenCalledWith(req, res);
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      error: 'Failed to load settings.',
-      details: 'SCREENSHOT_API environment variable is required to capture keyword screenshots.',
+      settings: expect.objectContaining({
+        version: '1.0.0',
+        screenshot_key: '',
+      }),
     });
   });
 
@@ -169,11 +172,14 @@ describe('GET /api/settings and configuration requirements', () => {
     });
   });
 
-  it('throws when SCREENSHOT_API is not configured', async () => {
+  it('returns settings when SCREENSHOT_API is not configured', async () => {
     const envWithoutScreenshot = getEnvWithoutScreenshot();
     process.env = { ...envWithoutScreenshot, SECRET: 'secret' };
+    readFileMock.mockResolvedValueOnce(JSON.stringify({})).mockResolvedValueOnce(JSON.stringify([]));
 
-    await expect(settingsApi.getAppSettings()).rejects.toThrow('SCREENSHOT_API environment variable is required');
+    const settings = await settingsApi.getAppSettings();
+
+    expect(settings.screenshot_key).toBe('');
   });
 
   it('returns defaults with screenshot key when files are missing', async () => {
