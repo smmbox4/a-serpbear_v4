@@ -31,6 +31,10 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Node.js 18.18 or newer:** The upgraded Google authentication SDK now depends on `gaxios@7` and `node-fetch@3`, eliminating the Node.js 22 `fetch()` deprecation warning while remaining compatible with active LTS releases (18.x, 20.x, and 22.x).
 - **SQLite tooling:** Sequelize now talks to SQLite through a bundled `better-sqlite3` compatibility layer. Most environments can install the prebuilt binaries automatically with `npm install`, but if the download falls back to building from source you will need Python 3, `make`, and a C++ compiler (`build-essential` on Debian/Ubuntu or the Xcode command line tools on macOS).
 
+### Continuous Integration
+
+Every pull request and all pushes to the `main` and `dev` branches run through a GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). The pipeline installs dependencies with `npm ci`, executes both JavaScript and CSS linting, runs the Jest test suite via `npm run test:ci`, and builds the production bundle. The workflow also provisions a minimal `.env.local` file so environment validation passes and restores a cache for `.next/cache` to speed up subsequent builds.
+
 #### Screenshot capture configuration
 
 - **`SCREENSHOT_API` is now mandatory:** Set this environment variable to the API key provided by your screenshot vendor (for example [ScreenshotOne](https://screenshotone.com/)). The server refuses to load settings or queue screenshot jobs when the key is missing, returning 500-series API responses that explain the misconfiguration. Add the key to `.env.local`, your Docker secrets, or your deployment platform before launching the app.
@@ -127,6 +131,7 @@ The Scraping Robot integration now explicitly sends both Google locale parameter
 
 ### Development Practices
 
+- Run `nvm use` (after installing [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)) to load the Node.js version pinned in `.nvmrc` (`20.18.0`) before installing dependencies so local tooling matches CI and Docker builds.
 - Group external dependencies before relative paths and keep imports alphabetized in test files to satisfy lint requirements.
 - Keep API response typings in sync with their JSON payloads; keyword and settings routes now expose an optional `details` string for richer error diagnostics and the TypeScript definitions mirror that contract.
 
