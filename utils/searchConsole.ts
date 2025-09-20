@@ -304,10 +304,11 @@ export const updateLocalSCData = async (domain:string, scDomainData?:SCDomainDat
    try {
       const filePath = getSafeSCDataFilePath(domain);
       if (!filePath) throw new Error('Invalid domain for file path');
-      const emptyData:SCDomainDataType = { threeDays: [], sevenDays: [], thirtyDays: [], lastFetched: '', lastFetchError: '' };
+      
+      const dataToWrite = scDomainData || { threeDays: [], sevenDays: [], thirtyDays: [], lastFetched: '', lastFetchError: '' };
       // eslint-disable-next-line security/detect-non-literal-fs-filename
-      await writeFile(filePath, JSON.stringify(scDomainData || emptyData), { encoding: 'utf-8' }).catch((err) => { console.log(err); });
-      return scDomainData || emptyData;
+      await writeFile(filePath, JSON.stringify(dataToWrite), { encoding: 'utf-8' }).catch((err) => { console.log(err); });
+      return dataToWrite;
    } catch (error) {
       return false;
    }

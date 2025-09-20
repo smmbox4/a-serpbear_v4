@@ -114,15 +114,11 @@ export const sanitizeJsonInput = (input: any): { isValid: boolean; sanitized: an
    try {
       if (typeof input === 'string') {
          const parsed = JSON.parse(input);
-         // Re-stringify to ensure it's properly formatted
-         const sanitized = JSON.stringify(parsed);
-         return { isValid: true, sanitized: JSON.parse(sanitized) };
+         return { isValid: true, sanitized: parsed };
       }
       
       if (typeof input === 'object' && input !== null) {
-         // Re-stringify to sanitize
-         const sanitized = JSON.stringify(input);
-         return { isValid: true, sanitized: JSON.parse(sanitized) };
+         return { isValid: true, sanitized: input };
       }
       
       return { isValid: false, sanitized: null };
@@ -149,21 +145,18 @@ export const checkRateLimit = (identifier: string, maxRequests: number = 100, wi
       }
    });
    
-   if (!requestCounts[identifier]) {
+   const existingEntry = requestCounts[identifier];
+   
+   if (!existingEntry || existingEntry.resetTime < now) {
       requestCounts[identifier] = { count: 1, resetTime: now + windowMs };
       return { allowed: true, remaining: maxRequests - 1 };
    }
    
-   if (requestCounts[identifier].resetTime < now) {
-      requestCounts[identifier] = { count: 1, resetTime: now + windowMs };
-      return { allowed: true, remaining: maxRequests - 1 };
-   }
-   
-   requestCounts[identifier].count++;
-   const remaining = Math.max(0, maxRequests - requestCounts[identifier].count);
+   existingEntry.count++;
+   const remaining = Math.max(0, maxRequests - existingEntry.count);
    
    return {
-      allowed: requestCounts[identifier].count <= maxRequests,
+      allowed: existingEntry.count <= maxRequests,
       remaining
    };
 };
