@@ -210,9 +210,24 @@ class Database extends EventEmitter {
     try {
       const statement = this.driver.prepare(sql);
       let result;
-      
-      if (['run', 'all', 'get'].includes(method)) {
-        result = applyStatementWithFallback(statement, method, preparedBindings, context);
+      if (method === 'run') {
+        fallbackToRun();
+      } else if (method === 'all' || method === 'get') {
+        try {
+          result = applyStatement(statement, method, preparedBindings);
+          if (method === 'all') {
+            context.changes = Array.isArray(result) ? result.length : 0;
+          } else {
+            context.changes = result ? 1 : 0;
+          }
+        } catch (err) {
+          if (shouldFallback(err)) {
+            fallbackToRun();
+            result = method === 'all' ? [] : undefined;
+          } else {
+            throw err;
+          }
+        }
       } else {
         result = applyStatement(statement, method, preparedBindings);
       }
