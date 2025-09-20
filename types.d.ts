@@ -96,7 +96,6 @@ type SettingsType = {
    scrape_retry?: boolean,
    failed_queue?: string[]
    version?: string,
-   screenshot_key?: string,
    search_console: boolean,
    search_console_client_email: string,
    search_console_private_key: string,

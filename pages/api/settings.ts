@@ -80,12 +80,6 @@ const updateSettings = async (req: NextApiRequest, res: NextApiResponse<Settings
 };
 
 export const getAppSettings = async () : Promise<SettingsType> => {
-   const screenshotAPIKey = process.env.SCREENSHOT_API;
-   if (!screenshotAPIKey) {
-      const message = 'SCREENSHOT_API environment variable is required to capture keyword screenshots.';
-      console.error(`[CONFIG] ${message}`);
-      throw new Error(message);
-   }
    try {
       const settingsRaw = await readFile(`${process.cwd()}/data/settings.json`, { encoding: 'utf-8' });
       const failedQueueRaw = await readFile(`${process.cwd()}/data/failed_queue.json`, { encoding: 'utf-8' });
@@ -114,7 +108,6 @@ export const getAppSettings = async () : Promise<SettingsType> => {
             || !!(search_console_client_email && search_console_private_key),
             available_scapers: allScrapers.map((scraper) => ({ label: scraper.name, value: scraper.id, allowsCity: !!scraper.allowsCity })),
             failed_queue: failedQueue,
-            screenshot_key: screenshotAPIKey,
             adwords_client_id,
             adwords_client_secret,
             adwords_developer_token,
@@ -138,7 +131,6 @@ export const getAppSettings = async () : Promise<SettingsType> => {
          smtp_username: '',
          smtp_password: '',
          scrape_retry: false,
-         screenshot_key: screenshotAPIKey,
          search_console: true,
          search_console_client_email: '',
          search_console_private_key: '',

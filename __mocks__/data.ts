@@ -76,7 +76,6 @@ export const dummySettings = {
    smtp_password: '',
    scrape_retry: false,
    search_console_integrated: false,
-   screenshot_key: '',
    available_scapers: [],
    failed_queue: [],
 };

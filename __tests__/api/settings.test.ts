@@ -31,10 +31,6 @@ const verifyUserMock = verifyUser as unknown as jest.Mock;
 const writeFileMock = writeFile as unknown as jest.Mock;
 const getConfigMock = getConfig as unknown as jest.Mock;
 const originalEnv = process.env;
-const getEnvWithoutScreenshot = () => {
-  const { SCREENSHOT_API: _ignored, ...envWithoutScreenshot } = { ...originalEnv };
-  return envWithoutScreenshot;
-};
 
 jest.mock('cryptr', () => ({
   __esModule: true,
@@ -48,7 +44,7 @@ describe('PUT /api/settings validation and errors', () => {
     jest.clearAllMocks();
     getConfigMock.mockReset();
     getConfigMock.mockReturnValue({ publicRuntimeConfig: { version: '1.0.0' } });
-    process.env = { ...originalEnv, SECRET: 'secret', SCREENSHOT_API: 'test-key' };
+    process.env = { ...originalEnv, SECRET: 'secret' };
     verifyUserMock.mockReturnValue('authorized');
     encryptMock.mockClear();
     readFileMock.mockReset();
@@ -106,7 +102,7 @@ describe('GET /api/settings and configuration requirements', () => {
     jest.clearAllMocks();
     getConfigMock.mockReset();
     getConfigMock.mockReturnValue({ publicRuntimeConfig: { version: '1.0.0' } });
-    process.env = { ...originalEnv, SECRET: 'secret', SCREENSHOT_API: 'test-key' };
+    process.env = { ...originalEnv, SECRET: 'secret' };
     verifyUserMock.mockReturnValue('authorized');
     encryptMock.mockClear();
     readFileMock.mockReset();
@@ -117,9 +113,8 @@ describe('GET /api/settings and configuration requirements', () => {
     process.env = originalEnv;
   });
 
-  it('returns 500 when loading settings fails', async () => {
-    const envWithoutScreenshot = getEnvWithoutScreenshot();
-    process.env = { ...envWithoutScreenshot, SECRET: 'secret' };
+  it('returns settings when loading settings succeeds', async () => {
+    readFileMock.mockResolvedValueOnce(JSON.stringify({})).mockResolvedValueOnce(JSON.stringify([]));
 
     const req = {
       method: 'GET',
@@ -135,10 +130,11 @@ describe('GET /api/settings and configuration requirements', () => {
     await handler(req, res);
 
     expect(verifyUserMock).toHaveBeenCalledWith(req, res);
-    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      error: 'Failed to load settings.',
-      details: 'SCREENSHOT_API environment variable is required to capture keyword screenshots.',
+      settings: expect.objectContaining({
+        version: '1.0.0',
+      }),
     });
   });
 
@@ -164,25 +160,31 @@ describe('GET /api/settings and configuration requirements', () => {
     expect(res.json).toHaveBeenCalledWith({
       settings: expect.objectContaining({
         version: undefined,
-        screenshot_key: 'test-key',
       }),
     });
   });
 
-  it('throws when SCREENSHOT_API is not configured', async () => {
-    const envWithoutScreenshot = getEnvWithoutScreenshot();
-    process.env = { ...envWithoutScreenshot, SECRET: 'secret' };
+  it('returns settings successfully', async () => {
+    readFileMock.mockResolvedValueOnce(JSON.stringify({})).mockResolvedValueOnce(JSON.stringify([]));
 
-    await expect(settingsApi.getAppSettings()).rejects.toThrow('SCREENSHOT_API environment variable is required');
+    const settings = await settingsApi.getAppSettings();
+
+    expect(settings).toEqual(expect.objectContaining({
+      scraper_type: expect.any(String),
+      available_scapers: expect.any(Array),
+    }));
   });
 
-  it('returns defaults with screenshot key when files are missing', async () => {
+  it('returns defaults when files are missing', async () => {
     readFileMock.mockRejectedValueOnce(new Error('missing settings')).mockRejectedValueOnce(new Error('missing failed queue'));
     writeFileMock.mockResolvedValue(undefined);
 
     const settings = await settingsApi.getAppSettings();
 
-    expect(settings.screenshot_key).toBe('test-key');
+    expect(settings).toEqual(expect.objectContaining({
+      scraper_type: 'none',
+      available_scapers: expect.any(Array),
+    }));
     expect(writeFileMock).toHaveBeenCalled();
   });
 });
