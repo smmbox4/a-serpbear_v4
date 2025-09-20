@@ -76,5 +76,6 @@ describe('Domains Page', () => {
    it('Should Display the version number in Footer.', async () => {
       render(<QueryClientProvider client={queryClient}><Domains /></QueryClientProvider>);
       expect(screen.getByText('SerpBear v0.0.0')).toBeVisible();
+      expect(screen.queryByText(/Update to Version/i)).not.toBeInTheDocument();
    });
 });
