@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Changed
 
 * Added a least-privilege GitHub Actions CodeQL workflow that scans pushes, pull requests, and a weekly schedule for JavaScript/TypeScript vulnerabilities.
+* Updated API settings tests to strip `SCREENSHOT_API` when exercising missing-configuration flows so CI secrets can no longer mask the expected failures.
 * Aligned keyword and settings API response typings with their JSON payloads by adding the optional `details` error field so TypeScript stays consistent with runtime responses.
 * Taught ESLint and Git attributes to ignore generated `.next` chunks so build artifacts no longer trigger enormous lint failures after running the production build.
 * Added a root `.editorconfig` so editors consistently write UTF-8, LF line endings, and two-space indentation (with overrides for structured data).

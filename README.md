@@ -149,3 +149,4 @@ The Scraping Robot integration now explicitly sends both Google locale parameter
 - `npm test` runs the unit and integration suites in Node's default worker mode.
 - The sqlite dialect suite now includes a regression test verifying the mocked `better-sqlite3` driver preserves single `?` placeholder bindings end-to-end.
 - Use `npm run test:cv -- --runInBand` to generate coverage serially, which avoids intermittent jsdom worker crashes during long-running suites.
+- API settings integration tests now explicitly remove `SCREENSHOT_API` when simulating misconfigurations so failures surface even if local shells export the key.
