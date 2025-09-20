@@ -54,6 +54,45 @@ function applyStatement(stmt, method, params) {
   return stmt[method](normalized);
 }
 
+function shouldFallbackToRun(err) {
+  return Boolean(err && typeof err.message === 'string' && err.message.includes('Use run() instead'));
+}
+
+function applyStatementWithFallback(statement, method, bindings, context) {
+  const fallbackToRun = () => {
+    const info = applyStatement(statement, 'run', bindings);
+    if (info && typeof info.lastInsertRowid !== 'undefined') {
+      const rowId = info.lastInsertRowid;
+      context.lastID = Number(rowId);
+    }
+    context.changes = info ? info.changes || 0 : 0;
+    return info;
+  };
+
+  if (method === 'run') {
+    return fallbackToRun();
+  }
+
+  // For 'all' and 'get' methods, try the original method first, then fallback if needed
+  try {
+    const result = applyStatement(statement, method, bindings);
+    
+    if (method === 'all') {
+      context.changes = Array.isArray(result) ? result.length : 0;
+    } else if (method === 'get') {
+      context.changes = result ? 1 : 0;
+    }
+    
+    return result;
+  } catch (err) {
+    if (shouldFallbackToRun(err)) {
+      fallbackToRun();
+      return method === 'all' ? [] : undefined;
+    }
+    throw err;
+  }
+}
+
 class Database extends EventEmitter {
   constructor(filename, mode, callback) {
     super();
@@ -170,17 +209,6 @@ class Database extends EventEmitter {
 
     try {
       const statement = this.driver.prepare(sql);
-      const fallbackToRun = () => {
-        const info = applyStatement(statement, 'run', preparedBindings);
-        if (info && typeof info.lastInsertRowid !== 'undefined') {
-          const rowId = info.lastInsertRowid;
-          context.lastID = Number(rowId);
-        }
-        context.changes = info ? info.changes || 0 : 0;
-        return info;
-      };
-      const shouldFallback = (err) =>
-        Boolean(err && typeof err.message === 'string' && err.message.includes('Use run() instead'));
       let result;
       if (method === 'run') {
         fallbackToRun();
@@ -203,6 +231,7 @@ class Database extends EventEmitter {
       } else {
         result = applyStatement(statement, method, preparedBindings);
       }
+      
       setImmediate(() => finalCallback.call(context, null, result));
     } catch (error) {
       setImmediate(() => finalCallback.call(context, error));
