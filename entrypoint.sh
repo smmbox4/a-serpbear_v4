@@ -11,10 +11,12 @@ run_migrations() {
   node <<'NODE'
 const { Sequelize } = require('sequelize');
 const { Umzug, SequelizeStorage } = require('umzug');
+const sqliteDialect = require('./database/sqlite-dialect');
 
 async function run() {
   const sequelize = new Sequelize({
     dialect: 'sqlite',
+    dialectModule: sqliteDialect,
     storage: './data/database.sqlite',
     logging: false,
   });
