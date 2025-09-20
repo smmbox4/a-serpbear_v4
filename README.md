@@ -126,6 +126,7 @@ The Scraping Robot integration now explicitly sends both Google locale parameter
 
 ### Development Practices
 
+- Run `nvm use` (after installing [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)) to load the Node.js version pinned in `.nvmrc` (`20.18.0`) before installing dependencies so local tooling matches CI and Docker builds.
 - Group external dependencies before relative paths and keep imports alphabetized in test files to satisfy lint requirements.
 - Keep API response typings in sync with their JSON payloads; keyword and settings routes now expose an optional `details` string for richer error diagnostics and the TypeScript definitions mirror that contract.
 
