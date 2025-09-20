@@ -21,6 +21,7 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Zero Cost to RUN:** Run the App on mogenius.com or Fly.io for free.
 - **Robust Error Handling:** Improved input validation and safer JSON parsing across the app.
 - **Resilient Settings API:** `/api/settings` now tolerates missing runtime configuration and still returns version metadata when available.
+- **Defaulted Configuration:** Settings API responses merge persisted values with safe defaults so required fields like scraper selection and notifications never disappear.
 - **Reliable Sessions:** Configurable login durations now persist correctly and logging out clears authentication cookies immediately.
 - **API Hardening:** Notification email endpoint now enforces authentication for both UI and API key access.
 - **Safer Integrations:** Google Ads refresh-token retrieval handles incomplete error payloads and Search Console storage differentiates hyphenated and dotted domains.

@@ -169,10 +169,34 @@ describe('GET /api/settings and configuration requirements', () => {
 
     const settings = await settingsApi.getAppSettings();
 
-    expect(settings).toEqual(expect.objectContaining({
-      scraper_type: expect.any(String),
-      available_scapers: expect.any(Array),
-    }));
+    expect(settings).toMatchObject({
+      scraper_type: 'none',
+      scaping_api: '',
+      proxy: '',
+      notification_interval: 'never',
+      notification_email: '',
+      notification_email_from: '',
+      notification_email_from_name: 'SerpBear',
+      smtp_server: '',
+      smtp_port: '',
+      smtp_username: '',
+      smtp_password: '',
+      scrape_interval: '',
+      scrape_delay: '',
+      scrape_retry: false,
+      search_console: true,
+      search_console_client_email: '',
+      search_console_private_key: '',
+      search_console_integrated: false,
+      adwords_client_id: '',
+      adwords_client_secret: '',
+      adwords_refresh_token: '',
+      adwords_developer_token: '',
+      adwords_account_id: '',
+      keywordsColumns: ['Best', 'History', 'Volume', 'Search Console'],
+      available_scapers: [],
+      failed_queue: [],
+    });
   });
 
   it('returns defaults when files are missing', async () => {

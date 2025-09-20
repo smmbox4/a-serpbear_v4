@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 * Updated migration error handling tests to require Umzug migration modules without explicit `.js` extensions so Node's resolver stays compatible with both ESM-aware loaders and Jest.
 * Hardened the settings API to tolerate absent Next.js runtime config while still returning version metadata when available.
+* Ensured decrypted settings merge with default values so missing persisted keys fall back to safe notification and scraper defaults.
 * Added a least-privilege GitHub Actions CodeQL workflow that scans pushes, pull requests, and a weekly schedule for JavaScript/TypeScript vulnerabilities.
 * Updated API settings tests to strip `SCREENSHOT_API` when exercising missing-configuration flows so CI secrets can no longer mask the expected failures.
 * Aligned keyword and settings API response typings with their JSON payloads by adding the optional `details` error field so TypeScript stays consistent with runtime responses.
