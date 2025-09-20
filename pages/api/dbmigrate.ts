@@ -3,6 +3,7 @@ import { Umzug, SequelizeStorage } from 'umzug';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../database/database';
 import verifyUser from '../../utils/verifyUser';
+import sqliteDialect from '../../database/sqlite-dialect';
 
 type MigrationGetResponse = {
    hasMigrations: boolean,
@@ -26,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 const getMigrationStatus = async (req: NextApiRequest, res: NextApiResponse<MigrationGetResponse>) => {
-   const sequelize = new Sequelize({ dialect: 'sqlite', storage: './data/database.sqlite', logging: false });
+   const sequelize = new Sequelize({ dialect: 'sqlite', dialectModule: sqliteDialect, storage: './data/database.sqlite', logging: false });
    const umzug = new Umzug({
       migrations: { glob: 'database/migrations/*.js' },
       context: sequelize.getQueryInterface(),
@@ -40,7 +41,7 @@ const getMigrationStatus = async (req: NextApiRequest, res: NextApiResponse<Migr
 };
 
 const migrateDatabase = async (req: NextApiRequest, res: NextApiResponse<MigrationPostResponse>) => {
-   const sequelize = new Sequelize({ dialect: 'sqlite', storage: './data/database.sqlite', logging: false });
+   const sequelize = new Sequelize({ dialect: 'sqlite', dialectModule: sqliteDialect, storage: './data/database.sqlite', logging: false });
    const umzug = new Umzug({
       migrations: { glob: 'database/migrations/*.js' },
       context: sequelize.getQueryInterface(),
