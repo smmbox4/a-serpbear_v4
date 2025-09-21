@@ -79,7 +79,10 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
          const updatedkeyword = await refreshAndUpdateKeyword(keyword, settings);
          updatedKeywords.push(updatedkeyword);
          if (keywords.length > 0 && settings.scrape_delay && settings.scrape_delay !== '0') {
-            await sleep(parseInt(settings.scrape_delay, 10));
+            const delay = parseInt(settings.scrape_delay, 10);
+            if (!isNaN(delay) && delay > 0) {
+               await sleep(Math.min(delay, 30000)); // Cap delay at 30 seconds for safety
+            }
          }
       }
    }

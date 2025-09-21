@@ -235,7 +235,15 @@ const deleteKeywords = async (req: NextApiRequest, res: NextApiResponse<Keywords
    console.log('req.query.id: ', req.query.id);
 
    try {
-      const keywordsToRemove = (req.query.id as string).split(',').map((item) => parseInt(item, 10));
+      const keywordsToRemove = (req.query.id as string).split(',').map((item) => {
+         const id = parseInt(item, 10);
+         return isNaN(id) ? 0 : id;
+      }).filter(id => id > 0);
+      
+      if (keywordsToRemove.length === 0) {
+         return res.status(400).json({ error: 'No valid keyword IDs provided' });
+      }
+      
       const removeQuery = { where: { ID: { [Op.in]: keywordsToRemove } } };
       const removedKeywordCount: number = await Keyword.destroy(removeQuery);
       return res.status(200).json({ keywordsRemoved: removedKeywordCount });

@@ -45,7 +45,10 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
    if (req.query.id === 'all' && !req.query.domain) {
       return res.status(400).json({ error: 'When Refreshing all Keywords of a domian, the Domain name Must be provided.' });
    }
-   const keywordIDs = req.query.id !== 'all' && (req.query.id as string).split(',').map((item) => parseInt(item, 10));
+   const keywordIDs = req.query.id !== 'all' && (req.query.id as string).split(',').map((item) => {
+      const id = parseInt(item, 10);
+      return isNaN(id) ? 0 : id;
+   }).filter(id => id > 0);
    const { domain } = req.query || {};
    console.log('keywordIDs: ', keywordIDs);
 

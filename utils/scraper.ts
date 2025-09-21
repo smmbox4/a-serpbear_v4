@@ -388,7 +388,10 @@ export const retryScrape = async (keywordID: number) : Promise<void> => {
    currentQueue = currentQueueRaw ? JSON.parse(currentQueueRaw) : [];
 
    if (!currentQueue.includes(keywordID)) {
-      currentQueue.push(Math.abs(keywordID));
+      const validKeywordID = Math.abs(keywordID);
+      if (validKeywordID > 0) { // Ensure it's a valid positive ID
+         currentQueue.push(validKeywordID);
+      }
    }
 
    await writeFile(filePath, JSON.stringify(currentQueue), { encoding: 'utf-8' }).catch((err) => { console.log(err); return '[]'; });
@@ -406,7 +409,7 @@ export const removeFromRetryQueue = async (keywordID: number) : Promise<void> =>
    const filePath = `${process.cwd()}/data/failed_queue.json`;
    const currentQueueRaw = await readFile(filePath, { encoding: 'utf-8' }).catch((err) => { console.log(err); return '[]'; });
    currentQueue = currentQueueRaw ? JSON.parse(currentQueueRaw) : [];
-   currentQueue = currentQueue.filter((item) => item !== Math.abs(keywordID));
+   currentQueue = currentQueue.filter((item) => item !== Math.abs(keywordID) && item > 0); // Also filter out invalid IDs
 
    await writeFile(filePath, JSON.stringify(currentQueue), { encoding: 'utf-8' }).catch((err) => { console.log(err); return '[]'; });
 };

@@ -11,11 +11,15 @@ export const sanitizeHtml = (input: string): string => {
    
    let sanitized = input;
    let previous;
-   // Remove all HTML tags (apply until stable)
+   let iterations = 0;
+   const maxIterations = 10; // Prevent infinite loops
+   
+   // Remove all HTML tags (apply until stable or max iterations reached)
    do {
       previous = sanitized;
       sanitized = sanitized.replace(/<[^>]*>/g, '');
-   } while (sanitized !== previous);
+      iterations++;
+   } while (sanitized !== previous && iterations < maxIterations);
    return sanitized
       .replace(/javascript:/gi, '') // Remove javascript: protocol
       .replace(/\son\w+\s*=\s*[^>\s]*/gi, '') // Remove event handlers like onclick=...

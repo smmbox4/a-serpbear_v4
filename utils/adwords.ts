@@ -153,7 +153,7 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
       // Load Keywords from Google Search Console File.
       if ((seedType === 'searchconsole' || seedSCKeywords) && domainUrl) {
          const domainSCData = await readLocalSCData(domainUrl);
-         if (domainSCData && domainSCData.thirtyDays) {
+         if (domainSCData && domainSCData.thirtyDays && Array.isArray(domainSCData.thirtyDays)) {
             const scKeywords = domainSCData.thirtyDays;
             const sortedSCKeywords = scKeywords.sort((a, b) => (b.impressions > a.impressions ? 1 : -1));
             sortedSCKeywords.slice(0, 100).forEach((sckeywrd) => {
@@ -252,6 +252,12 @@ const extractAdwordskeywordIdeas = (keywordIdeas: keywordIdeasResponseItem[], op
          if (keywordIdeaMetrics?.avgMonthlySearches) {
             const searchVolumeTrend: Record<string, string> = {};
             const searchVolume = parseInt(avgMonthlySearches, 10);
+            const compIndex = parseInt(competitionIndex, 10);
+            
+            if (isNaN(searchVolume) || searchVolume < 0) {
+               return; // Skip invalid search volume
+            }
+            
             monthlySearchVolumes.forEach((item) => {
                searchVolumeTrend[`${item.month}-${item.year}`] = item.monthlySearches;
             });
@@ -260,7 +266,7 @@ const extractAdwordskeywordIdeas = (keywordIdeas: keywordIdeasResponseItem[], op
                   uid: `${country.toLowerCase()}:${text.replaceAll(' ', '-')}`,
                   keyword: text,
                   competition,
-                  competitionIndex: competitionIndex !== null ? parseInt(competitionIndex, 10) : 0,
+                  competitionIndex: isNaN(compIndex) ? 0 : Math.max(0, compIndex),
                   monthlySearchVolumes: searchVolumeTrend,
                   avgMonthlySearches: searchVolume,
                   added: new Date().getTime(),
@@ -351,7 +357,9 @@ export const getKeywordsVolume = async (keywords: KeywordType[]): Promise<{ erro
                      const volumeDataObj: Map<string, number> = new Map();
                      ideaData.results.forEach((item: { keywordMetrics: keywordIdeasMetrics, text: string }) => {
                         const kwVol = item?.keywordMetrics?.avgMonthlySearches;
-                        volumeDataObj.set(`${country}:${item.text}`, kwVol ? parseInt(kwVol, 10) : 0);
+                        const parsedVolume = kwVol ? parseInt(kwVol, 10) : 0;
+                        const validVolume = isNaN(parsedVolume) ? 0 : Math.max(0, parsedVolume);
+                        volumeDataObj.set(`${country}:${item.text}`, validVolume);
                      });
 
                      keywordRequests[country].forEach((keyword) => {

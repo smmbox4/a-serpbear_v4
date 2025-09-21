@@ -69,11 +69,11 @@ export const getCountryInsight = (SCData:SCDomainDataType, sortBy:string = 'clic
    });
 
    const countryInsight: SCInsightItem[] = Object.keys(countryItems).map((countryCode:string) => {
-      const keywordCount = keywordsCounts[countryCode]?.length || 1;
+      const keywordCount = keywordsCounts[countryCode]?.length || 1; // Ensure safe division
       return {
          ...countryItems[countryCode],
          position: Math.round(countryItems[countryCode].position / keywordCount),
-         ctr: countryItems[countryCode].ctr / keywordCount,
+         ctr: Number((countryItems[countryCode].ctr / keywordCount).toFixed(2)),
          keywords: keywordCount,
          country: countryCode,
       };
@@ -130,11 +130,11 @@ export const getKeywordsInsight = (SCData:SCDomainDataType, sortBy:string = 'cli
    });
 
    const keywordInsight: SCInsightItem[] = Object.keys(keywordItems).map((keyword:string) => {
-      const keywordCount = keywordCounts[keyword] || 1;
+      const keywordCount = keywordCounts[keyword] || 1; // Ensure safe division
       return {
          ...keywordItems[keyword],
          position: Math.round(keywordItems[keyword].position / keywordCount),
-         ctr: keywordItems[keyword].ctr / keywordCount,
+         ctr: Number((keywordItems[keyword].ctr / keywordCount).toFixed(2)),
          countries: countriesCount[keyword]?.length || 0,
          keyword: keyword.replaceAll('_', ' '),
       };
@@ -190,11 +190,11 @@ export const getPagesInsight = (SCData:SCDomainDataType, sortBy:string = 'clicks
    });
 
    const pagesInsight: SCInsightItem[] = Object.keys(pagesItems).map((page:string) => {
-      const keywordCount = keywordCounts[page] || 1;
+      const keywordCount = keywordCounts[page] || 1; // Ensure safe division
       return {
          ...pagesItems[page],
          position: Math.round(pagesItems[page].position / keywordCount),
-         ctr: pagesItems[page].ctr / keywordCount,
+         ctr: Number((pagesItems[page].ctr / keywordCount).toFixed(2)),
          countries: countriesCount[page]?.length || 0,
          keywords: keywordCount,
          page,
