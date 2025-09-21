@@ -22,14 +22,15 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
       const KeywordsUpdateDates: number[] = keywords.reduce((acc: number[], itm) => [...acc, new Date(itm.lastUpdated).getTime()], [0]);
       const lastKeywordUpdateDate = Math.max(...KeywordsUpdateDates);
       domainWithStat.keywordsUpdated = new Date(lastKeywordUpdateDate || new Date(domain.lastUpdated).getTime()).toJSON();
-      domainWithStat.avgPosition = keywords.length ? Math.round(keywordPositions / keywords.length) : 0;
+      domainWithStat.avgPosition = keywords.length > 0 ? Math.round(keywordPositions / keywords.length) : 0;
 
       // Then Load the SC File and read the stats and calculate the Last 7 days stats
       const localSCData = await readLocalSCData(domain.domain);
       const days = 7;
-      if (localSCData && localSCData.stats && localSCData.stats.length) {
+      if (localSCData && localSCData.stats && Array.isArray(localSCData.stats) && localSCData.stats.length > 0) {
          const lastSevenStats = localSCData.stats.slice(-days);
-         const totalStats = lastSevenStats.reduce((acc, item) => {
+         if (lastSevenStats.length > 0) {
+            const totalStats = lastSevenStats.reduce((acc, item) => {
             return {
                impressions: item.impressions + acc.impressions,
                clicks: item.clicks + acc.clicks,
@@ -37,9 +38,10 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
                position: item.position + acc.position,
             };
          }, { impressions: 0, clicks: 0, ctr: 0, position: 0 });
-         domainWithStat.scVisits = totalStats.clicks;
-         domainWithStat.scImpressions = totalStats.impressions;
-         domainWithStat.scPosition = Math.round(totalStats.position / days);
+            domainWithStat.scVisits = totalStats.clicks;
+            domainWithStat.scImpressions = totalStats.impressions;
+            domainWithStat.scPosition = lastSevenStats.length > 0 ? Math.round(totalStats.position / lastSevenStats.length) : 0;
+         }
       }
 
       finalDomains.push(domainWithStat);

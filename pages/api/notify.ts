@@ -82,7 +82,9 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
      } = settings;
 
    const fromEmail = `${notification_email_from_name} <${notification_email_from || 'no-reply@serpbear.com'}>`;
-   const mailerSettings:any = { host: smtp_server, port: parseInt(smtp_port, 10) };
+   const portNum = parseInt(smtp_port, 10);
+   const validPort = isNaN(portNum) ? 587 : Math.max(1, Math.min(65535, portNum)); // Default to 587, validate range
+   const mailerSettings:any = { host: smtp_server, port: validPort };
    if (smtp_username || smtp_password) {
       mailerSettings.auth = {};
       if (smtp_username) mailerSettings.auth.user = smtp_username;

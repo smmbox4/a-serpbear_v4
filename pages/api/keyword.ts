@@ -24,7 +24,14 @@ const getKeyword = async (req: NextApiRequest, res: NextApiResponse<KeywordGetRe
    }
 
    try {
-      const query = { ID: parseInt((req.query.id as string), 10) };
+      const idParam = req.query.id as string;
+      const id = parseInt(idParam, 10);
+      
+      if (isNaN(id) || id <= 0) {
+         return res.status(400).json({ error: 'Invalid keyword ID provided' });
+      }
+      
+      const query = { ID: id };
       const foundKeyword:Keyword| null = await Keyword.findOne({ where: query });
       const pareseKeyword = foundKeyword && parseKeywords([foundKeyword.get({ plain: true })]);
       const keywords = pareseKeyword && pareseKeyword[0] ? pareseKeyword[0] : null;
