@@ -13,12 +13,6 @@ body {
    padding-inline: var(--layout-inline);
 }
 
-.max-w-5xl,
-.max-w-7xl,
-.max-w-8xl {
-   max-width: 105rem;
-}
-
 .topbar {
    position: relative;
 }

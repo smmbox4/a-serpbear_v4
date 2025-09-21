@@ -13,7 +13,13 @@ module.exports = {
       'max-w-[180px]',
     ],
    theme: {
-     extend: {},
+     extend: {
+       maxWidth: {
+         '5xl': '105rem',
+         '7xl': '105rem',
+         '8xl': '105rem',
+       }
+     },
    },
    plugins: [],
  };
