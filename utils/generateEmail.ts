@@ -134,8 +134,6 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       const htmlWithSCStats = isConsoleIntegrated ? await generateGoogleConsoleStats(domain) : '';
       const emailHTML = updatedEmail.replace('{{SCStatsTable}}', htmlWithSCStats);
 
-      // await writeFile('testemail.html', emailHTML, { encoding: 'utf-8' });
-
    return emailHTML;
 };
 
@@ -172,8 +170,7 @@ export const generateGoogleConsoleStats = async (domain:DomainType): Promise<str
                         keywords: { html: '', label: 'Top 5 Keywords' },
                         pages: { html: '', label: 'Top 5 Pages' },
                      };
-      const stats = Array.isArray(localSCData.stats) ? localSCData.stats : [];
-      const SCStats = [...stats].reverse().slice(0, 7);
+      const SCStats = localSCData.stats.slice(-7).reverse();
       const keywords = getKeywordsInsight(localSCData, 'clicks', 'sevenDays');
       const pages = getPagesInsight(localSCData, 'clicks', 'sevenDays');
       const genColumn = (item:SCInsightItem, firstColumKey:string):string => {
