@@ -41,7 +41,7 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
             <Link
                href={'/domains'}
                className='topbar__back right-14 top-4 px-2 py-1 cursor-pointer bg-[#ecf2ff] hover:bg-indigo-100 transition-all
-               absolute lg:top-4 lg:right-auto lg:px-3 lg:py-2 rounded-full'
+               lg:top-4 lg:px-3 lg:py-2 rounded-full'
             >
                <Icon type="caret-left" size={16} title="Go Back" />
             </Link>
