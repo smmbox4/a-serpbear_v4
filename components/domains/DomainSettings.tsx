@@ -7,7 +7,7 @@ import InputField from '../common/InputField';
 import SelectField from '../common/SelectField';
 
 type DomainSettingsProps = {
-   domain:DomainType|false,
+   domain:DomainType|null,
    closeModal: Function
 }
 
@@ -22,9 +22,9 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    const [showRemoveDomain, setShowRemoveDomain] = useState<boolean>(false);
    const [settingsError, setSettingsError] = useState<DomainSettingsError>({ type: '', msg: '' });
    const [domainSettings, setDomainSettings] = useState<DomainSettings>(() => ({
-      notification_interval: domain && domain.notification_interval ? domain.notification_interval : 'never',
-      notification_emails: domain && domain.notification_emails ? domain.notification_emails : '',
-      search_console: domain && domain.search_console ? JSON.parse(domain.search_console) : {
+      notification_interval: domain?.notification_interval ?? 'never',
+      notification_emails: domain?.notification_emails ?? '',
+      search_console: domain?.search_console ? JSON.parse(domain.search_console) : {
          property_type: 'domain', url: '', client_email: '', private_key: '',
       },
    }));
@@ -33,7 +33,7 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    const { mutate: deleteMutate } = useDeleteDomain(() => { closeModal(false); router.push('/domains'); });
 
    // Get the Full Domain Data along with the Search Console API Data.
-   useFetchDomain(router, (domain && domain.domain) || '', (domainObj:DomainType) => {
+   useFetchDomain(router, domain?.domain || '', (domainObj:DomainType) => {
       const currentSearchConsoleSettings = domainObj.search_console && JSON.parse(domainObj.search_console);
       setDomainSettings(prevSettings => ({ ...prevSettings, search_console: currentSearchConsoleSettings || prevSettings.search_console }));
    });
@@ -55,8 +55,8 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
             setSettingsError({ type: '', msg: '' });
          }, 3000);
       } else if (domain) {
-            updateMutate({ domainSettings, domain });
-         }
+         updateMutate({ domainSettings, domain });
+      }
    };
 
    const tabStyle = `inline-block px-4 py-2 rounded-md mr-3 cursor-pointer text-sm select-none z-10

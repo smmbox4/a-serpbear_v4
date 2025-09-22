@@ -2,7 +2,7 @@ export const isValidDomain = (domain:string): boolean => {
    if (typeof domain !== 'string') return false;
    if (!domain.includes('.')) return false;
    let value = domain;
-   const validHostnameChars = /^[a-zA-Z0-9-.]{1,253}\.?$/g;
+   const validHostnameChars = /^[a-zA-Z0-9-.]{1,253}\.?$/;
    if (!validHostnameChars.test(value)) {
      return false;
    }
@@ -18,7 +18,7 @@ export const isValidDomain = (domain:string): boolean => {
    const labels = value.split('.');
 
    const isValid = labels.every((label) => {
-     const validLabelChars = /^([a-zA-Z0-9-]+)$/g;
+     const validLabelChars = /^([a-zA-Z0-9-]+)$/;
 
      const validLabel = (
        validLabelChars.test(label)

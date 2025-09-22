@@ -69,10 +69,12 @@ export function useFetchDomains(router: NextRouter, withStats:boolean = false) {
 
 export function useFetchDomain(router: NextRouter, domainName:string, onSuccess: Function) {
    return useQuery(['domain', domainName], () => fetchDomain(router, domainName), {
+      enabled: !!domainName,
       onSuccess: async (data) => {
          console.log('Domain Loaded!!!', data.domain);
          onSuccess(data.domain);
-      } });
+      },
+   });
 }
 
 export function useAddDomain(onSuccess:Function) {

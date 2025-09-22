@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Changed
 
+* Settings now reload the window only when enabling a scraper from the previous `'none'` state, and the scraper modal has Jest coverage to verify the behaviour.
+* Search Console hooks key their queries by the active domain slug, skip fetches without a slug, and include tests that confirm refetching when switching domains.
+* Domain settings accept `null` domains, short-circuit the lookup fetch when closed, and continue guarding destructive actions behind a non-null domain selection.
+* Domain validation no longer reuses global regex instances and has dedicated tests for multi-label inputs alongside common invalid examples.
+* GitHub Actions workflows run inside concurrency groups with `cancel-in-progress: true` so superseded CI or Docker builds automatically stop when newer commits arrive.
 * Domain settings now request `/api/domain` with the canonical host so decrypted Search Console credentials hydrate the modal fields as soon as it opens.
 * Consolidated scraper and refresh error serialization into a shared helper used across utilities and covered it with dedicated Jest tests.
 * Added a global clamp-based body gutter, widened the `max-w-*` wrappers to a shared 105rem layout, and refreshed the TopBar/domains views to consume the new spacing helpers.
