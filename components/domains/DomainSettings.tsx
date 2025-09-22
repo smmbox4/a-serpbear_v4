@@ -33,9 +33,9 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    const { mutate: deleteMutate } = useDeleteDomain(() => { closeModal(false); router.push('/domains'); });
 
    // Get the Full Domain Data along with the Search Console API Data.
-   useFetchDomain(router, domain?.domain || '', (domainObj:DomainType) => {
+   useFetchDomain(router, (domain && domain.domain) || '', (domainObj:DomainType) => {
       const currentSearchConsoleSettings = domainObj.search_console && JSON.parse(domainObj.search_console);
-      setDomainSettings({ ...domainSettings, search_console: currentSearchConsoleSettings || domainSettings.search_console });
+      setDomainSettings(prevSettings => ({ ...prevSettings, search_console: currentSearchConsoleSettings || prevSettings.search_console }));
    });
 
    const updateDomain = () => {
