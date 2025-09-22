@@ -1,5 +1,7 @@
 import { performance } from 'perf_hooks';
 import { setTimeout as sleep } from 'timers/promises';
+import { Op } from 'sequelize';
+import { readFile, writeFile } from 'fs/promises';
 import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
 import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
@@ -39,9 +41,28 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
 
    if (skippedKeywords.length > 0) {
       const skippedIds = skippedKeywords.map((keyword) => keyword.ID);
-      await Keyword.update({ updating: false }, { where: { ID: skippedIds } });
-      for (const id of skippedIds) {
-         await removeFromRetryQueue(id);
+      await Keyword.update(
+         { updating: false },
+         { where: { ID: { [Op.in]: skippedIds } } },
+      );
+
+      const idsToRemove = new Set(skippedIds);
+      if (idsToRemove.size > 0) {
+        const filePath = `${process.cwd()}/data/failed_queue.json`;
+        try {
+          const currentQueueRaw = await readFile(filePath, { encoding: 'utf-8' });
+          let currentQueue: number[] = JSON.parse(currentQueueRaw);
+          const initialLength = currentQueue.length;
+          currentQueue = currentQueue.filter((item) => !idsToRemove.has(item));
+
+          if (currentQueue.length < initialLength) {
+            await writeFile(filePath, JSON.stringify(currentQueue), { encoding: 'utf-8' });
+          }
+        } catch (error: any) {
+          if (error.code !== 'ENOENT') {
+            console.log('[ERROR] Failed to update retry queue:', error);
+          }
+        }
       }
    }
 
