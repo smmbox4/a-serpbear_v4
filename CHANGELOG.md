@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Completely restructured `README.md` with a product-focused overview, expanded environment variable reference, and refreshed provider comparison to reflect the current codebase.
 * Replaced Jest's `jest-environment-jsdom` dependency with `@happy-dom/jest-environment` to eliminate deprecated transitive packages and speed up DOM-focused tests.
 * Added `npm run setup:git` to configure `init.defaultBranch` for the repository and avoid Git initialization warnings.
 * Dropped the `standard-version` release script in favour of the new git setup helper and manual changelog updates to remove the deprecated `stringify-package` dependency.
