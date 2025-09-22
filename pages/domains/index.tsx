@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import TopBar from '../../components/common/TopBar';
 import AddDomain from '../../components/domains/AddDomain';
 import Settings from '../../components/settings/Settings';
-import { useCheckMigrationStatus, useFetchSettings, useMigrateDatabase } from '../../services/settings';
+import { useFetchSettings } from '../../services/settings';
 import { fetchDomainScreenshot, useFetchDomains, SCREENSHOTS_ENABLED } from '../../services/domains';
 import DomainItem from '../../components/domains/DomainItem';
 import Icon from '../../components/common/Icon';
@@ -22,37 +22,11 @@ const Domains: NextPage = () => {
    const [showSettings, setShowSettings] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
    const [domainThumbs, setDomainThumbs] = useState<thumbImages>({});
-   const [isAutoMigrating, setIsAutoMigrating] = useState(false);
-   
    const { data: appSettingsData, isLoading: isAppSettingsLoading } = useFetchSettings();
    const { data: domainsData, isLoading } = useFetchDomains(router, true);
-   const { data: migrationStatus, refetch: refetchMigrationStatus } = useCheckMigrationStatus();
-
-   const migrateDatabase = useMigrateDatabase((result: { migrated: boolean; migrationsRun: number; error?: string }) => {
-      setIsAutoMigrating(false);
-      refetchMigrationStatus();
-      if (result?.migrationsRun > 0) {
-         console.log(`Auto-migration completed: ${result.migrationsRun} migration(s) applied`);
-      }
-   });
 
    const appSettings:SettingsType = appSettingsData?.settings || {};
    const { scraper_type = '' } = appSettings;
-
-   // Auto-migrate when pending migrations are detected
-   useEffect(() => {
-      if (migrationStatus?.hasMigrations && !isAutoMigrating && !migrateDatabase.isLoading) {
-         setIsAutoMigrating(true);
-         console.log('Auto-running database migrations...');
-         migrateDatabase.mutate(undefined, {
-            onError: (error) => {
-               console.error('Auto-migration failed:', error);
-               setIsAutoMigrating(false);
-               // Optionally show a more subtle error indicator instead of failing silently
-            }
-         });
-      }
-   }, [migrationStatus?.hasMigrations, isAutoMigrating, migrateDatabase]);
 
    const totalKeywords = useMemo(() => {
       let keywords = 0;
@@ -127,12 +101,6 @@ const Domains: NextPage = () => {
          {(!isAppSettingsLoading && scraper_type === 'none') && (
                <div className=' p-3 bg-red-600 text-white text-sm text-center'>
                   A Scrapper/Proxy has not been set up Yet. Open Settings to set it up and start using the app.
-               </div>
-         )}
-         {isAutoMigrating && (
-               <div className=' p-3 bg-blue-600 text-white text-sm text-center'>
-                  <Icon type="loading" size={16} classes="inline mr-2" />
-                  Updating database automatically...
                </div>
          )}
          <Head>

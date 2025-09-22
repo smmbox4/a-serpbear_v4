@@ -65,14 +65,13 @@ The default compose stack maps `./data` to the container so your SQLite database
 1. Install Node.js **18.18+** (the project ships an `.nvmrc` pinning `20.18.0`).
 2. Install dependencies with `npm install` (or `npm ci`).
 3. Copy `.env.example` to `.env.local` and fill in the required keys.
-4. Run database migrations with `npm run db:migrate`.
-5. Start the development server via `npm run dev` or build and serve production assets with `npm run build && npm run start`.
+4. Start the development server via `npm run dev` or build and serve production assets with `npm run build && npm run start`.
 
 ### Database & migrations
 
 - SQLite files live under `./data` by default; mount that directory when running inside containers to keep your historical data.
-- Apply new migrations with `npm run db:migrate` and roll back the most recent migration via `npm run db:revert`.
-- The bundled Sequelize/Umzug tooling works in both local and Docker environments without additional global installs.
+- Database migrations now run exclusively from `entrypoint.sh` whenever the Docker container starts. The REST endpoint and UI banner that previously triggered migrations have been removed.
+- The bundled Sequelize/Umzug tooling remains available for local workflows via the scripts in `package.json`, but production deployments should rely on the Docker entrypoint to apply schema updates.
 - Keyword history rows now default to `{}`. The included migrations (automatically executed by `entrypoint.sh` on container start)
   also backfill any legacy `'[]'` payloads so refresh jobs always receive plain objects.
 
