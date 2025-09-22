@@ -70,23 +70,21 @@ const seedKeywordsFromSearchConsole = async ({
       return seedKeywords;
    }
 
-   const updatedKeywords = [...seedKeywords];
    const domainSCData = await readLocalSCData(domainUrl);
-   if (!domainSCData) {
-      return updatedKeywords;
+   if (!domainSCData || !Array.isArray(domainSCData.thirtyDays)) {
+      return seedKeywords;
    }
 
-   const { thirtyDays } = domainSCData;
-   if (Array.isArray(thirtyDays)) {
-      const sortedSCKeywords = thirtyDays.sort((a, b) => (b.impressions > a.impressions ? 1 : -1));
-      sortedSCKeywords.slice(0, 100).forEach((sckeywrd) => {
-         if (sckeywrd.keyword && !updatedKeywords.includes(sckeywrd.keyword)) {
-            updatedKeywords.push(sckeywrd.keyword);
-         }
-      });
-   }
+   const keywordSet = new Set(seedKeywords);
+   const sortedSCKeywords = [...domainSCData.thirtyDays].sort((a, b) => b.impressions - a.impressions);
 
-   return updatedKeywords;
+   sortedSCKeywords.slice(0, 100).forEach((sckeywrd) => {
+      if (sckeywrd.keyword) {
+         keywordSet.add(sckeywrd.keyword);
+      }
+   });
+
+   return Array.from(keywordSet);
 };
 
 const seedKeywordsFromTracking = async ({
