@@ -5,7 +5,7 @@ import Modal from '../common/Modal';
 import { useDeleteDomain, useFetchDomain, useUpdateDomain } from '../../services/domains';
 import InputField from '../common/InputField';
 import SelectField from '../common/SelectField';
-import ToggleField from '../common/ToggleField';
+import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
 
 type DomainSettingsProps = {
    domain:DomainType|null,
@@ -17,19 +17,26 @@ type DomainSettingsError = {
    msg: string,
 }
 
+const deriveDomainActiveState = (domainData?: DomainType | null) => {
+   if (!domainData) { return true; }
+   const { scrape_enabled, notify_enabled, notification } = domainData;
+   return (scrape_enabled !== false) && (notify_enabled !== false) && (notification !== false);
+};
+
 const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    const router = useRouter();
    const [currentTab, setCurrentTab] = useState<'notification'|'searchconsole'>('notification');
    const [showRemoveDomain, setShowRemoveDomain] = useState<boolean>(false);
    const [settingsError, setSettingsError] = useState<DomainSettingsError>({ type: '', msg: '' });
+   const initialActiveState = deriveDomainActiveState(domain);
    const [domainSettings, setDomainSettings] = useState<DomainSettings>(() => ({
       notification_interval: domain?.notification_interval ?? 'never',
       notification_emails: domain?.notification_emails ?? '',
       search_console: domain?.search_console ? JSON.parse(domain.search_console) : {
          property_type: 'domain', url: '', client_email: '', private_key: '',
       },
-      scrape_enabled: domain?.scrape_enabled ?? true,
-      notify_enabled: domain?.notify_enabled ?? (domain?.notification ?? true),
+      scrape_enabled: initialActiveState,
+      notify_enabled: initialActiveState,
    }));
 
    const { mutate: updateMutate, error: domainUpdateError, isLoading: isUpdating } = useUpdateDomain(() => closeModal(false));
@@ -38,13 +45,24 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    // Get the Full Domain Data along with the Search Console API Data.
    useFetchDomain(router, domain?.domain || '', (domainObj:DomainType) => {
       const currentSearchConsoleSettings = domainObj.search_console && JSON.parse(domainObj.search_console);
+      const nextActive = deriveDomainActiveState(domainObj);
       setDomainSettings(prevSettings => ({
          ...prevSettings,
          search_console: currentSearchConsoleSettings || prevSettings.search_console,
-         scrape_enabled: domainObj.scrape_enabled ?? prevSettings.scrape_enabled,
-         notify_enabled: domainObj.notify_enabled ?? (domainObj.notification ?? prevSettings.notify_enabled),
+         scrape_enabled: nextActive,
+         notify_enabled: nextActive,
       }));
    });
+
+   const updateDomainActiveState = (next: boolean) => {
+      setDomainSettings(prevSettings => ({
+         ...prevSettings,
+         scrape_enabled: next,
+         notify_enabled: next,
+      }));
+   };
+
+   const isDomainActive = domainSettings.scrape_enabled !== false;
 
    const updateDomain = () => {
       let error: DomainSettingsError | null = null;
@@ -93,16 +111,21 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
                   {currentTab === 'notification' && (
                      <>
                         <div className="mb-4 flex flex-col gap-3 w-full">
-                           <ToggleField
-                              label='Track keyword positions'
-                              value={domainSettings.scrape_enabled !== false}
-                              onChange={(scrape) => setDomainSettings({ ...domainSettings, scrape_enabled: scrape })}
-                           />
-                           <ToggleField
-                              label='Send notification emails'
-                              value={domainSettings.notify_enabled !== false}
-                              onChange={(notify) => setDomainSettings({ ...domainSettings, notify_enabled: notify })}
-                           />
+                           <label className='flex items-center justify-between gap-3 text-sm font-medium text-gray-700'>
+                              <span>{isDomainActive ? 'Active' : 'Deactive'}</span>
+                              <input
+                                 type='checkbox'
+                                 className='sr-only peer'
+                                 checked={isDomainActive}
+                                 value={isDomainActive.toString()}
+                                 aria-label='Toggle domain active status'
+                                 onChange={(event) => {
+                                    event.preventDefault();
+                                    updateDomainActiveState(!isDomainActive);
+                                 }}
+                              />
+                              <div className={TOGGLE_TRACK_CLASS_NAME} />
+                           </label>
                         </div>
                         <div className="mb-4 flex justify-between items-center w-full">
                            <InputField

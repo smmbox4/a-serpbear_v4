@@ -6,8 +6,8 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Icon from '../common/Icon';
-import ToggleField from '../common/ToggleField';
 import { useUpdateDomainToggles } from '../../services/domains';
+import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
 
 type DomainItemProps = {
    domain: DomainType,
@@ -29,13 +29,15 @@ const DomainItem = ({
    const { keywordsUpdated, slug, keywordCount = 0, avgPosition = 0, scVisits = 0, scImpressions = 0, scPosition = 0 } = domain;
    const { mutateAsync: updateDomainToggle, isLoading: isToggleUpdating } = useUpdateDomainToggles();
 
-   const handleToggle = async (field: 'scrape_enabled' | 'notify_enabled', value: boolean) => {
-      const payload = { [field]: value } as Partial<DomainSettings>;
+   const isDomainActive = (domain.scrape_enabled !== false)
+      && (domain.notify_enabled !== false)
+      && (domain.notification !== false);
+
+   const handleDomainStatusToggle = async (nextValue: boolean) => {
+      const payload: Partial<DomainSettings> = { scrape_enabled: nextValue, notify_enabled: nextValue };
       try {
          await updateDomainToggle({ domain, domainSettings: payload });
-         const message = field === 'scrape_enabled'
-            ? `${domain.domain} tracking ${value ? 'enabled' : 'paused'}.`
-            : `${domain.domain} notifications ${value ? 'enabled' : 'paused'}.`;
+         const message = `${domain.domain} ${nextValue ? 'marked as Active' : 'marked as Deactive'}.`;
          toast(message, { icon: '✔️' });
       } catch (error) {
          console.log('Error updating domain toggle', error);
@@ -65,13 +67,38 @@ const DomainItem = ({
                </div>
                <div className="domain_details flex-1">
                   <h3 className='font-semibold text-base mb-2 max-w-[200px] text-ellipsis overflow-hidden' title={domain.domain}>{domain.domain}</h3>
-                 {keywordsUpdated && (
-                  <span className=' text-gray-600 text-xs'>
-                     Updated <TimeAgo title={dayjs(keywordsUpdated).format('DD-MMM-YYYY, hh:mm:ss A')} date={keywordsUpdated} />
-                  </span>
-                 )}
-               </div>
-            </div>
+                 <div className='flex items-center justify-between gap-3 text-xs text-gray-600'>
+                    {keywordsUpdated ? (
+                       <span>
+                          Updated <TimeAgo title={dayjs(keywordsUpdated).format('DD-MMM-YYYY, hh:mm:ss A')} date={keywordsUpdated} />
+                       </span>
+                    ) : (
+                       <span>Status</span>
+                    )}
+                    <label
+                       className={`relative inline-flex items-center cursor-pointer gap-2 ${isToggleUpdating ? 'opacity-70 cursor-not-allowed' : ''}`}
+                       onClick={(event) => { event.stopPropagation(); }}
+                    >
+                       <span className='font-medium text-gray-700'>{isDomainActive ? 'Active' : 'Deactive'}</span>
+                       <input
+                          type='checkbox'
+                          className='sr-only peer'
+                          checked={isDomainActive}
+                          value={isDomainActive.toString()}
+                          aria-label='Toggle domain active status'
+                          onChange={(event) => {
+                             event.preventDefault();
+                             event.stopPropagation();
+                             if (isToggleUpdating) { return; }
+                             handleDomainStatusToggle(!isDomainActive);
+                          }}
+                          disabled={isToggleUpdating}
+                       />
+                       <div className={TOGGLE_TRACK_CLASS_NAME} />
+                    </label>
+                 </div>
+              </div>
+           </div>
             <div className='flex-1 flex flex-col p-4'>
                <div className=' bg-indigo-50 p-1 px-2 text-xs rounded-full absolute ml-3 mt-[-8px]'>
                   <Icon type="tracking" size={13} color="#364aff" /> Tracker
@@ -83,22 +110,6 @@ const DomainItem = ({
                   <div className="flex-1 relative">
                      <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Avg position</span>{avgPosition}
                   </div>
-               </div>
-               <div className='mt-4 flex flex-col gap-3 text-xs'>
-                  <ToggleField
-                     label='Track keyword positions'
-                     value={domain.scrape_enabled !== false}
-                     onChange={(next) => handleToggle('scrape_enabled', next)}
-                     disabled={isToggleUpdating}
-                     stopPropagation
-                  />
-                  <ToggleField
-                     label='Send notification emails'
-                     value={domain.notify_enabled !== false && domain.notification !== false}
-                     onChange={(next) => handleToggle('notify_enabled', next)}
-                     disabled={isToggleUpdating}
-                     stopPropagation
-                  />
                </div>
             </div>
             {isConsoleIntegrated && (
