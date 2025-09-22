@@ -227,21 +227,27 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
          });
 
          let ideaData;
+         let responseText: string;
          try {
+            responseText = await resp.text();
             const contentType = resp.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-               ideaData = await resp.json();
+               try {
+                  ideaData = JSON.parse(responseText);
+               } catch (jsonParseError) {
+                  console.warn(`[ERROR] Failed to parse Google Ads JSON response (${resp.status}):`, responseText.substring(0, 200));
+                  throw new Error(`Google Ads API error (${resp.status}): Invalid JSON response format`);
+               }
             } else {
                // Handle non-JSON responses
-               const textResponse = await resp.text();
-               console.warn(`[ERROR] Google Ads returned non-JSON response (${resp.status}):`, textResponse.substring(0, 200));
+               console.warn(`[ERROR] Google Ads returned non-JSON response (${resp.status}):`, responseText.substring(0, 200));
                throw new Error(`Google Ads API error (${resp.status}): Server returned non-JSON response`);
             }
          } catch (parseError) {
             if (parseError instanceof Error && parseError.message.includes('Google Ads API error')) {
                throw parseError;
             }
-            const textResponse = await resp.text().catch(() => 'Could not read response');
+            const textResponse = responseText || 'Could not read response';
             console.warn(`[ERROR] Failed to parse Google Ads response (${resp.status}):`, textResponse.substring(0, 200));
             throw new Error(`Google Ads API error (${resp.status}): Invalid response format`);
          }
