@@ -11,13 +11,13 @@ const serpapi:ScraperSettings = {
    name: 'SerpApi.com',
    website: 'serpapi.com',
    allowsCity: true,
-   headers: (keyword, settings) => {
+   headers: (keyword: KeywordType, settings: SettingsType) => {
       return {
          'Content-Type': 'application/json',
          'X-API-Key': settings.scraping_api,
       };
    },
-   scrapeURL: (keyword, settings) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType) => {
       const countryName = countries[keyword.country || 'US'][0];
       const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);
       const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
