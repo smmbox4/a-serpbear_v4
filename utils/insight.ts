@@ -9,13 +9,13 @@ export const sortInsightItems = (items:SCInsightItem[], sortBy: string = 'clicks
    let sortedItems = [];
    switch (sortKey) {
       case 'clicks':
-         sortedItems = items.sort((a, b) => (b.clicks > a.clicks ? 1 : -1));
+         sortedItems = items.sort((a, b) => (b.clicks ?? 0) - (a.clicks ?? 0));
          break;
       case 'impressions':
-         sortedItems = items.sort((a, b) => (b.impressions > a.impressions ? 1 : -1));
+         sortedItems = items.sort((a, b) => (b.impressions ?? 0) - (a.impressions ?? 0));
          break;
       case 'position':
-         sortedItems = items.sort((a, b) => (b.position > a.position ? 1 : -1));
+         sortedItems = items.sort((a, b) => (b.position ?? 0) - (a.position ?? 0));
          break;
       default:
          sortedItems = items;

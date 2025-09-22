@@ -9,16 +9,16 @@ export const SCsortKeywords = (theKeywords:SCKeywordType[], sortBy:string) : SCK
    const keywords = theKeywords.map((k) => ({ ...k, position: k.position === 0 ? 111 : k.position }));
    switch (sortBy) {
       case 'imp_asc':
-            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (a.impressions > b.impressions ? 1 : -1));
+            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (a.impressions ?? 0) - (b.impressions ?? 0));
             break;
       case 'imp_desc':
-            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (b.impressions > a.impressions ? 1 : -1));
+            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (b.impressions ?? 0) - (a.impressions ?? 0));
             break;
       case 'visits_asc':
-            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (a.clicks > b.clicks ? 1 : -1));
+            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (a.clicks ?? 0) - (b.clicks ?? 0));
             break;
       case 'visits_desc':
-            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (b.clicks > a.clicks ? 1 : -1));
+            sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => (b.clicks ?? 0) - (a.clicks ?? 0));
             break;
        case 'ctr_asc':
             sortedItems = theKeywords.sort((a: SCKeywordType, b: SCKeywordType) => b.ctr - a.ctr);

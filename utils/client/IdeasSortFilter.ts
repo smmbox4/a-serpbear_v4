@@ -9,16 +9,16 @@ export const IdeasSortKeywords = (theKeywords:IdeaKeyword[], sortBy:string) : Id
    let sortedItems = [];
    switch (sortBy) {
       case 'vol_asc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.avgMonthlySearches > b.avgMonthlySearches ? 1 : -1));
+            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.avgMonthlySearches ?? 0) - (b.avgMonthlySearches ?? 0));
             break;
       case 'vol_desc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.avgMonthlySearches > a.avgMonthlySearches ? 1 : -1));
+            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.avgMonthlySearches ?? 0) - (a.avgMonthlySearches ?? 0));
             break;
       case 'competition_asc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.competitionIndex > a.competitionIndex ? 1 : -1));
+            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.competitionIndex ?? 0) - (b.competitionIndex ?? 0));
             break;
       case 'competition_desc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.competitionIndex > b.competitionIndex ? 1 : -1));
+            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.competitionIndex ?? 0) - (a.competitionIndex ?? 0));
             break;
       default:
             return theKeywords;
