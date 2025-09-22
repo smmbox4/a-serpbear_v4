@@ -13,7 +13,7 @@ body {
    padding-inline: var(--layout-inline);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
    body {
       padding-inline: 0;
    }
