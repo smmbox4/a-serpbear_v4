@@ -7,11 +7,12 @@ import toast from 'react-hot-toast';
 import TopBar from '../../components/common/TopBar';
 import AddDomain from '../../components/domains/AddDomain';
 import Settings from '../../components/settings/Settings';
-import { useCheckMigrationStatus, useFetchSettings } from '../../services/settings';
+import { useCheckMigrationStatus, useFetchSettings, useMigrateDatabase } from '../../services/settings';
 import { fetchDomainScreenshot, useFetchDomains } from '../../services/domains';
 import DomainItem from '../../components/domains/DomainItem';
 import Icon from '../../components/common/Icon';
 import Footer from '../../components/common/Footer';
+import { withAuth } from '../../hooks/useAuth';
 
 type thumbImages = { [domain:string] : string }
 
@@ -21,12 +22,37 @@ const Domains: NextPage = () => {
    const [showSettings, setShowSettings] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
    const [domainThumbs, setDomainThumbs] = useState<thumbImages>({});
+   const [isAutoMigrating, setIsAutoMigrating] = useState(false);
+   
    const { data: appSettingsData, isLoading: isAppSettingsLoading } = useFetchSettings();
    const { data: domainsData, isLoading } = useFetchDomains(router, true);
-   const { data: migrationStatus } = useCheckMigrationStatus();
+   const { data: migrationStatus, refetch: refetchMigrationStatus } = useCheckMigrationStatus();
+
+   const migrateDatabase = useMigrateDatabase((result) => {
+      setIsAutoMigrating(false);
+      refetchMigrationStatus();
+      if (result?.migrationsRun > 0) {
+         console.log(`Auto-migration completed: ${result.migrationsRun} migration(s) applied`);
+      }
+   });
 
    const appSettings:SettingsType = appSettingsData?.settings || {};
    const { scraper_type = '' } = appSettings;
+
+   // Auto-migrate when pending migrations are detected
+   useEffect(() => {
+      if (migrationStatus?.hasMigrations && !isAutoMigrating && !migrateDatabase.isLoading) {
+         setIsAutoMigrating(true);
+         console.log('Auto-running database migrations...');
+         migrateDatabase.mutate(undefined, {
+            onError: (error) => {
+               console.error('Auto-migration failed:', error);
+               setIsAutoMigrating(false);
+               // Optionally show a more subtle error indicator instead of failing silently
+            }
+         });
+      }
+   }, [migrationStatus?.hasMigrations, isAutoMigrating, migrateDatabase]);
 
    const totalKeywords = useMemo(() => {
       let keywords = 0;
@@ -101,10 +127,10 @@ const Domains: NextPage = () => {
                   A Scrapper/Proxy has not been set up Yet. Open Settings to set it up and start using the app.
                </div>
          )}
-         {migrationStatus?.hasMigrations && (
-               <div className=' p-3 bg-black text-white text-sm text-center'>
-                  You need to Update your database. Stop Serpbear and run this command to update your database:
-                  <code className=' bg-gray-700 px-2 py-0 ml-1'>npm run db:migrate</code>
+         {isAutoMigrating && (
+               <div className=' p-3 bg-blue-600 text-white text-sm text-center'>
+                  <Icon type="loading" size={16} className="inline mr-2" />
+                  Updating database automatically...
                </div>
          )}
          <Head>
@@ -164,4 +190,4 @@ const Domains: NextPage = () => {
    );
 };
 
-export default Domains;
+export default withAuth(Domains);

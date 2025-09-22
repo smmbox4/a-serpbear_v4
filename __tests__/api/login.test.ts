@@ -3,6 +3,22 @@ import loginHandler from '../../pages/api/login';
 import logoutHandler from '../../pages/api/logout';
 import verifyUser from '../../utils/verifyUser';
 
+// Mock the logger to prevent console output during tests
+jest.mock('../../utils/logger', () => ({
+  logger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+    verbose: jest.fn(),
+  },
+}));
+
+// Mock the API logging middleware
+jest.mock('../../utils/apiLogging', () => ({
+  withApiLogging: (handler: any) => handler,
+}));
+
 type MutableEnv = NodeJS.ProcessEnv & {
    USER?: string;
    USER_NAME?: string;
@@ -55,6 +71,10 @@ describe('Authentication cookie handling', () => {
 
       const req = {
          method: 'POST',
+         headers: {
+            'x-forwarded-for': '127.0.0.1',
+            'user-agent': 'test-user-agent'
+         },
          body: { username: 'admin', password: 'password' },
       } as Partial<NextApiRequest>;
 
@@ -81,6 +101,10 @@ describe('Authentication cookie handling', () => {
 
       const req = {
          method: 'POST',
+         headers: {
+            'x-forwarded-for': '127.0.0.1',
+            'user-agent': 'test-user-agent'
+         },
          body: { username: 'admin', password: 'password' },
       } as Partial<NextApiRequest>;
 
@@ -97,7 +121,10 @@ describe('Authentication cookie handling', () => {
    it('clears the authentication cookie on logout', async () => {
       const req = {
          method: 'POST',
-         headers: {},
+         headers: {
+            'x-forwarded-for': '127.0.0.1',
+            'user-agent': 'test-user-agent'
+         },
       } as Partial<NextApiRequest>;
 
       const res = createResponse();
@@ -105,10 +132,11 @@ describe('Authentication cookie handling', () => {
       await logoutHandler(req as NextApiRequest, res);
 
       expect(verifyUser).toHaveBeenCalledWith(req, res);
-      expect(setCookieMock).toHaveBeenCalledWith('token', null, expect.objectContaining({
+      expect(setCookieMock).toHaveBeenCalledWith('token', '', expect.objectContaining({
          httpOnly: true,
          sameSite: 'lax',
          maxAge: 0,
+         path: '/',
          expires: new Date(0),
       }));
       expect(res.status).toHaveBeenCalledWith(200);

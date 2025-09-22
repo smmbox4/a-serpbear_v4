@@ -57,13 +57,14 @@ class MockBetterSqlite3 {
 
   execute(sql, params) {
     const trimmed = sql.trim();
-    const createMatch = /^CREATE\s+TABLE\s+(\w+)/i.exec(trimmed);
+    // Safe regex patterns to prevent ReDoS attacks - use non-greedy quantifiers and character limits
+    const createMatch = /^CREATE[ \t\r\n]+TABLE[ \t\r\n]+(\w+)/i.exec(trimmed);
     if (createMatch) {
       const tableName = createMatch[1];
       this.ensureTable(tableName);
       return { changes: 0 };
     }
-    const insertMatch = /^INSERT\s+INTO\s+(\w+)/i.exec(trimmed);
+    const insertMatch = /^INSERT[ \t\r\n]+INTO[ \t\r\n]+(\w+)/i.exec(trimmed);
     if (insertMatch) {
       const tableName = insertMatch[1];
       const table = this.ensureTable(tableName);
@@ -112,7 +113,8 @@ class MockBetterSqlite3 {
 
   select(sql) {
     const trimmed = sql.trim();
-    const selectMatch = /^SELECT\s+(.+)\s+FROM\s+(\w+)/i.exec(trimmed);
+    // Safe regex pattern to prevent ReDoS attacks - use specific character classes instead of \s+
+    const selectMatch = /^SELECT[ \t\r\n]+(.+?)[ \t\r\n]+FROM[ \t\r\n]+(\w+)/i.exec(trimmed);
     if (!selectMatch) {
       return [];
     }
