@@ -61,39 +61,5 @@ export function useClearFailedQueue(onSuccess:Function) {
    });
 }
 
-export async function fetchMigrationStatus() {
-   const res = await fetch(`${window.location.origin}/api/dbmigrate`, { method: 'GET' });
-   return res.json();
-}
-
-export function useCheckMigrationStatus() {
-   return useQuery('dbmigrate', () => fetchMigrationStatus());
-}
-
-export const useMigrateDatabase = (onSuccess:Function|undefined) => {
-   const queryClient = useQueryClient();
-
-   return useMutation(async () => {
-      const res = await fetch(`${window.location.origin}/api/dbmigrate`, { method: 'POST' });
-      if (res.status >= 400 && res.status < 600) {
-         throw new Error('Bad response from server');
-      }
-      return res.json();
-   }, {
-      onSuccess: async (res) => {
-         if (onSuccess) {
-            onSuccess(res);
-         }
-         // Only show toast if migrations were actually run
-         if (res?.migrationsRun > 0) {
-            toast(`Database Updated! ${res.migrationsRun} migration(s) applied.`, { icon: '✔️' });
-         }
-         queryClient.invalidateQueries(['settings']);
-         queryClient.invalidateQueries(['dbmigrate']);
-      },
-      onError: (error) => {
-         console.error('Error Updating Database:', error);
-         toast('Error Updating Database.', { icon: '⚠️' });
-      },
-   });
-};
+// Migration helpers were removed when the database API endpoint was retired. The
+// Docker entrypoint now owns running migrations during container startup.

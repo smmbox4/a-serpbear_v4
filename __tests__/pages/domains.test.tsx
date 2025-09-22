@@ -99,6 +99,14 @@ describe('Domains Page', () => {
       if (button) fireEvent.click(button);
       expect(screen.getByTestId('adddomain_modal')).toBeVisible();
    });
+   it('does not render the legacy auto-migration banner', async () => {
+      render(
+          <QueryClientProvider client={queryClient}>
+              <Domains />
+          </QueryClientProvider>,
+      );
+      expect(screen.queryByText('Updating database automatically...')).not.toBeInTheDocument();
+   });
    it('Should Display the version number in Footer.', async () => {
       render(<QueryClientProvider client={queryClient}><Domains /></QueryClientProvider>);
       expect(screen.getByText('SerpBear v0.0.0')).toBeVisible();
