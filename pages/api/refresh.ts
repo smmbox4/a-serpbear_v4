@@ -81,8 +81,9 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
 
       return res.status(200).json({ keywords });
    } catch (error) {
-      console.log('[REFRESH] ERROR refreshTheKeywords: ', error instanceof Error ? error.message : error);
-      return res.status(400).json({ error: 'Error refreshing keywords!' });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.log('[REFRESH] ERROR refreshTheKeywords: ', errorMessage);
+      return res.status(400).json({ error: errorMessage });
    }
 };
 
@@ -125,7 +126,8 @@ const getKeywordSearchResults = async (req: NextApiRequest, res: NextApiResponse
       }
       return res.status(400).json({ error: 'Error Scraping Search Results for the given keyword!' });
    } catch (error) {
-      console.log('ERROR refreshTheKeywords: ', error);
-      return res.status(400).json({ error: 'Error refreshing keywords!' });
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.log('ERROR getKeywordSearchResults: ', errorMessage);
+      return res.status(400).json({ error: errorMessage });
    }
 };

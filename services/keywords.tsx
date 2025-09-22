@@ -232,9 +232,10 @@ export function useRefreshKeywords(onSuccess:Function) {
          toast('Keywords Added to Refresh Queue', { icon: '🔄' });
          queryClient.invalidateQueries(['keywords']);
       },
-      onError: () => {
-         console.log('Error Refreshing Keywords!!!');
-         toast('Error Refreshing Keywords.', { icon: '⚠️' });
+      onError: (error) => {
+         console.log('Error Refreshing Keywords!!!', error);
+         const message = (error as Error)?.message || 'Error Refreshing Keywords.';
+         toast(message, { icon: '⚠️' });
       },
    });
 }

@@ -101,7 +101,23 @@ export const getAdwordsAccessToken = async (credentials: AdwordsCredentials) => 
          method: 'POST',
          body: new URLSearchParams({ grant_type: 'refresh_token', client_id, client_secret, refresh_token }),
       });
-      const tokens = await resp.json();
+
+      let tokens;
+      try {
+         const contentType = resp.headers.get('content-type');
+         if (contentType && contentType.includes('application/json')) {
+            tokens = await resp.json();
+         } else {
+            // Handle non-JSON responses from Google OAuth
+            const textResponse = await resp.text();
+            console.warn(`[ERROR] Google OAuth returned non-JSON response (${resp.status}):`, textResponse.substring(0, 200));
+            return '';
+         }
+      } catch (parseError) {
+         console.warn(`[ERROR] Failed to parse Google OAuth response (${resp.status}):`, parseError);
+         return '';
+      }
+
       //  console.log('token :', tokens);
       return tokens?.access_token || '';
    } catch (error) {
@@ -188,9 +204,9 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
          const customerID = account_id.replaceAll('-', '');
          const geoTargetConstants = countries[country][3]; // '2840';
          const reqPayload: Record<string, any> = {
-            geoTargetConstants: `geoTargetConstants/${geoTargetConstants}`,
+            geoTargetConstants: [`geoTargetConstants/${geoTargetConstants}`],
             language: `languageConstants/${language}`,
-            pageSize: test ? '1' : '1000',
+            pageSize: test ? 1 : 1000,
          };
          if (['custom', 'searchconsole', 'tracking'].includes(seedType) && seedKeywords.length > 0) {
             reqPayload.keywordSeed = { keywords: seedKeywords.slice(0, 20) };
@@ -209,7 +225,26 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
             },
             body: JSON.stringify(reqPayload),
          });
-         const ideaData = await resp.json();
+
+         let ideaData;
+         try {
+            const contentType = resp.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+               ideaData = await resp.json();
+            } else {
+               // Handle non-JSON responses
+               const textResponse = await resp.text();
+               console.warn(`[ERROR] Google Ads returned non-JSON response (${resp.status}):`, textResponse.substring(0, 200));
+               throw new Error(`Google Ads API error (${resp.status}): Server returned non-JSON response`);
+            }
+         } catch (parseError) {
+            if (parseError instanceof Error && parseError.message.includes('Google Ads API error')) {
+               throw parseError;
+            }
+            const textResponse = await resp.text().catch(() => 'Could not read response');
+            console.warn(`[ERROR] Failed to parse Google Ads response (${resp.status}):`, textResponse.substring(0, 200));
+            throw new Error(`Google Ads API error (${resp.status}): Invalid response format`);
+         }
 
          if (resp.status !== 200) {
             const errMessage = ideaData?.error?.details?.[0]?.errors?.[0]?.message || 'Failed to fetch keyword ideas';
@@ -332,7 +367,7 @@ export const getKeywordsVolume = async (keywords: KeywordType[]): Promise<{ erro
                const reqKeywords = keywordRequests[country].map((kw) => kw.keyword);
                const reqPayload: Record<string, any> = {
                   keywords: [...new Set(reqKeywords)],
-                  geoTargetConstants: `geoTargetConstants/${geoTargetConstants}`,
+                  geoTargetConstants: [`geoTargetConstants/${geoTargetConstants}`],
                   // language: `languageConstants/${language}`,
                };
                const resp = await fetch(`https://googleads.googleapis.com/v16/customers/${customerID}:generateKeywordHistoricalMetrics`, {
@@ -345,7 +380,23 @@ export const getKeywordsVolume = async (keywords: KeywordType[]): Promise<{ erro
                   },
                   body: JSON.stringify(reqPayload),
                });
-               const ideaData = await resp.json();
+
+               let ideaData;
+               try {
+                  const contentType = resp.headers.get('content-type');
+                  if (contentType && contentType.includes('application/json')) {
+                     ideaData = await resp.json();
+                  } else {
+                     // Handle non-JSON responses
+                     const textResponse = await resp.text();
+                     console.warn(`[ERROR] Google Ads Volume API returned non-JSON response (${resp.status}):`, textResponse.substring(0, 200));
+                     continue; // Skip this country and continue with next
+                  }
+               } catch (parseError) {
+                  const textResponse = await resp.text().catch(() => 'Could not read response');
+                  console.warn(`[ERROR] Failed to parse Google Ads Volume response (${resp.status}):`, textResponse.substring(0, 200));
+                  continue; // Skip this country and continue with next
+               }
 
                if (resp.status !== 200) {
                   console.log('[ERROR] Google Ads Volume Request Response :', ideaData?.error?.details[0]?.errors[0]?.message);
