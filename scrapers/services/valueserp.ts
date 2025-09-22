@@ -1,5 +1,6 @@
 import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
+import { parseLocation } from '../../utils/location';
 
 interface ValueSerpResult {
    title: string,
@@ -16,8 +17,9 @@ const valueSerp:ScraperSettings = {
    scrapeURL: (keyword, settings, countryData) => {
       const country = resolveCountryCode(keyword.country);
       const countryName = countries[country][0];
-      const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);
-      const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
+      const { city, state } = parseLocation(keyword.location, keyword.country);
+      const locationParts = [city, state, countryName].filter(Boolean);
+      const location = city || state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
       const device = keyword.device === 'mobile' ? '&device=mobile' : '';
       const lang = countryData[country][2];
       return `https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&output=json&include_answer_box=false&include_advertiser_info=false`;

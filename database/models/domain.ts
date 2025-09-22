@@ -18,9 +18,6 @@ class Domain extends Model {
    @Column({ type: DataType.STRING, allowNull: false, defaultValue: '', unique: true })
    slug!: string;
 
-   @Column({ type: DataType.INTEGER, allowNull: false, defaultValue: 0 })
-   keywordCount!: number;
-
    @Column({ type: DataType.STRING, allowNull: true })
    lastUpdated!: string;
 

@@ -9,6 +9,7 @@ import SCKeyword from './SCKeyword';
 import useWindowResize from '../../hooks/useWindowResize';
 import useIsMobile from '../../hooks/useIsMobile';
 import { formattedNum } from '../../utils/client/helpers';
+import { formatLocation } from '../../utils/location';
 
 type SCKeywordsTableProps = {
    domain: DomainType | null,
@@ -31,7 +32,9 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
    const [sortBy, setSortBy] = useState<string>('imp_desc');
    const [SCListHeight, setSCListHeight] = useState(500);
    const { keywordsData } = useFetchKeywords(router, domain?.domain || '');
-   const addedkeywords: string[] = keywordsData?.keywords?.map((key: KeywordType) => `${key.keyword}:${key.country}:${key.device}`) || [];
+   const addedkeywords: string[] = keywordsData?.keywords?.map(
+      (key: KeywordType) => `${key.keyword}:${key.country}:${key.device}:${key.location || ''}`
+   ) || [];
    const { mutate: addKeywords } = useAddKeywords(() => { if (domain && domain.slug) router.push(`/domain/${domain.slug}`); });
    const [isMobile] = useIsMobile();
    useWindowResize(() => setSCListHeight(window.innerHeight - (isMobile ? 200 : 400)));
@@ -89,7 +92,14 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
       keywords.forEach((kitem:SCKeywordType) => {
          if (selectedKeywords.includes(kitem.uid)) {
             const { keyword, country } = kitem;
-            selectedkeywords.push({ keyword, device, country, domain: domain?.domain || '', tags: '' });
+            selectedkeywords.push({
+               keyword,
+               device,
+               country,
+               domain: domain?.domain || '',
+               tags: '',
+               location: formatLocation({ country }),
+            });
          }
       });
       addKeywords(selectedkeywords);
@@ -107,7 +117,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
          selected={selectedKeywords.includes(keyword.uid)}
          selectKeyword={selectKeyword}
          keywordData={keyword}
-         isTracked={addedkeywords.includes(`${keyword.keyword}:${keyword.country}:${keyword.device}`)}
+         isTracked={addedkeywords.includes(`${keyword.keyword}:${keyword.country}:${keyword.device}:${formatLocation({ country: keyword.country })}`)}
          lastItem={index === (finalKeywords[device].length - 1)}
          />
    );

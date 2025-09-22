@@ -32,7 +32,7 @@ const Domains: NextPage = () => {
       let keywords = 0;
       if (domainsData?.domains) {
          domainsData.domains.forEach((domain:DomainType) => {
-            keywords += domain?.keywordCount || 0;
+            keywords += domain?.keywordsTracked || 0;
          });
       }
       return keywords;

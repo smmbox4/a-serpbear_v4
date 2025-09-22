@@ -121,8 +121,7 @@ describe('/api/notify - authentication', () => {
         position: 5,
         country: 'US',
         device: 'desktop',
-        city: '',
-        state: '',
+        location: 'US',
         lastUpdated: new Date().toISOString(),
       }),
     };
@@ -139,8 +138,7 @@ describe('/api/notify - authentication', () => {
         position: 5,
         country: 'US',
         device: 'desktop',
-        city: '',
-        state: '',
+        location: 'US',
         lastUpdated: new Date().toISOString(),
       },
     ]);

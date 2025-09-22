@@ -4,6 +4,7 @@ import Modal from '../common/Modal';
 import SelectField from '../common/SelectField';
 import countries from '../../utils/countries';
 import { useAddKeywords } from '../../services/keywords';
+import { formatLocation, hasValidCityStatePair, parseLocation } from '../../utils/location';
 
 type AddKeywordsProps = {
    keywords: KeywordType[],
@@ -60,21 +61,33 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
       if (nkwrds.keywords) {
          const devices = nkwrds.device.split(',');
          const multiDevice = nkwrds.device.includes(',') && devices.length > 1;
-           const keywordsArray = [...new Set(nkwrds.keywords.split('\n').map((item) => item.trim()).filter((item) => !!item))];
-           const currentKeywords = keywords.map((k) => {
-              const statePart = k.state ? `-${k.state}` : '';
-              const cityPart = k.city ? `-${k.city}` : '';
-              return `${k.keyword}-${k.device}-${k.country}${statePart}${cityPart}`;
-           });
+         const keywordsArray = [...new Set(nkwrds.keywords.split('\n').map((item) => item.trim()).filter((item) => !!item))];
 
-           const keywordExist = keywordsArray.filter((k) =>
-              devices.some((device) => {
-                 const statePart = nkwrds.state ? `-${nkwrds.state}` : '';
-                 const cityPart = nkwrds.city ? `-${nkwrds.city}` : '';
-                 const id = `${k}-${device}-${nkwrds.country}${statePart}${cityPart}`;
-                 return currentKeywords.includes(id);
-              }),
-           );
+         const currentKeywords = keywords.map((k) => {
+            const locationParts = parseLocation(k.location, k.country);
+            const locationKey = formatLocation({ ...locationParts, country: k.country });
+            return `${k.keyword}-${k.device}-${locationKey || k.country}`;
+         });
+
+         const trimmedCity = (nkwrds.city || '').trim();
+         const trimmedState = (nkwrds.state || '').trim();
+
+         if (!hasValidCityStatePair(trimmedCity, trimmedState)) {
+            setError('City and state must be provided together.');
+            setTimeout(() => { setError(''); }, 3000);
+            return;
+         }
+
+         const locationString = allowsCity
+            ? formatLocation({ city: trimmedCity, state: trimmedState, country: nkwrds.country })
+            : formatLocation({ country: nkwrds.country });
+
+          const keywordExist = keywordsArray.filter((k) =>
+             devices.some((device) => {
+                const id = `${k}-${device}-${locationString || nkwrds.country}`;
+                return currentKeywords.includes(id);
+             }),
+          );
 
          if (!multiDevice && (keywordsArray.length === 1 || currentKeywords.length === keywordExist.length) && keywordExist.length > 0) {
             setError(`Keywords ${keywordExist.join(',')} already Exist`);
@@ -83,9 +96,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
             const newKeywords = keywordsArray.flatMap((k) =>
                devices
                   .filter((device) => {
-                     const statePart = nkwrds.state ? `-${nkwrds.state}` : '';
-                     const cityPart = nkwrds.city ? `-${nkwrds.city}` : '';
-                     const id = `${k}-${device}-${nkwrds.country}${statePart}${cityPart}`;
+                     const id = `${k}-${device}-${locationString || nkwrds.country}`;
                      return !currentKeywords.includes(id);
                   })
                   .map((device) => ({
@@ -94,8 +105,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                      country: nkwrds.country,
                      domain: nkwrds.domain,
                      tags: nkwrds.tags,
-                     city: nkwrds.city,
-                     state: nkwrds.state,
+                     location: locationString,
                   })),
             );
             addMutate(newKeywords);

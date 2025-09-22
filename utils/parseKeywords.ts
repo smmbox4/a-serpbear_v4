@@ -40,6 +40,7 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
 
       return {
          ...keywrd,
+         location: typeof (keywrd as any).location === 'string' ? (keywrd as any).location : '',
          history,
          tags,
          lastResult,

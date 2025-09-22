@@ -8,6 +8,7 @@ import parseKeywords from '../../utils/parseKeywords';
 import { integrateKeywordSCData, readLocalSCData } from '../../utils/searchConsole';
 import refreshAndUpdateKeywords from '../../utils/refresh';
 import { getKeywordsVolume, updateKeywordsVolumeData } from '../../utils/adwords';
+import { formatLocation, hasValidCityStatePair, parseLocation } from '../../utils/location';
 
 type KeywordsGetResponse = {
    keywords?: KeywordType[],
@@ -116,9 +117,21 @@ const validateKeywordData = (kwrd: any): { isValid: boolean, sanitized?: any, er
    const country = typeof kwrd.country === 'string' && /^[A-Z]{2}$/.test(kwrd.country) ? kwrd.country : 'US';
    
    // Sanitize optional fields
+   const rawLocation = typeof kwrd.location === 'string' ? kwrd.location.trim().substring(0, 255) : '';
    const city = typeof kwrd.city === 'string' ? kwrd.city.trim().substring(0, 100) : '';
    const state = typeof kwrd.state === 'string' ? kwrd.state.trim().substring(0, 100) : '';
    const tags = typeof kwrd.tags === 'string' ? kwrd.tags.trim().substring(0, 500) : '';
+
+   if (!hasValidCityStatePair(city, state)) {
+      errors.push('City and state must be provided together when provided');
+   }
+
+   const parsedLocation = parseLocation(rawLocation, country);
+   const location = formatLocation({
+      city: city || parsedLocation.city,
+      state: state || parsedLocation.state,
+      country: parsedLocation.country || country,
+   }).substring(0, 255);
    
    if (errors.length > 0) {
       return { isValid: false, errors };
@@ -131,8 +144,7 @@ const validateKeywordData = (kwrd: any): { isValid: boolean, sanitized?: any, er
          domain,
          device,
          country,
-         city,
-         state,
+         location,
          tags
       }
    };
@@ -169,7 +181,7 @@ const addKeywords = async (req: NextApiRequest, res: NextApiResponse<KeywordsGet
          return;
       }
       
-      const { keyword, domain, device, country, city, state, tags } = validation.sanitized!;
+      const { keyword, domain, device, country, location, tags } = validation.sanitized!;
       const tagsArray = tags ? tags.split(',').map((item:string) => item.trim()).filter((tag: string) => tag.length > 0) : [];
       
       const newKeyword = {
@@ -177,8 +189,7 @@ const addKeywords = async (req: NextApiRequest, res: NextApiResponse<KeywordsGet
          device,
          domain,
          country,
-         city,
-         state,
+         location,
          position: 0,
          updating: true,
          history: JSON.stringify({}),

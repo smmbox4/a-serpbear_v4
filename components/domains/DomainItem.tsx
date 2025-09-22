@@ -36,7 +36,7 @@ const DomainItem = ({
    updateThumb,
    screenshotsEnabled = true,
 }: DomainItemProps) => {
-   const { keywordsUpdated, slug, keywordCount = 0, avgPosition = 0, scVisits = 0, scImpressions = 0, scPosition = 0 } = domain;
+   const { keywordsUpdated, slug, keywordsTracked = 0, avgPosition = 0, scVisits = 0, scImpressions = 0, scPosition = 0 } = domain;
    const { mutateAsync: updateDomainToggle, isLoading: isToggleUpdating } = useUpdateDomainToggles();
 
    const isDomainActive = (domain.scrape_enabled !== false)
@@ -114,7 +114,7 @@ const DomainItem = ({
                </div>
                <div className='dom_stats flex flex-1 font-semibold text-2xl p-4 pt-5 rounded border border-[#E9EBFF] text-center'>
                   <div className="flex-1 relative">
-                     <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Keywords</span>{keywordCount}
+                     <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Keywords</span>{keywordsTracked}
                   </div>
                   <div className="flex-1 relative">
                      <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Avg position</span>{avgPosition}

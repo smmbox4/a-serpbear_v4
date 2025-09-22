@@ -8,7 +8,7 @@ jest.mock('fs/promises', () => ({
 const mockReadFile = readFile as jest.Mock;
 
 describe('generateEmail', () => {
-  it('includes city and state in keyword table when provided', async () => {
+  it('includes location details in keyword table when provided', async () => {
     mockReadFile.mockResolvedValue('<html>{{keywordsTable}}</html>');
 
     const keywords = [
@@ -29,8 +29,7 @@ describe('generateEmail', () => {
         tags: [],
         updating: false,
         lastUpdateError: false,
-        city: 'Berlin',
-        state: 'Berlin State',
+        location: 'Berlin,Berlin State,DE',
       },
     ] as any;
 

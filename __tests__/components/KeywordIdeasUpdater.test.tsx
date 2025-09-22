@@ -33,7 +33,7 @@ const mockDomain: DomainType = {
    notification_email: '',
    search_console: '',
    notifications: '',
-   keywordCount: 0,
+   keywordsTracked: 0,
 };
 
 describe('KeywordIdeasUpdater Component', () => {

@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 import { getKeywordsInsight, getPagesInsight } from './insight';
 import { fetchDomainSCData, getSearchConsoleApiInfo, isSearchConsoleDataFreshForToday, readLocalSCData } from './searchConsole';
+import { parseLocation } from './location';
 
 const serpBearLogo = 'https://serpbear.b-cdn.net/ikAdjQq.png';
 const mobileIcon = 'https://serpbear.b-cdn.net/SqXD9rd.png';
@@ -108,9 +109,12 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       if (positionChange < 0) { positionChangeIcon = '<span style="color:#fca5a5;">▼</span>'; declined += 1; }
 
       const posChangeIcon = positionChange ? `<span class="pos_change">${positionChangeIcon} ${positionChange}</span>` : '';
+      const locationParts = parseLocation(keyword.location, keyword.country);
+      const locationText = [locationParts.city, locationParts.state].filter(Boolean).join(', ');
+
       keywordsTable += `<tr class="keyword">
                            <td>${countryFlag} ${deviceIcon} ${keyword.keyword}</td>
-                           <td>${keyword.city || keyword.state ? `(${[keyword.city, keyword.state].filter(Boolean).join(', ')})` : ''}</td>
+                           <td>${locationText ? `(${locationText})` : ''}</td>
                            <td>${keyword.position}${posChangeIcon}</td>
                            <td>${getBestKeywordPosition(keyword.history)}</td>
                            <td>${timeSince(new Date(keyword.lastUpdated).getTime() / 1000)}</td>
