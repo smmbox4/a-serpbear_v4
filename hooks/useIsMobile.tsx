@@ -10,14 +10,14 @@ const useIsMobile = () => {
 
       // Check if we're on mobile
       const checkIsMobile = () => {
-         setIsMobile(!!(window.matchMedia('only screen and (max-width: 760px)').matches));
+         setIsMobile(!!(window.matchMedia('only screen and (max-width: 767px)').matches));
       };
 
       // Initial check
       checkIsMobile();
 
       // Add listener for resize events
-      const mediaQuery = window.matchMedia('only screen and (max-width: 760px)');
+      const mediaQuery = window.matchMedia('only screen and (max-width: 767px)');
       mediaQuery.addEventListener('change', checkIsMobile);
 
       // Cleanup
