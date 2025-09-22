@@ -57,6 +57,38 @@ const AdWordsSettings = ({ settings, settingsError, updateSettings, performUpdat
       };
    }, [performUpdate]);
 
+   // Handle URL parameters for fallback integration results
+   useEffect(() => {
+      if (typeof window === 'undefined') { return; }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const adsParam = urlParams.get('ads');
+      const status = urlParams.get('status');
+      const detail = urlParams.get('detail');
+
+      // Only process if this is an AdWords integration redirect
+      if (adsParam === 'integrated' && status) {
+         if (status === 'success') {
+            toast('Google Ads has been integrated successfully!', { icon: '✔️' });
+            if (performUpdate) {
+               Promise.resolve(performUpdate()).catch((error) => {
+                  console.error('Failed to refresh settings after Google Ads integration', error);
+               });
+            }
+         } else {
+            const errorMessage = detail || 'Google Ads integration failed. Please try again.';
+            toast(errorMessage, { icon: '⚠️' });
+         }
+
+         // Clean up URL parameters after processing
+         const url = new URL(window.location.href);
+         url.searchParams.delete('ads');
+         url.searchParams.delete('status');
+         url.searchParams.delete('detail');
+         window.history.replaceState({}, document.title, url.toString());
+      }
+   }, [performUpdate]);
+
    const updateAndAuthenticate = async () => {
       if (adwords_client_id && adwords_client_secret) {
          if (performUpdate) {
