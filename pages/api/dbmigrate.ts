@@ -4,6 +4,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../database/database';
 import verifyUser from '../../utils/verifyUser';
 import sqliteDialect from '../../database/sqlite-dialect';
+import { withApiLogging } from '../../utils/apiLogging';
+import { logger } from '../../utils/logger';
 
 type MigrationGetResponse = {
    hasMigrations: boolean,
@@ -11,10 +13,11 @@ type MigrationGetResponse = {
 
 type MigrationPostResponse = {
    migrated: boolean,
+   migrationsRun: number,
    error?: string
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
    // Allow GET requests without authentication to check migration status
    if (req.method === 'GET') {
       await db.sync();
@@ -30,32 +33,81 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    if (req.method === 'POST') {
       return migrateDatabase(req, res);
    }
-   return res.status(502).json({ error: 'Unrecognized Route.' });
-}
+   return res.status(405).json({ error: 'Method not allowed' });
+};
 
 const getMigrationStatus = async (req: NextApiRequest, res: NextApiResponse<MigrationGetResponse>) => {
-   const sequelize = new Sequelize({ dialect: 'sqlite', dialectModule: sqliteDialect, storage: './data/database.sqlite', logging: false });
-   const umzug = new Umzug({
-      migrations: { glob: 'database/migrations/*' },
-      context: sequelize.getQueryInterface(),
-      storage: new SequelizeStorage({ sequelize }),
-      logger: undefined,
-   });
-   const migrations = await umzug.pending();
-   // console.log('migrations :', migrations);
-   // const migrationsExceuted = await umzug.executed();
-   return res.status(200).json({ hasMigrations: migrations.length > 0 });
+   try {
+      const sequelize = new Sequelize({ 
+         dialect: 'sqlite', 
+         dialectModule: sqliteDialect, 
+         storage: './data/database.sqlite', 
+         logging: false 
+      });
+      
+      const umzug = new Umzug({
+         migrations: { glob: 'database/migrations/*' },
+         context: sequelize.getQueryInterface(),
+         storage: new SequelizeStorage({ sequelize }),
+         logger: undefined,
+      });
+      
+      const migrations = await umzug.pending();
+      await sequelize.close();
+      
+      logger.debug('Migration status check', {
+         pendingMigrations: migrations.length,
+         hasMigrations: migrations.length > 0
+      });
+      
+      return res.status(200).json({ hasMigrations: migrations.length > 0 });
+   } catch (error) {
+      logger.error('Failed to check migration status', error instanceof Error ? error : new Error(String(error)));
+      return res.status(500).json({ hasMigrations: false });
+   }
 };
 
 const migrateDatabase = async (req: NextApiRequest, res: NextApiResponse<MigrationPostResponse>) => {
-   const sequelize = new Sequelize({ dialect: 'sqlite', dialectModule: sqliteDialect, storage: './data/database.sqlite', logging: false });
-   const umzug = new Umzug({
-      migrations: { glob: 'database/migrations/*' },
-      context: sequelize.getQueryInterface(),
-      storage: new SequelizeStorage({ sequelize }),
-      logger: undefined,
-   });
-   const migrations = await umzug.up();
-   console.log('[Updated] migrations :', migrations);
-   return res.status(200).json({ migrated: true });
+   try {
+      logger.info('Starting database migration');
+      
+      const sequelize = new Sequelize({ 
+         dialect: 'sqlite', 
+         dialectModule: sqliteDialect, 
+         storage: './data/database.sqlite', 
+         logging: false 
+      });
+      
+      const umzug = new Umzug({
+         migrations: { glob: 'database/migrations/*' },
+         context: sequelize.getQueryInterface(),
+         storage: new SequelizeStorage({ sequelize }),
+         logger: undefined,
+      });
+      
+      const migrations = await umzug.up();
+      await sequelize.close();
+      
+      logger.info('Database migration completed successfully', {
+         migrationsRun: migrations.length,
+         migrations: migrations.map(m => m.name)
+      });
+      
+      return res.status(200).json({ 
+         migrated: true, 
+         migrationsRun: migrations.length 
+      });
+   } catch (error) {
+      logger.error('Database migration failed', error instanceof Error ? error : new Error(String(error)));
+      return res.status(500).json({ 
+         migrated: false, 
+         migrationsRun: 0,
+         error: 'Migration failed' 
+      });
+   }
 };
+
+export default withApiLogging(handler, { 
+   name: 'dbmigrate',
+   logBody: false 
+});

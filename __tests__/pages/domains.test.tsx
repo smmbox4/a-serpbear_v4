@@ -4,6 +4,21 @@ import * as ReactQuery from 'react-query';
 import { dummyDomain } from '../../__mocks__/data';
 import Domains from '../../pages/domains';
 
+// Mock the useAuth hook to always return authenticated state
+jest.mock('../../hooks/useAuth', () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    isLoading: false,
+    user: 'testuser',
+  }),
+  useAuthRequired: () => ({
+    isAuthenticated: true,
+    isLoading: false,
+    user: 'testuser',
+  }),
+  withAuth: (Component: any) => Component, // Return component unwrapped for testing
+}));
+
 const originalFetch = global.fetch;
 const fetchMock = jest.fn<Promise<Response>, [RequestInfo | URL, RequestInit | undefined]>();
 

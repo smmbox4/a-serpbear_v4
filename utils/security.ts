@@ -63,7 +63,7 @@ export const sanitizeDomain = (domain: string): { isValid: boolean; sanitized: s
    }
    
    const sanitized = domain.trim().toLowerCase().substring(0, 253); // RFC 1035 limit
-   const domainRegex = /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]?(\.[a-z0-9][a-z0-9-]{0,61}[a-z0-9]?)*$/;
+   const domainRegex = /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(\.([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/;
    
    return {
       isValid: domainRegex.test(sanitized),
