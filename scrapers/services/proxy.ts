@@ -1,6 +1,5 @@
 import * as cheerio from 'cheerio';
-
-const GOOGLE_BASE_URL = 'https://www.google.com';
+import { GOOGLE_BASE_URL } from '../../utils/constants';
 
 const proxy:ScraperSettings = {
    id: 'proxy',

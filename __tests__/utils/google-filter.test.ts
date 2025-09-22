@@ -1,10 +1,10 @@
 import { extractScrapedResult } from '../../utils/scraper';
+import { GOOGLE_BASE_URL } from '../../utils/constants';
 
 describe('Google link filtering', () => {
   it('should filter out Google internal links properly', () => {
     // Create a test function to validate our URL filtering logic
     const testGoogleUrlFiltering = (url: string): boolean => {
-      const GOOGLE_BASE_URL = 'https://www.google.com';
       try {
         const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
         return parsedURL.origin === GOOGLE_BASE_URL;
@@ -24,7 +24,6 @@ describe('Google link filtering', () => {
     expect(testGoogleUrlFiltering('https://mail.google.com')).toBe(false); // Different subdomain
 
     // Test that our constant matches the expected behavior
-    const GOOGLE_BASE_URL = 'https://www.google.com';
     const testURL = new URL('https://www.google.com/search?q=test');
     expect(testURL.origin).toBe(GOOGLE_BASE_URL);
   });
@@ -33,7 +32,7 @@ describe('Google link filtering', () => {
     const testSafeUrlParsing = (url: string): boolean => {
       try {
         const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
-        return parsedURL.origin === 'https://www.google.com';
+        return parsedURL.origin === GOOGLE_BASE_URL;
       } catch (error) {
         // Should return false for malformed URLs (which causes them to be skipped)
         return false;
@@ -61,7 +60,7 @@ describe('Google link filtering', () => {
     
     // This is the FIXED logic (correctly identifies Google URLs)
     const parsedURL = new URL(absoluteUrl);
-    const correctCheck = parsedURL.origin === 'https://www.google.com';
+    const correctCheck = parsedURL.origin === GOOGLE_BASE_URL;
     expect(correctCheck).toBe(true); // This correctly identifies Google internal links
   });
 });
