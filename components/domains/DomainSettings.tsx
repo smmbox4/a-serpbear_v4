@@ -71,7 +71,7 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
       }));
    };
 
-   const isDomainActive = (domainSettings.scrape_enabled !== false) && (domainSettings.notify_enabled !== false);
+   const isDomainActive = domainSettings.scrape_enabled !== false;
 
    const updateDomain = () => {
       let error: DomainSettingsError | null = null;
