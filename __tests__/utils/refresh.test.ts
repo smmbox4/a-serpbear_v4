@@ -69,7 +69,6 @@ describe('refreshAndUpdateKeywords', () => {
 
     // Execute the function
     await refreshAndUpdateKeywords(mockKeywords, mockSettings);
-
     // Verify Op.in was used correctly
     expect(Keyword.update).toHaveBeenCalledWith(
       { updating: false },

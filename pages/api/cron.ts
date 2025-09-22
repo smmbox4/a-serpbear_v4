@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { Op } from 'sequelize';
 import db from '../../database/database';
 import Keyword from '../../database/models/keyword';
 import Domain from '../../database/models/domain';
@@ -39,7 +40,10 @@ const cronRefreshkeywords = async (req: NextApiRequest, res: NextApiResponse<CRO
          return res.status(200).json({ started: false, error: 'No domains have scraping enabled.' });
       }
 
-      await Keyword.update({ updating: true }, { where: { domain: enabledDomains } });
+      await Keyword.update(
+         { updating: true },
+         { where: { domain: { [Op.in]: enabledDomains } } },
+      );
       const keywordQueries: Keyword[] = await Keyword.findAll({ where: { domain: enabledDomains } });
 
       refreshAndUpdateKeywords(keywordQueries, settings);

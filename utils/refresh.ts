@@ -2,7 +2,7 @@ import { performance } from 'perf_hooks';
 import { setTimeout as sleep } from 'timers/promises';
 import { Op } from 'sequelize';
 import { readFile, writeFile } from 'fs/promises';
-import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
+import { Ref=reshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
 import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
 import Domain from '../database/models/domain';
