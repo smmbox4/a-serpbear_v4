@@ -98,10 +98,27 @@ const generateCronTime = (interval) => {
 const runAppCronJobs = () => {
    console.log('[CRON] Initializing application cron jobs...');
    console.log('[CRON] Timezone:', CRON_TIMEZONE);
-   console.log('[CRON] API URL:', process.env.NEXT_PUBLIC_APP_URL || 'NOT SET');
+   
+   // Use internal docker hostname for API calls, fallback to configured URL
+   const apiUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+   const internalApiUrl = apiUrl.includes('localhost') ? 'http://localhost:3000' : apiUrl;
+   
+   console.log('[CRON] API URL:', internalApiUrl);
    console.log('[CRON] API Key available:', !!process.env.APIKEY);
    
    const cronOptions = { scheduled: true, timezone: CRON_TIMEZONE };
+   
+   // Helper function to make API calls
+   const makeApiCall = (endpoint, successMessage) => {
+      const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
+      return fetch(`${internalApiUrl}${endpoint}`, fetchOpts)
+         .then((res) => res.json())
+         .then((data) => { console.log(successMessage, data); })
+         .catch((err) => {
+            console.log(`[CRON] ERROR making API call to ${endpoint}:`, err.message || err);
+         });
+   };
+   
    getAppSettings().then((settings) => {
       // RUN SERP Scraping CRON using configured schedule
       const scrape_interval = settings.scrape_interval || 'daily';
@@ -113,13 +130,7 @@ const runAppCronJobs = () => {
          console.log('[CRON] Setting up keyword scraping cron with schedule:', scrapeCronTime);
          new Cron(scrapeCronTime, () => {
             console.log('[CRON] Running Keyword Position Cron Job!');
-            const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
-            fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cron`, fetchOpts)
-            .then((res) => res.json())
-            .then((data) => { console.log('[CRON] Keyword Scraping Result:', data); })
-            .catch((err) => {
-               console.log('[CRON] ERROR Making SERP Scraper Cron Request:', err.message || err);
-            });
+            makeApiCall('/api/cron', '[CRON] Keyword Scraping Result:');
          }, cronOptions);
       }
 
@@ -133,13 +144,7 @@ const runAppCronJobs = () => {
          if (cronTime) {
             new Cron(cronTime, () => {
                console.log('[CRON] Sending Notification Email...');
-               const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
-               fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notify`, fetchOpts)
-               .then((res) => res.json())
-               .then((data) => console.log('[CRON] Email Notification Result:', data))
-               .catch((err) => {
-                  console.log('[CRON] ERROR Making Cron Email Notification Request:', err.message || err);
-               });
+               makeApiCall('/api/notify', '[CRON] Email Notification Result:');
             }, cronOptions);
          }
       }
@@ -156,13 +161,7 @@ const runAppCronJobs = () => {
                const keywordsToRetry = data ? JSON.parse(data) : [];
                if (keywordsToRetry.length > 0) {
                   console.log(`[CRON] Found ${keywordsToRetry.length} failed scrapes to retry`);
-                  const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
-                  fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/refresh?id=${keywordsToRetry.join(',')}`, fetchOpts)
-                  .then((res) => res.json())
-                  .then((refreshedData) => console.log('[CRON] Failed Scrapes Retry Result:', refreshedData))
-                  .catch((fetchErr) => {
-                     console.log('[CRON] ERROR Making failed_queue Cron Request:', fetchErr.message || fetchErr);
-                  });
+                  makeApiCall(`/api/refresh?id=${keywordsToRetry.join(',')}`, '[CRON] Failed Scrapes Retry Result:');
                } else {
                   console.log('[CRON] No failed scrapes to retry');
                }
@@ -180,14 +179,11 @@ const runAppCronJobs = () => {
    const searchConsoleCRONTime = normalizeCronExpression(CRON_MAIN_SCHEDULE, '0 0 0 * * *');
    new Cron(searchConsoleCRONTime, () => {
       console.log('[CRON] Running Google Search Console Scraper...');
-      const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/searchconsole`, fetchOpts)
-      .then((res) => res.json())
-      .then((data) => console.log('[CRON] Search Console Scraper Result:', data))
-      .catch((err) => {
-         console.log('[CRON] ERROR Making Google Search Console Scraper Cron Request:', err.message || err);
-      });
+      makeApiCall('/api/searchconsole', '[CRON] Search Console Scraper Result:');
    }, cronOptions);
+   
+   console.log('[CRON] All cron jobs initialized successfully');
 };
 
 runAppCronJobs();
+console.log('[CRON] Cron worker started');
