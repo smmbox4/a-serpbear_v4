@@ -65,15 +65,16 @@ The default compose stack maps `./data` to the container so your SQLite database
 1. Install Node.js **18.18+** (the project ships an `.nvmrc` pinning `20.18.0`).
 2. Install dependencies with `npm install` (or `npm ci`).
 3. Copy `.env.example` to `.env.local` and fill in the required keys.
-4. Start the development server via `npm run dev` or build and serve production assets with `npm run build && npm run start`.
+4. **Apply database migrations:** `npm run db:migrate` to set up the SQLite database schema.
+5. Start the development server via `npm run dev` or build and serve production assets with `npm run build && npm run start`.
 
 ### Database & migrations
 
-- SQLite files live under `./data` by default; mount that directory when running inside containers to keep your historical data.
-- Database migrations now run exclusively from `entrypoint.sh` whenever the Docker container starts. The REST endpoint and UI banner that previously triggered migrations have been removed.
-- The bundled Sequelize/Umzug tooling remains available for local workflows via the scripts in `package.json`, but production deployments should rely on the Docker entrypoint to apply schema updates.
-- Keyword history rows now default to `{}`. The included migrations (automatically executed by `entrypoint.sh` on container start)
-  also backfill any legacy `'[]'` payloads so refresh jobs always receive plain objects.
+- **SQLite files:** Live under `./data` by default; mount that directory when running inside containers to keep your historical data.
+- **Docker deployments:** Database migrations run automatically from `entrypoint.sh` whenever the container starts. No manual intervention required.
+- **Local Node.js development:** Use `npm run db:migrate` to apply schema changes manually (as shown in the setup steps above). Run `npm run db:revert` to roll back the most recent migration if needed.
+- **Migration tooling:** The bundled Sequelize/Umzug tooling works for both approaches—Docker uses it internally, while local development exposes it through npm scripts.
+- Keyword history rows now default to `{}`. The included migrations also backfill any legacy `'[]'` payloads so refresh jobs always receive plain objects.
 
 ---
 
@@ -236,7 +237,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 - **Missing screenshots:** If dashboard thumbnails show the fallback favicon, confirm `SCREENSHOT_API` is set and `NEXT_PUBLIC_SCREENSHOTS=true`.
 - **Scraper misconfiguration:** 500-series API responses often include descriptive JSON (with a `details` field) – surface these logs when opening support tickets.
 - **Cron timing:** Adjust cron expressions and `CRON_TIMEZONE` to align with your reporting cadence; expressions are normalised automatically, so quoting them in `.env` files is safe.
-- **Database errors after upgrades:** Run `npm run db:migrate` to apply schema changes. The app logs detailed SQL errors if migrations fail.
+- **Database errors after upgrades:** For local Node.js development, run `npm run db:migrate` to apply schema changes. Docker deployments handle this automatically. The app logs detailed SQL errors if migrations fail.
 - **Image placeholders in this README:** GitHub caches external images aggressively. When an illustration fails to load, rely on the accompanying description—the UI in your deployment will match those visuals once assets are served locally.
 
 ---
