@@ -1,5 +1,6 @@
 import { performance } from 'perf_hooks';
 import { setTimeout as sleep } from 'timers/promises';
+import { Op } from 'sequelize';
 import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
 import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
@@ -39,7 +40,10 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
 
    if (skippedKeywords.length > 0) {
       const skippedIds = skippedKeywords.map((keyword) => keyword.ID);
-      await Keyword.update({ updating: false }, { where: { ID: skippedIds } });
+      await Keyword.update(
+         { updating: false },
+         { where: { ID: { [Op.in]: skippedIds } } },
+      );
       for (const id of skippedIds) {
          await removeFromRetryQueue(id);
       }

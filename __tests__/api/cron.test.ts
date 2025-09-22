@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { Op } from 'sequelize';
 import handler from '../../pages/api/cron';
 import db from '../../database/database';
 import Domain from '../../database/models/domain';
@@ -68,7 +69,10 @@ describe('/api/cron', () => {
 
     await handler(req, res as NextApiResponse);
 
-    expect(Keyword.update).toHaveBeenCalledWith({ updating: true }, { where: { domain: ['enabled.com'] } });
+    expect(Keyword.update).toHaveBeenCalledWith(
+      { updating: true },
+      { where: { domain: { [Op.in]: ['enabled.com'] } } },
+    );
     expect(Keyword.findAll).toHaveBeenCalledWith({ where: { domain: ['enabled.com'] } });
     expect(refreshAndUpdateKeywords).toHaveBeenCalledWith([keywordRecord], { scraper_type: 'serpapi' });
     expect(res.status).toHaveBeenCalledWith(200);

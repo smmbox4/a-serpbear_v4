@@ -85,7 +85,10 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
 
       if (skippedKeywords.length > 0) {
          const skippedIds = skippedKeywords.map((keyword) => keyword.ID);
-         await Keyword.update({ updating: false }, { where: { ID: skippedIds } });
+         await Keyword.update(
+            { updating: false },
+            { where: { ID: { [Op.in]: skippedIds } } },
+         );
       }
 
       if (keywordsToRefresh.length === 0) {
@@ -93,7 +96,10 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
       }
 
       const keywordIdsToRefresh = keywordsToRefresh.map((keyword) => keyword.ID);
-      await Keyword.update({ updating: true }, { where: { ID: keywordIdsToRefresh } });
+      await Keyword.update(
+         { updating: true },
+         { where: { ID: { [Op.in]: keywordIdsToRefresh } } },
+      );
 
       console.log(`[REFRESH] Processing ${keywordsToRefresh.length} keywords for ${req.query.id === 'all' ? `domain: ${domain}` :
          `IDs: ${keywordIdsToRefresh.join(',')}`}`);

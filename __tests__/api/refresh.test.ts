@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { Op } from 'sequelize';
 import handler from '../../pages/api/refresh';
 import db from '../../database/database';
 import Keyword from '../../database/models/keyword';
@@ -83,5 +84,9 @@ describe('/api/refresh', () => {
 
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: 'scraper failed' });
+    expect(Keyword.update).toHaveBeenCalledWith(
+      { updating: true },
+      { where: { ID: { [Op.in]: [1] } } },
+    );
   });
 });
