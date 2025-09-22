@@ -30,8 +30,10 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
    };
 
    return (
-       <div className={`topbar flex items-center w-full mx-auto justify-between
-       ${isDomainsPage ? 'max-w-5xl lg:justify-between' : 'max-w-7xl lg:justify-end'}  bg-white lg:bg-transparent`}>
+       <div
+          className={`topbar flex items-center w-full justify-between
+       ${isDomainsPage ? 'max-w-5xl lg:justify-between' : 'max-w-7xl lg:justify-end'} bg-white lg:bg-transparent md:mx-auto`}
+       >
 
          <h3 className={`p-4 text-base font-bold text-blue-700 ${isDomainsPage ? 'lg:pl-0' : 'lg:hidden'}`}>
             <span className=' relative top-[3px] mr-1'><Icon type="logo" size={24} color="#364AFF" /></span> SerpBear
