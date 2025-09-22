@@ -15,9 +15,13 @@ const nextConfig = {
   
   // Compiler optimizations
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error']
-    } : false,
+    // Preserve server logging by default; opt-in via NEXT_REMOVE_CONSOLE
+    removeConsole:
+      process.env.NEXT_REMOVE_CONSOLE === 'true'
+        ? {
+            exclude: ['error'],
+          }
+        : false,
   },
   
   // Bundle analyzer (enable with ANALYZE=true)
