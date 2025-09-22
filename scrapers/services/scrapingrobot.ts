@@ -1,9 +1,11 @@
+import { resolveCountryCode } from '../../utils/scraperHelpers';
+
 const scrapingRobot:ScraperSettings = {
    id: 'scrapingrobot',
    name: 'Scraping Robot',
    website: 'scrapingrobot.com',
    scrapeURL: (keyword, settings, countryData) => {
-      const country = keyword.country || 'US';
+      const country = resolveCountryCode(keyword.country);
       const device = keyword.device === 'mobile' ? '&mobile=true' : '';
       const lang = countryData[country][2];
       const googleUrl = new URL('https://www.google.com/search');
