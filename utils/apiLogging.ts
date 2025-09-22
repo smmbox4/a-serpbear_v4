@@ -121,7 +121,7 @@ export function withApiAuthAndLogging(
     }
 
     // Import verifyUser here to avoid circular imports
-    const { default: verifyUser } = await import('./verifyUser');
+    const verifyUser = (await import('./verifyUser')).default;
     
     const authorized = verifyUser(req, res);
     if (authorized !== 'authorized') {
