@@ -1,11 +1,15 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. Releases now follow the conventional commits format but are managed with lightweight project scripts instead of `standard-version`.
 
 ### Unreleased
 
 ### Changed
 
+* Replaced Jest's `jest-environment-jsdom` dependency with `@happy-dom/jest-environment` to eliminate deprecated transitive packages and speed up DOM-focused tests.
+* Added `npm run setup:git` to configure `init.defaultBranch` for the repository and avoid Git initialization warnings.
+* Dropped the `standard-version` release script in favour of the new git setup helper and manual changelog updates to remove the deprecated `stringify-package` dependency.
+* Fixed the mistyped `RefreshResult` import in `utils/refresh.ts` so the TypeScript parser can load the refresh utility during linting and tests.
 * Replaced the separate per-domain `scrape_enabled`/`notify_enabled` toggles with a unified Active/Deactive control that keeps both flags in sync across cached UI state, API payloads, and cron guards so paused domains skip scraping and email runs together.
 * Updated the Serply scraper to build `/v1/search` URLs with query-string parameters so the keyword travels via `?q=` alongside locale and pagination options.
 * Introduced dynamic chart bounds and a shared client helper so SERP line charts and sparklines zoom to the observed rank range instead of hard-coding 1–100.

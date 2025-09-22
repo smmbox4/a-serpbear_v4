@@ -149,6 +149,7 @@ Serply API requests now encode the keyword, pagination count, and language as qu
 
 ### Development Practices
 
+- Run `npm run setup:git` after cloning to set the repository's default branch to `main` and silence Git's initialization warning about `init.defaultBranch`.
 - Run `nvm use` (after installing [nvm](https://github.com/nvm-sh/nvm#installing-and-updating)) to load the Node.js version pinned in `.nvmrc` (`20.18.0`) before installing dependencies so local tooling matches CI and Docker builds.
 - Group external dependencies before relative paths and keep imports alphabetized in test files to satisfy lint requirements.
 - Keep API response typings in sync with their JSON payloads; keyword and settings routes now expose an optional `details` string for richer error diagnostics and the TypeScript definitions mirror that contract.
@@ -164,6 +165,7 @@ Serply API requests now encode the keyword, pagination count, and language as qu
 
 ### Testing
 
+- Jest now runs against [`@happy-dom/jest-environment`](https://github.com/capricorn86/happy-dom/tree/master/packages/jest-environment), eliminating deprecated `jsdom` transitive dependencies and keeping DOM-centric suites fast on modern Node.js releases.
 - `npm test` runs the unit and integration suites in Node's default worker mode.
 - The sqlite dialect suite now includes a regression test verifying the mocked `better-sqlite3` driver preserves single `?` placeholder bindings end-to-end.
 - Use `npm run test:cv -- --runInBand` to generate coverage serially, which avoids intermittent jsdom worker crashes during long-running suites.
