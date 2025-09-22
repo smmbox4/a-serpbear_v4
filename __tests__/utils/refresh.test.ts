@@ -451,4 +451,102 @@ describe('refreshAndUpdateKeywords', () => {
       jest.useRealTimers();
     }
   });
+
+  it('handles various position input types correctly with simplified logic', async () => {
+    // Test the simplified newPos logic: Number(updatedKeyword.position ?? keyword.position ?? 0) || 0
+    const baseKeyword = {
+      ID: 999,
+      keyword: 'test keyword',
+      domain: 'test.com',
+      device: 'desktop',
+      country: 'US',
+      city: '',
+      state: '',
+      position: 5, // fallback position
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      lastUpdateError: 'false',
+    };
+
+    const keywordModel = {
+      ID: baseKeyword.ID,
+      keyword: baseKeyword.keyword,
+      domain: baseKeyword.domain,
+      get: jest.fn().mockReturnValue(baseKeyword),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    const settings = {
+      scraper_type: 'serpapi',
+      scrape_retry: false,
+    } as SettingsType;
+
+    // Test case 1: number position
+    let updatedKeyword = {
+      ID: baseKeyword.ID,
+      position: 3,
+      result: [],
+      error: false,
+    } as RefreshResult;
+
+    let updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(3);
+
+    // Test case 2: string number position
+    (keywordModel.update as jest.Mock).mockClear();
+    updatedKeyword = {
+      ID: baseKeyword.ID,
+      position: '7' as any,
+      result: [],
+      error: false,
+    } as RefreshResult;
+
+    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(7);
+
+    // Test case 3: undefined position (should use keyword fallback)
+    (keywordModel.update as jest.Mock).mockClear();
+    updatedKeyword = {
+      ID: baseKeyword.ID,
+      position: undefined,
+      result: [],
+      error: false,
+    } as RefreshResult;
+
+    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(5); // fallback to keyword.position
+
+    // Test case 4: null position (should use keyword fallback)
+    (keywordModel.update as jest.Mock).mockClear();
+    updatedKeyword = {
+      ID: baseKeyword.ID,
+      position: null as any,
+      result: [],
+      error: false,
+    } as RefreshResult;
+
+    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(5); // fallback to keyword.position
+
+    // Test case 5: invalid string position (should use final fallback of 0)
+    (keywordModel.update as jest.Mock).mockClear();
+    const keywordWithUndefinedPos = { ...baseKeyword, position: undefined };
+    (keywordModel.get as jest.Mock).mockReturnValue(keywordWithUndefinedPos);
+    updatedKeyword = {
+      ID: baseKeyword.ID,
+      position: 'invalid' as any,
+      result: [],
+      error: false,
+    } as RefreshResult;
+
+    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(0); // final fallback
+  });
 });

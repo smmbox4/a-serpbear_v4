@@ -166,9 +166,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
    if (updatedKeyword && keyword) {
       const theDate = new Date();
       const dateKey = `${theDate.getFullYear()}-${theDate.getMonth() + 1}-${theDate.getDate()}`;
-      const newPos = typeof updatedKeyword.position === 'number'
-         ? updatedKeyword.position
-         : Number(updatedKeyword.position ?? keyword.position ?? 0) || 0;
+      const newPos = Number(updatedKeyword.position ?? keyword.position ?? 0) || 0;
 
       const { history } = keyword;
       history[dateKey] = newPos;
