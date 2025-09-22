@@ -5,6 +5,7 @@ import Modal from '../common/Modal';
 import { useDeleteDomain, useFetchDomain, useUpdateDomain } from '../../services/domains';
 import InputField from '../common/InputField';
 import SelectField from '../common/SelectField';
+import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
 
 type DomainSettingsProps = {
    domain:DomainType|null,
@@ -21,16 +22,6 @@ const deriveDomainActiveState = (domainData?: DomainType | null) => {
    const { scrape_enabled, notify_enabled, notification } = domainData;
    return (scrape_enabled !== false) && (notify_enabled !== false) && (notification !== false);
 };
-
-const toggleTrackClassName = [
-   'relative rounded-3xl w-9 h-5 bg-gray-200',
-   'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300',
-   'dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700',
-   'peer-checked:after:translate-x-full peer-checked:after:border-white',
-   "after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300",
-   'after:border after:rounded-full after:h-4 after:w-4 after:transition-all',
-   'dark:border-gray-600 peer-checked:bg-blue-600',
-].join(' ');
 
 const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    const router = useRouter();
@@ -133,7 +124,7 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
                                     updateDomainActiveState(!isDomainActive);
                                  }}
                               />
-                              <div className={toggleTrackClassName} />
+                              <div className={TOGGLE_TRACK_CLASS_NAME} />
                            </label>
                         </div>
                         <div className="mb-4 flex justify-between items-center w-full">

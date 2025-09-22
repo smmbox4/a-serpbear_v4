@@ -7,6 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Icon from '../common/Icon';
 import { useUpdateDomainToggles } from '../../services/domains';
+import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
 
 type DomainItemProps = {
    domain: DomainType,
@@ -103,7 +104,7 @@ const DomainItem = ({
                           }}
                           disabled={isToggleUpdating}
                        />
-                       <div className={toggleTrackClassName} />
+                       <div className={TOGGLE_TRACK_CLASS_NAME} />
                     </label>
                  </div>
               </div>
