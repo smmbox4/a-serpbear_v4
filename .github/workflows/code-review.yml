@@ -105,6 +105,7 @@ jobs:
     name: OSV Scanner (push/scheduled)
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.2
     permissions:
+      actions: read
       contents: read
       security-events: write
     with:
@@ -115,6 +116,7 @@ jobs:
     name: OSV Scanner (pull requests)
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.2
     permissions:
+      actions: read
       contents: read
       security-events: write
     with:
