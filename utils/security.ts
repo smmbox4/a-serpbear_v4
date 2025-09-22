@@ -20,9 +20,19 @@ export const sanitizeHtml = (input: string): string => {
       sanitized = sanitized.replace(/<[^>]*>/g, '');
       iterations++;
    } while (sanitized !== previous && iterations < maxIterations);
+   // Remove javascript: protocol
+   sanitized = sanitized.replace(/javascript:/gi, '');
+   
+   // Remove event handlers like onclick=... (apply until stable or max iterations reached)
+   let prevSanitized;
+   let eventRemoveIterations = 0;
+   do {
+      prevSanitized = sanitized;
+      sanitized = sanitized.replace(/\son\w+\s*=\s*[^>\s]*/gi, '');
+      eventRemoveIterations++;
+   } while (sanitized !== prevSanitized && eventRemoveIterations < maxIterations);
+
    return sanitized
-      .replace(/(?:javascript:|vbscript:|data:)/gi, '') // Remove dangerous protocols
-      .replace(/\son\w+\s*=\s*[^>\s]*/gi, '') // Remove event handlers like onclick=...
       .trim()
       .substring(0, 1000); // Limit length
 };
