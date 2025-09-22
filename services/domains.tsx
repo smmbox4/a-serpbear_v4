@@ -14,7 +14,23 @@ export async function fetchDomains(router: NextRouter, withStats:boolean): Promi
          console.log('Unauthorized!!');
          router.push('/login');
       }
-      throw new Error('Bad response from server');
+      let errorMessage = 'Bad response from server';
+      try {
+         const contentType = res.headers.get('content-type');
+         if (contentType && contentType.includes('application/json')) {
+            const errorData = await res.json();
+            errorMessage = errorData?.error ? errorData.error : 'Bad response from server';
+         } else {
+            // Handle HTML error pages or other non-JSON responses
+            const textResponse = await res.text();
+            console.warn('Non-JSON error response received:', textResponse.substring(0, 200));
+            errorMessage = `Server error (${res.status}): Please try again later`;
+         }
+      } catch (parseError) {
+         console.warn('Failed to parse error response:', parseError);
+         errorMessage = `Server error (${res.status}): Please try again later`;
+      }
+      throw new Error(errorMessage);
    }
    return res.json();
 }
@@ -28,7 +44,23 @@ export async function fetchDomain(router: NextRouter, domainName: string): Promi
          console.log('Unauthorized!!');
          router.push('/login');
       }
-      throw new Error('Bad response from server');
+      let errorMessage = 'Bad response from server';
+      try {
+         const contentType = res.headers.get('content-type');
+         if (contentType && contentType.includes('application/json')) {
+            const errorData = await res.json();
+            errorMessage = errorData?.error ? errorData.error : 'Bad response from server';
+         } else {
+            // Handle HTML error pages or other non-JSON responses
+            const textResponse = await res.text();
+            console.warn('Non-JSON error response received:', textResponse.substring(0, 200));
+            errorMessage = `Server error (${res.status}): Please try again later`;
+         }
+      } catch (parseError) {
+         console.warn('Failed to parse error response:', parseError);
+         errorMessage = `Server error (${res.status}): Please try again later`;
+      }
+      throw new Error(errorMessage);
    }
    return res.json();
 }
@@ -85,7 +117,23 @@ export function useAddDomain(onSuccess:Function) {
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ domains }) };
       const res = await fetch(`${window.location.origin}/api/domains`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
-         throw new Error('Bad response from server');
+         let errorMessage = 'Bad response from server';
+         try {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+               const errorData = await res.json();
+               errorMessage = errorData?.error ? errorData.error : 'Bad response from server';
+            } else {
+               // Handle HTML error pages or other non-JSON responses
+               const textResponse = await res.text();
+               console.warn('Non-JSON error response received:', textResponse.substring(0, 200));
+               errorMessage = `Server error (${res.status}): Please try again later`;
+            }
+         } catch (parseError) {
+            console.warn('Failed to parse error response:', parseError);
+            errorMessage = `Server error (${res.status}): Please try again later`;
+         }
+         throw new Error(errorMessage);
       }
       return res.json();
    }, {
@@ -137,7 +185,23 @@ export function useDeleteDomain(onSuccess:Function) {
    return useMutation(async (domain:DomainType) => {
       const res = await fetch(`${window.location.origin}/api/domains?domain=${domain.domain}`, { method: 'DELETE' });
       if (res.status >= 400 && res.status < 600) {
-         throw new Error('Bad response from server');
+         let errorMessage = 'Bad response from server';
+         try {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+               const errorData = await res.json();
+               errorMessage = errorData?.error ? errorData.error : 'Bad response from server';
+            } else {
+               // Handle HTML error pages or other non-JSON responses
+               const textResponse = await res.text();
+               console.warn('Non-JSON error response received:', textResponse.substring(0, 200));
+               errorMessage = `Server error (${res.status}): Please try again later`;
+            }
+         } catch (parseError) {
+            console.warn('Failed to parse error response:', parseError);
+            errorMessage = `Server error (${res.status}): Please try again later`;
+         }
+         throw new Error(errorMessage);
       }
       return res.json();
    }, {
