@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Changed
 
 * Added per-domain `scrape_enabled`/`notify_enabled` toggles with database migration, cached UI updates, and API/cron guards so paused domains skip scraping and email runs.
+* Updated the Serply scraper to build `/v1/search` URLs with query-string parameters so the keyword travels via `?q=` alongside locale and pagination options.
 * Introduced dynamic chart bounds and a shared client helper so SERP line charts and sparklines zoom to the observed rank range instead of hard-coding 1–100.
 * Honoured the `NEXT_PUBLIC_SCREENSHOTS` environment flag in services and the dashboard so deployments can opt out of screenshot fetches and rely on favicons without UI clutter.
 * Returned an HTML OAuth callback from `/api/adwords` that posts an `adwordsIntegrated` message, accepted empty keyword-idea validation responses, and surfaced upstream errors in the settings toast listener.

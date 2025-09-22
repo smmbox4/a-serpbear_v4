@@ -139,6 +139,7 @@ If you don't want to use proxies, you can use third party Scraping services to s
 | hasdata.com       | From $29/mo   | From 10,000/mo | Yes |
 
 The Scraping Robot integration now explicitly sends both Google locale parameters—`hl` for language and `gl` for geographic targeting—and percent-encodes the nested Google Search URL so the returned SERP data matches the country configured for each keyword.
+Serply API requests now encode the keyword, pagination count, and language as query-string parameters (`?q=...&num=100&hl=...`) so the upstream service receives the correct filters.
 
 **Tech Stack**
 
