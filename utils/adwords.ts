@@ -390,17 +390,21 @@ export const getKeywordsVolume = async (keywords: KeywordType[]): Promise<{ erro
                let ideaData;
                try {
                   const contentType = resp.headers.get('content-type');
+                  const responseText = await resp.text();
                   if (contentType && contentType.includes('application/json')) {
-                     ideaData = await resp.json();
+                     try {
+                        ideaData = JSON.parse(responseText);
+                     } catch (parseError) {
+                        console.warn(`[ERROR] Failed to parse Google Ads Volume response (${resp.status}):`, responseText.substring(0, 200));
+                        continue; // Skip this country and continue with next
+                     }
                   } else {
                      // Handle non-JSON responses
-                     const textResponse = await resp.text();
-                     console.warn(`[ERROR] Google Ads Volume API returned non-JSON response (${resp.status}):`, textResponse.substring(0, 200));
+                     console.warn(`[ERROR] Google Ads Volume API returned non-JSON response (${resp.status}):`, responseText.substring(0, 200));
                      continue; // Skip this country and continue with next
                   }
-               } catch (parseError) {
-                  const textResponse = await resp.text().catch(() => 'Could not read response');
-                  console.warn(`[ERROR] Failed to parse Google Ads Volume response (${resp.status}):`, textResponse.substring(0, 200));
+               } catch (error) {
+                  console.warn(`[ERROR] Exception while handling Google Ads Volume response (${resp.status}):`, error);
                   continue; // Skip this country and continue with next
                }
 
