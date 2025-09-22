@@ -59,29 +59,38 @@ describe('DomainItem Component', () => {
       expect(container.querySelector('.domain_thumb button')).not.toBeInTheDocument();
    });
 
-   it('optimistically toggles tracking state', async () => {
+   it('renders the unified active toggle', () => {
+      render(<DomainItem {...defaultProps} />);
+
+      expect(screen.getByText('Active')).toBeInTheDocument();
+      expect(screen.getByLabelText('Toggle domain active status')).toBeInTheDocument();
+   });
+
+   it('submits a combined toggle payload', async () => {
       toggleMutationMock.mockResolvedValueOnce(undefined);
       render(<DomainItem {...defaultProps} />);
 
-      const toggle = screen.getByLabelText('Track keyword positions');
+      const toggle = screen.getByLabelText('Toggle domain active status');
       fireEvent.click(toggle);
 
       expect(toggleMutationMock).toHaveBeenCalledWith({
          domain: dummyDomain,
-         domainSettings: { scrape_enabled: false },
+         domainSettings: { scrape_enabled: false, notify_enabled: false },
       });
    });
 
-   it('optimistically toggles notifications state', async () => {
-      toggleMutationMock.mockResolvedValueOnce(undefined);
-      render(<DomainItem {...defaultProps} />);
+   it('displays the deactive label when domain toggles are disabled', () => {
+      const inactiveDomain = {
+         ...dummyDomain,
+         scrape_enabled: false,
+         notify_enabled: false,
+         notification: false,
+      };
 
-      const toggle = screen.getByLabelText('Send notification emails');
-      fireEvent.click(toggle);
+      render(<DomainItem {...defaultProps} domain={inactiveDomain} />);
 
-      expect(toggleMutationMock).toHaveBeenCalledWith({
-         domain: dummyDomain,
-         domainSettings: { notify_enabled: false },
-      });
+      expect(screen.getByText('Deactive')).toBeInTheDocument();
+      const toggle = screen.getByLabelText('Toggle domain active status') as HTMLInputElement;
+      expect(toggle.checked).toBe(false);
    });
 });
