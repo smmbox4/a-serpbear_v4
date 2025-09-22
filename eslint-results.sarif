@@ -1,0 +1,2833 @@
+{
+  "version": "2.1.0",
+  "$schema": "http://json.schemastore.org/sarif-2.1.0-rtm.5",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ESLint",
+          "informationUri": "https://eslint.org",
+          "rules": [
+            {
+              "id": "react/display-name",
+              "helpUri": "https://github.com/jsx-eslint/eslint-plugin-react/tree/master/docs/rules/display-name.md",
+              "properties": {
+                "category": "Best Practices"
+              },
+              "shortDescription": {
+                "text": "Disallow missing displayName in a React component definition"
+              }
+            },
+            {
+              "id": "complexity",
+              "helpUri": "https://eslint.org/docs/latest/rules/complexity",
+              "properties": {},
+              "shortDescription": {
+                "text": "Enforce a maximum cyclomatic complexity allowed in a program"
+              }
+            },
+            {
+              "id": "max-len",
+              "helpUri": "https://eslint.org/docs/latest/rules/max-len",
+              "properties": {},
+              "shortDescription": {
+                "text": "Enforce a maximum line length"
+              }
+            },
+            {
+              "id": "@next/next/no-img-element",
+              "helpUri": "https://nextjs.org/docs/messages/no-img-element",
+              "properties": {
+                "category": "HTML"
+              },
+              "shortDescription": {
+                "text": "Prevent usage of `<img>` element due to slower LCP and higher bandwidth."
+              }
+            },
+            {
+              "id": "security/detect-non-literal-fs-filename",
+              "helpUri": "https://github.com/eslint-community/eslint-plugin-security/blob/main/docs/rules/detect-non-literal-fs-filename.md",
+              "properties": {
+                "category": "Possible Security Vulnerability"
+              },
+              "shortDescription": {
+                "text": "Detects variable in filename argument of \"fs\" calls, which might allow an attacker to access anything on your system."
+              }
+            },
+            {
+              "id": "class-methods-use-this",
+              "helpUri": "https://eslint.org/docs/latest/rules/class-methods-use-this",
+              "properties": {},
+              "shortDescription": {
+                "text": "Enforce that class methods utilize `this`"
+              }
+            },
+            {
+              "id": "no-control-regex",
+              "helpUri": "https://eslint.org/docs/latest/rules/no-control-regex",
+              "properties": {},
+              "shortDescription": {
+                "text": "Disallow control characters in regular expressions"
+              }
+            }
+          ],
+          "version": "9.36.0"
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/.eslintrc.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__mocks__/better-sqlite3.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__mocks__/data.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__mocks__/utils.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/api/adwords.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/api/health.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/api/keywords.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/api/login.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/api/notify.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/api/searchconsole.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/api/settings.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/DomainItem.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/DomainSettings.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/Icon.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/Keyword.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/KeywordIdeasUpdater.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/Modal.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/SearchConsoleSettings.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/Settings.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/Sidebar.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/components/Topbar.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/database/migration-error-handling.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/database/sqlite-dialect.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/domain-conversion.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/hooks/domains.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/mocks/better-sqlite3-redos.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/pages/domain.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/pages/domains.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/pages/index.test.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/scrapers/scrapingrobot.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/services/searchConsole.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/adwordsKeywordIdeas.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/client/validators.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/domains.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/emailThrottle.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/generateEmail.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/insight.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/scraper.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/searchConsole.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__tests__/utils/security.test.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Chart.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/ChartSlim.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Footer.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/InputField.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Modal.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/SecretField.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/SelectField.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/SidePanel.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Sidebar.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/ToggleField.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/TopBar.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/domains/AddDomain.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/domains/DomainHeader.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/domains/DomainItem.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/domains/DomainSettings.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/ideas/IdeaDetails.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/ideas/IdeasFilter.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/ideas/KeywordIdea.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/ideas/KeywordIdeasTable.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/ideas/KeywordIdeasUpdater.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/insight/Insight.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/insight/InsightItem.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/insight/InsightStats.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/AddKeywords.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/AddTags.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/Keyword.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/KeywordDetails.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/KeywordFilter.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/KeywordPosition.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/KeywordTagManager.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/KeywordsTable.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/SCKeyword.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/keywords/SCKeywordsTable.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/settings/AdWordsSettings.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/settings/IntegrationSettings.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/settings/NotificationSettings.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/settings/ScraperSettings.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/settings/SearchConsoleSettings.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/settings/Settings.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/cron.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/config.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/database.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1707068556345-add-new-keyword-fields.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1707233039698-add-domain-searchconsole-field.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1709217223856-add-keyword-volume-field.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1710000000000-add-keyword-state-field.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1715920000000-update-ideas-domain-slug.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1735640000000-add-database-indexes.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/models/domain.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/models/keyword.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/sqlite-dialect.d.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/sqlite-dialect.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/eslint.config.mjs"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/hooks/useAuth.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/hooks/useIsMobile.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/hooks/useOnKey.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/hooks/useWindowResize.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/jest.config.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/jest.setup.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/next-env.d.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/next.config.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/_app.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/_document.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/adwords.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/auth-check.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/clearfailed.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/cron.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/dbmigrate.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/domain.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/domains.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/health.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/ideas.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/insight.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/keyword.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/keywords.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/login.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/logout.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/notify.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/refresh.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/searchconsole.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/settings.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/api/volume.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/domain/%5Bslug%5D/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/domain/console/%5Bslug%5D/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/domain/ideas/%5Bslug%5D/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/domain/insight/%5Bslug%5D/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/domains/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/login/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/research/index.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/postcss.config.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/index.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/hasdata.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/proxy.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/scrapingant.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/scrapingrobot.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/searchapi.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/serpapi.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/serper.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/serply.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/spaceserp.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/valueserp.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/services/adwords.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/services/domains.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/services/keywords.tsx"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/services/searchConsole.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/services/settings.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/tailwind.config.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/types.d.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/adwords.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/apiLogging.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/client/IdeasSortFilter.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/client/SCsortFilter.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/client/exportcsv.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/client/generateChartData.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/client/helpers.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/client/sortFilter.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/client/validators.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/countries.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/domains.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/emailThrottle.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/errorSerialization.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/generateEmail.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/insight.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/logger.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/parseKeywords.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/refresh.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/scraper.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/searchConsole.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/security.ts"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/verifyUser.ts"
+          }
+        }
+      ],
+      "results": [
+        {
+          "level": "error",
+          "message": {
+            "text": "Component definition is missing display name"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/__mocks__/utils.tsx",
+                  "index": 3
+                },
+                "region": {
+                  "startLine": 48,
+                  "startColumn": 12,
+                  "endLine": 50,
+                  "endColumn": 6
+                }
+              }
+            }
+          ],
+          "ruleId": "react/display-name",
+          "ruleIndex": 0,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Arrow function has a complexity of 54. Maximum allowed is 50."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 14,
+                  "endLine": 319,
+                  "endColumn": 3
+                }
+              }
+            }
+          ],
+          "ruleId": "complexity",
+          "ruleIndex": 1,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 359. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 1,
+                  "endLine": 20,
+                  "endColumn": 360
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 202. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 21,
+                  "startColumn": 1,
+                  "endLine": 21,
+                  "endColumn": 203
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 213. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 22,
+                  "startColumn": 1,
+                  "endLine": 22,
+                  "endColumn": 214
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 244. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 40,
+                  "startColumn": 1,
+                  "endLine": 40,
+                  "endColumn": 245
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 152. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 51,
+                  "startColumn": 1,
+                  "endLine": 51,
+                  "endColumn": 153
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 444. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 1,
+                  "endLine": 57,
+                  "endColumn": 445
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 192. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 1,
+                  "endLine": 67,
+                  "endColumn": 193
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 392. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 72,
+                  "startColumn": 1,
+                  "endLine": 72,
+                  "endColumn": 393
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 179. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 1,
+                  "endLine": 77,
+                  "endColumn": 180
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 179. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 82,
+                  "startColumn": 1,
+                  "endLine": 82,
+                  "endColumn": 180
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 198. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 87,
+                  "startColumn": 1,
+                  "endLine": 87,
+                  "endColumn": 199
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 184. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 92,
+                  "startColumn": 1,
+                  "endLine": 92,
+                  "endColumn": 185
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 557. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 97,
+                  "startColumn": 1,
+                  "endLine": 97,
+                  "endColumn": 558
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 311. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 102,
+                  "startColumn": 1,
+                  "endLine": 102,
+                  "endColumn": 312
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 884. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 107,
+                  "startColumn": 1,
+                  "endLine": 107,
+                  "endColumn": 885
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 168. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 108,
+                  "startColumn": 1,
+                  "endLine": 108,
+                  "endColumn": 169
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 203. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 113,
+                  "startColumn": 1,
+                  "endLine": 113,
+                  "endColumn": 204
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 238. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 118,
+                  "startColumn": 1,
+                  "endLine": 118,
+                  "endColumn": 239
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 232. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 123,
+                  "startColumn": 1,
+                  "endLine": 123,
+                  "endColumn": 233
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 250. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 129,
+                  "startColumn": 1,
+                  "endLine": 129,
+                  "endColumn": 251
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 232. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 135,
+                  "startColumn": 1,
+                  "endLine": 135,
+                  "endColumn": 233
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 167. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 152,
+                  "startColumn": 1,
+                  "endLine": 152,
+                  "endColumn": 168
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 168. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 153,
+                  "startColumn": 1,
+                  "endLine": 153,
+                  "endColumn": 169
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 168. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 160,
+                  "startColumn": 1,
+                  "endLine": 160,
+                  "endColumn": 169
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 215. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 165,
+                  "startColumn": 1,
+                  "endLine": 165,
+                  "endColumn": 216
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 271. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 170,
+                  "startColumn": 1,
+                  "endLine": 170,
+                  "endColumn": 272
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 187. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 176,
+                  "startColumn": 1,
+                  "endLine": 176,
+                  "endColumn": 188
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 443. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 182,
+                  "startColumn": 1,
+                  "endLine": 182,
+                  "endColumn": 444
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 179. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 187,
+                  "startColumn": 1,
+                  "endLine": 187,
+                  "endColumn": 180
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 362. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 201,
+                  "startColumn": 1,
+                  "endLine": 201,
+                  "endColumn": 363
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 231. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 206,
+                  "startColumn": 1,
+                  "endLine": 206,
+                  "endColumn": 232
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 265. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 207,
+                  "startColumn": 1,
+                  "endLine": 207,
+                  "endColumn": 266
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 238. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 208,
+                  "startColumn": 1,
+                  "endLine": 208,
+                  "endColumn": 239
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 234. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 209,
+                  "startColumn": 1,
+                  "endLine": 209,
+                  "endColumn": 235
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 251. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 215,
+                  "startColumn": 1,
+                  "endLine": 215,
+                  "endColumn": 252
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 410. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 216,
+                  "startColumn": 1,
+                  "endLine": 216,
+                  "endColumn": 411
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 211. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 228,
+                  "startColumn": 1,
+                  "endLine": 228,
+                  "endColumn": 212
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 296. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 240,
+                  "startColumn": 1,
+                  "endLine": 240,
+                  "endColumn": 297
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 159. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 248,
+                  "startColumn": 1,
+                  "endLine": 248,
+                  "endColumn": 160
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 200. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 249,
+                  "startColumn": 1,
+                  "endLine": 249,
+                  "endColumn": 201
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 299. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 255,
+                  "startColumn": 1,
+                  "endLine": 255,
+                  "endColumn": 300
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 304. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 260,
+                  "startColumn": 1,
+                  "endLine": 260,
+                  "endColumn": 305
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 442. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 265,
+                  "startColumn": 1,
+                  "endLine": 265,
+                  "endColumn": 443
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 152. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 279,
+                  "startColumn": 1,
+                  "endLine": 279,
+                  "endColumn": 153
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 659. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 284,
+                  "startColumn": 1,
+                  "endLine": 284,
+                  "endColumn": 660
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 966. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 309,
+                  "startColumn": 1,
+                  "endLine": 309,
+                  "endColumn": 967
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 325. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Icon.tsx",
+                  "index": 43
+                },
+                "region": {
+                  "startLine": 314,
+                  "startColumn": 1,
+                  "endLine": 314,
+                  "endColumn": 326
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "warning",
+          "message": {
+            "text": "Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/common/Sidebar.tsx",
+                  "index": 49
+                },
+                "region": {
+                  "startLine": 31,
+                  "startColumn": 43,
+                  "endLine": 34,
+                  "endColumn": 45
+                }
+              }
+            }
+          ],
+          "ruleId": "@next/next/no-img-element",
+          "ruleIndex": 3,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "warning",
+          "message": {
+            "text": "Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/components/domains/DomainItem.tsx",
+                  "index": 54
+                },
+                "region": {
+                  "startLine": 34,
+                  "startColumn": 19,
+                  "endLine": 37,
+                  "endColumn": 21
+                }
+              }
+            }
+          ],
+          "ruleId": "@next/next/no-img-element",
+          "ruleIndex": 3,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Found readFile from package \"fs/promises\" with non literal argument at index 0"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1715920000000-update-ideas-domain-slug.js",
+                  "index": 87
+                },
+                "region": {
+                  "startLine": 17,
+                  "startColumn": 34,
+                  "endLine": 17,
+                  "endColumn": 64
+                }
+              }
+            }
+          ],
+          "ruleId": "security/detect-non-literal-fs-filename",
+          "ruleIndex": 4,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Found writeFile from package \"fs/promises\" with non literal argument at index 0"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/database/migrations/1715920000000-update-ideas-domain-slug.js",
+                  "index": 87
+                },
+                "region": {
+                  "startLine": 36,
+                  "startColumn": 22,
+                  "endLine": 36,
+                  "endColumn": 87
+                }
+              }
+            }
+          ],
+          "ruleId": "security/detect-non-literal-fs-filename",
+          "ruleIndex": 4,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Expected 'this' to be used by class method 'render'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/pages/_document.tsx",
+                  "index": 103
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 3,
+                  "endLine": 5,
+                  "endColumn": 9
+                }
+              }
+            }
+          ],
+          "ruleId": "class-methods-use-this",
+          "ruleIndex": 5,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 168. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/scrapers/services/scrapingant.ts",
+                  "index": 135
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 1,
+                  "endLine": 7,
+                  "endColumn": 169
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Found readFile from package \"fs/promises\" with non literal argument at index 0"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/adwords.ts",
+                  "index": 150
+                },
+                "region": {
+                  "startLine": 427,
+                  "startColumn": 34,
+                  "endLine": 427,
+                  "endColumn": 75
+                }
+              }
+            }
+          ],
+          "ruleId": "security/detect-non-literal-fs-filename",
+          "ruleIndex": 4,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Found writeFile from package \"fs/promises\" with non literal argument at index 0"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/adwords.ts",
+                  "index": 150
+                },
+                "region": {
+                  "startLine": 469,
+                  "startColumn": 10,
+                  "endLine": 469,
+                  "endColumn": 76
+                }
+              }
+            }
+          ],
+          "ruleId": "security/detect-non-literal-fs-filename",
+          "ruleIndex": 4,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "This line has a length of 165. Maximum allowed is 150."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/scraper.ts",
+                  "index": 168
+                },
+                "region": {
+                  "startLine": 60,
+                  "startColumn": 1,
+                  "endLine": 60,
+                  "endColumn": 166
+                }
+              }
+            }
+          ],
+          "ruleId": "max-len",
+          "ruleIndex": 2,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Found readFile from package \"fs/promises\" with non literal argument at index 0"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/searchConsole.ts",
+                  "index": 169
+                },
+                "region": {
+                  "startLine": 289,
+                  "startColumn": 37,
+                  "endLine": 289,
+                  "endColumn": 78
+                }
+              }
+            }
+          ],
+          "ruleId": "security/detect-non-literal-fs-filename",
+          "ruleIndex": 4,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Found writeFile from package \"fs/promises\" with non literal argument at index 0"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/searchConsole.ts",
+                  "index": 169
+                },
+                "region": {
+                  "startLine": 310,
+                  "startColumn": 13,
+                  "endLine": 310,
+                  "endColumn": 84
+                }
+              }
+            }
+          ],
+          "ruleId": "security/detect-non-literal-fs-filename",
+          "ruleIndex": 4,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Found unlink from package \"fs/promises\" with non literal argument at index 0"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/searchConsole.ts",
+                  "index": 169
+                },
+                "region": {
+                  "startLine": 327,
+                  "startColumn": 13,
+                  "endLine": 327,
+                  "endColumn": 29
+                }
+              }
+            }
+          ],
+          "ruleId": "security/detect-non-literal-fs-filename",
+          "ruleIndex": 4,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Unexpected control character(s) in regular expression: \\x00, \\x08, \\x0b, \\x0c, \\x0e, \\x1f."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/security.ts",
+                  "index": 170
+                },
+                "region": {
+                  "startLine": 83,
+                  "startColumn": 16,
+                  "endLine": 83,
+                  "endColumn": 51
+                }
+              }
+            }
+          ],
+          "ruleId": "no-control-regex",
+          "ruleIndex": 6,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        },
+        {
+          "level": "error",
+          "message": {
+            "text": "Unexpected control character(s) in regular expression: \\x00, \\x08, \\x09, \\x0a, \\x0d, \\x1a."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///home/runner/work/v-serpbear/v-serpbear/utils/security.ts",
+                  "index": 170
+                },
+                "region": {
+                  "startLine": 116,
+                  "startColumn": 19,
+                  "endLine": 116,
+                  "endColumn": 65
+                }
+              }
+            }
+          ],
+          "ruleId": "no-control-regex",
+          "ruleIndex": 6,
+          "suppressions": [
+            {
+              "kind": "inSource",
+              "justification": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
