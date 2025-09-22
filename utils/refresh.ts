@@ -171,17 +171,13 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
          const dateKey = `${theDate.getFullYear()}-${theDate.getMonth() + 1}-${theDate.getDate()}`;
          history[dateKey] = newPos;
 
-         const normalizeResult = (result: RefreshResult['result']): string => {
+         const normalizeResult = (result: any): string => {
             if (result === undefined || result === null) {
                return '[]';
             }
 
             if (typeof result === 'string') {
                return result;
-            }
-
-            if (Array.isArray(result)) {
-               return JSON.stringify(result);
             }
 
             try {
