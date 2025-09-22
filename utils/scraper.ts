@@ -5,8 +5,7 @@ import HttpsProxyAgent from 'https-proxy-agent';
 import countries from './countries';
 import { serializeError } from './errorSerialization';
 import allScrapers from '../scrapers/index';
-
-const GOOGLE_BASE_URL = 'https://www.google.com';
+import { GOOGLE_BASE_URL } from './constants';
 
 type SearchResult = {
    title: string,
@@ -278,7 +277,6 @@ export const scrapeKeywordFromGoogle = async (keyword:KeywordType, settings:Sett
  * @param {string} device - The device of the keyword.
  * @returns {SearchResult[]}
  */
-const GOOGLE_BASE_URL = 'https://www.google.com';
 const GOOGLE_REDIRECT_PATHS = ['/url', '/interstitial', '/imgres', '/aclk', '/link'];
 const GOOGLE_REDIRECT_PARAMS = ['url', 'q', 'imgurl', 'target', 'dest', 'u', 'adurl'];
 
