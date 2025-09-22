@@ -44,6 +44,26 @@ type IdeaDatabaseUpdateData = {
    favorites?: IdeaKeyword[]
 }
 
+type SearchConsoleKeyword = {
+   keyword?: string,
+   impressions?: number
+};
+
+const addSearchConsoleSeedKeywords = async (domainUrl: string, seedKeywords: string[]): Promise<void> => {
+   const domainSCData = await readLocalSCData(domainUrl);
+   if (!domainSCData || !Array.isArray(domainSCData.thirtyDays)) { return; }
+
+   const scKeywords = domainSCData.thirtyDays as SearchConsoleKeyword[];
+   [...scKeywords]
+      .sort((a, b) => ((b.impressions ?? 0) > (a.impressions ?? 0) ? 1 : -1))
+      .slice(0, 100)
+      .forEach((sckeywrd) => {
+         if (sckeywrd.keyword && !seedKeywords.includes(sckeywrd.keyword)) {
+            seedKeywords.push(sckeywrd.keyword);
+         }
+      });
+};
+
 export type KeywordIdeasDatabase = {
    keywords: IdeaKeyword[],
    favorites: IdeaKeyword[],
@@ -222,7 +242,12 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
 
    let fetchedKeywords: IdeaKeyword[] = [];
    if (accessToken) {
-      let seedKeywords = [...keywords];
+      const seedKeywords = [...keywords];
+
+      // Load Keywords from Google Search Console File.
+      if ((seedType === 'searchconsole' || seedSCKeywords) && domainUrl) {
+         await addSearchConsoleSeedKeywords(domainUrl, seedKeywords);
+      }
 
       seedKeywords = await seedKeywordsFromSearchConsole({
          seedKeywords,

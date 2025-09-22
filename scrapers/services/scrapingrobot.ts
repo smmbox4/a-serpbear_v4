@@ -6,8 +6,13 @@ const scrapingRobot:ScraperSettings = {
       const country = keyword.country || 'US';
       const device = keyword.device === 'mobile' ? '&mobile=true' : '';
       const lang = countryData[country][2];
-      const url = encodeURI(`https://www.google.com/search?num=100&hl=${lang}&gl=${country}&q=${keyword.keyword}`);
-      return `https://api.scrapingrobot.com/?token=${settings.scraping_api}&proxyCountry=${country}&render=false${device}&url=${url}`;
+      const googleUrl = new URL('https://www.google.com/search');
+      googleUrl.searchParams.set('num', '100');
+      googleUrl.searchParams.set('hl', lang);
+      googleUrl.searchParams.set('gl', country);
+      googleUrl.searchParams.set('q', keyword.keyword);
+      const encodedUrl = encodeURIComponent(googleUrl.toString());
+      return `https://api.scrapingrobot.com/?token=${settings.scraping_api}&proxyCountry=${country}&render=false${device}&url=${encodedUrl}`;
    },
    resultObjectKey: 'result',
 };

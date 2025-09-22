@@ -65,7 +65,7 @@ describe('getAdwordsKeywordIdeas', () => {
   it('sends correct payload format to Google Ads API', async () => {
     const mockFetch = jest.fn().mockResolvedValue({
       json: async () => ({ results: [] }),
-      text: async () => '{"results":[]}',
+      text: async () => JSON.stringify({ results: [] }),
       status: 200,
       headers: {
         get: jest.fn().mockReturnValue('application/json'),

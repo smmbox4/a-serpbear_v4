@@ -14,8 +14,14 @@ describe('scrapingRobot scraper', () => {
 
     const url = scrapingRobot.scrapeURL(keyword, settings, countryData);
 
-    expect(url).toContain('&hl=en');
-    expect(url).toContain('&gl=US');
-    expect(url).toContain('best%20coffee%20beans');
+    const googleUrl = new URL('https://www.google.com/search');
+    googleUrl.searchParams.set('num', '100');
+    googleUrl.searchParams.set('hl', 'en');
+    googleUrl.searchParams.set('gl', 'US');
+    googleUrl.searchParams.set('q', keyword.keyword);
+    const encodedUrl = encodeURIComponent(googleUrl.toString());
+
+    expect(url).toContain(`&url=${encodedUrl}`);
+    expect(url).toContain('%26gl%3DUS');
   });
 });
