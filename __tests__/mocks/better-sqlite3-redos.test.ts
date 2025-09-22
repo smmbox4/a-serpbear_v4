@@ -50,7 +50,12 @@ describe('MockBetterSqlite3 ReDoS Prevention', () => {
       const start = Date.now();
       // This is a classic ReDoS attack pattern: alternating characters that cause maximum backtracking
       // With unbounded + quantifiers, this would cause exponential backtracking
-      const pathologicalInput = 'CREATE' + ' \t'.repeat(1000) + ' '.repeat(10) + 'X';
+      // The pattern below creates a string like:
+      // "CREATE \t \t \t ... \t         X"
+      // - 'CREATE' followed by 1000 repetitions of "space-tab"
+      // - then 10 spaces, then 'X'
+      // This pattern is designed to trigger catastrophic backtracking in vulnerable regexes that use nested quantifiers to match whitespace before a keyword.
+      const pathologicalInput = `CREATE${' \t'.repeat(1000)}${' '.repeat(10)}X`;
       
       const result = mockDb.execute(pathologicalInput);
       const elapsed = Date.now() - start;
