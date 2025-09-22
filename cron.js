@@ -96,21 +96,29 @@ const generateCronTime = (interval) => {
 };
 
 const runAppCronJobs = () => {
+   console.log('[CRON] Initializing application cron jobs...');
+   console.log('[CRON] Timezone:', CRON_TIMEZONE);
+   console.log('[CRON] API URL:', process.env.NEXT_PUBLIC_APP_URL || 'NOT SET');
+   console.log('[CRON] API Key available:', !!process.env.APIKEY);
+   
    const cronOptions = { scheduled: true, timezone: CRON_TIMEZONE };
    getAppSettings().then((settings) => {
       // RUN SERP Scraping CRON using configured schedule
       const scrape_interval = settings.scrape_interval || 'daily';
+      console.log('[CRON] Scraper interval:', scrape_interval);
+      console.log('[CRON] Scraper type:', settings.scraper_type || 'none');
+      
       if (scrape_interval !== 'never') {
          const scrapeCronTime = normalizeCronExpression(generateCronTime(scrape_interval) || CRON_MAIN_SCHEDULE, CRON_MAIN_SCHEDULE);
+         console.log('[CRON] Setting up keyword scraping cron with schedule:', scrapeCronTime);
          new Cron(scrapeCronTime, () => {
-            // console.log('### Running Keyword Position Cron Job!');
+            console.log('[CRON] Running Keyword Position Cron Job!');
             const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
             fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cron`, fetchOpts)
             .then((res) => res.json())
-            // .then((data) =>{ console.log(data)})
+            .then((data) => { console.log('[CRON] Keyword Scraping Result:', data); })
             .catch((err) => {
-               console.log('ERROR Making SERP Scraper Cron Request..');
-               console.log(err);
+               console.log('[CRON] ERROR Making SERP Scraper Cron Request:', err.message || err);
             });
          }, cronOptions);
       }
@@ -124,14 +132,13 @@ const runAppCronJobs = () => {
          );
          if (cronTime) {
             new Cron(cronTime, () => {
-               // console.log('### Sending Notification Email...');
+               console.log('[CRON] Sending Notification Email...');
                const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
                fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notify`, fetchOpts)
                .then((res) => res.json())
-               .then((data) => console.log(data))
+               .then((data) => console.log('[CRON] Email Notification Result:', data))
                .catch((err) => {
-                  console.log('ERROR Making Cron Email Notification Request..');
-                  console.log(err);
+                  console.log('[CRON] ERROR Making Cron Email Notification Request:', err.message || err);
                });
             }, cronOptions);
          }
@@ -141,27 +148,29 @@ const runAppCronJobs = () => {
    // Run Failed scraping CRON using configured failed queue schedule
    const failedCronTime = normalizeCronExpression(CRON_FAILED_SCHEDULE, '0 0 */1 * * *');
    new Cron(failedCronTime, () => {
-      // console.log('### Retrying Failed Scrapes...');
+      console.log('[CRON] Retrying Failed Scrapes...');
 
       readFile(`${process.cwd()}/data/failed_queue.json`, { encoding: 'utf-8' }, (err, data) => {
          if (data) {
             try {
                const keywordsToRetry = data ? JSON.parse(data) : [];
                if (keywordsToRetry.length > 0) {
+                  console.log(`[CRON] Found ${keywordsToRetry.length} failed scrapes to retry`);
                   const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
                   fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/refresh?id=${keywordsToRetry.join(',')}`, fetchOpts)
                   .then((res) => res.json())
-                  .then((refreshedData) => console.log(refreshedData))
+                  .then((refreshedData) => console.log('[CRON] Failed Scrapes Retry Result:', refreshedData))
                   .catch((fetchErr) => {
-                     console.log('ERROR Making failed_queue Cron Request..');
-                     console.log(fetchErr);
+                     console.log('[CRON] ERROR Making failed_queue Cron Request:', fetchErr.message || fetchErr);
                   });
+               } else {
+                  console.log('[CRON] No failed scrapes to retry');
                }
             } catch (error) {
-               console.log('ERROR Reading Failed Scrapes Queue File..', error);
+               console.log('[CRON] ERROR Reading Failed Scrapes Queue File:', error.message || error);
             }
          } else {
-            console.log('ERROR Reading Failed Scrapes Queue File..', err);
+            console.log('[CRON] ERROR Reading Failed Scrapes Queue File:', err?.message || err);
          }
       });
    }, cronOptions);
@@ -170,13 +179,13 @@ const runAppCronJobs = () => {
    // Always run the CRON as the API endpoint will check for credentials per domain
    const searchConsoleCRONTime = normalizeCronExpression(CRON_MAIN_SCHEDULE, '0 0 0 * * *');
    new Cron(searchConsoleCRONTime, () => {
+      console.log('[CRON] Running Google Search Console Scraper...');
       const fetchOpts = { method: 'POST', headers: { Authorization: `Bearer ${process.env.APIKEY}` } };
       fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/searchconsole`, fetchOpts)
       .then((res) => res.json())
-      .then((data) => console.log(data))
+      .then((data) => console.log('[CRON] Search Console Scraper Result:', data))
       .catch((err) => {
-         console.log('ERROR Making Google Search Console Scraper Cron Request..');
-         console.log(err);
+         console.log('[CRON] ERROR Making Google Search Console Scraper Cron Request:', err.message || err);
       });
    }, cronOptions);
 };
