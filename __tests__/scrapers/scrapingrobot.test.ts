@@ -14,14 +14,17 @@ describe('scrapingRobot scraper', () => {
 
     const url = scrapingRobot.scrapeURL(keyword, settings, countryData);
 
-    const googleUrl = new URL('https://www.google.com/search');
-    googleUrl.searchParams.set('num', '100');
-    googleUrl.searchParams.set('hl', 'en');
-    googleUrl.searchParams.set('gl', 'US');
-    googleUrl.searchParams.set('q', keyword.keyword);
-    const encodedUrl = encodeURIComponent(googleUrl.toString());
+    // Parse the scraping robot URL to extract the encoded Google URL
+    const scrapingRobotUrl = new URL(url);
+    const googleUrlEncoded = scrapingRobotUrl.searchParams.get('url');
+    expect(googleUrlEncoded).not.toBeNull();
 
-    expect(url).toContain(`&url=${encodedUrl}`);
-    expect(url).toContain('%26gl%3DUS');
+    // Decode and parse the Google URL to verify its parameters
+    const googleUrlDecoded = decodeURIComponent(googleUrlEncoded!);
+    const googleUrlParsed = new URL(googleUrlDecoded);
+    expect(googleUrlParsed.searchParams.get('num')).toBe('100');
+    expect(googleUrlParsed.searchParams.get('hl')).toBe('en');
+    expect(googleUrlParsed.searchParams.get('gl')).toBe('US');
+    expect(googleUrlParsed.searchParams.get('q')).toBe(keyword.keyword);
   });
 });
