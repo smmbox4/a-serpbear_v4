@@ -1,9 +1,10 @@
-import { Op } from 'sequelize';
 import { readFile, writeFile } from 'fs/promises';
-import refreshAndUpdateKeywords from '../../utils/refresh';
+import { Op } from 'sequelize';
 import Domain from '../../database/models/domain';
 import Keyword from '../../database/models/keyword';
+import refreshAndUpdateKeywords, { updateKeywordPosition } from '../../utils/refresh';
 import { removeFromRetryQueue } from '../../utils/scraper';
+import type { RefreshResult } from '../../utils/scraper';
 
 // Mock the dependencies
 jest.mock('../../database/models/domain');
@@ -206,5 +207,63 @@ describe('refreshAndUpdateKeywords', () => {
     // Should read but not write when no changes are needed
     expect(readFile).toHaveBeenCalledTimes(1);
     expect(writeFile).not.toHaveBeenCalled();
+  });
+
+  it('normalises undefined scraper results before persisting', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    const mockPlainKeyword = {
+      ID: 42,
+      keyword: 'example keyword',
+      domain: 'example.com',
+      device: 'desktop',
+      country: 'US',
+      city: '',
+      state: '',
+      position: 0,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      lastUpdateError: 'false',
+    };
+
+    const keywordModel = {
+      ID: mockPlainKeyword.ID,
+      keyword: mockPlainKeyword.keyword,
+      domain: mockPlainKeyword.domain,
+      get: jest.fn().mockReturnValue(mockPlainKeyword),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    const settings = {
+      scraper_type: 'serpapi',
+      scrape_retry: false,
+    } as SettingsType;
+
+    const updatedKeyword = {
+      ID: mockPlainKeyword.ID,
+      position: 7,
+      url: 'https://example.com/result',
+      result: undefined,
+      error: 'temporary failure',
+    } as RefreshResult;
+
+    const updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+
+    expect(keywordModel.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lastResult: '[]',
+      }),
+    );
+
+    expect(updated.lastResult).toEqual([]);
+
+    consoleSpy.mockRestore();
   });
 });

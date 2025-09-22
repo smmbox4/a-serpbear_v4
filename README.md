@@ -22,6 +22,7 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Mobile App:** Add the PWA app to your mobile for a better mobile experience.
 - **Zero Cost to RUN:** Run the App on mogenius.com or Fly.io for free.
 - **Robust Error Handling:** Improved input validation, safer JSON parsing, and a shared error-serialization helper that keeps scraper and refresh logs consistent.
+- **Predictable SERP storage:** Newly created keywords now seed `lastResult` with an empty JSON array and refresh jobs normalise undefined scraper payloads before persisting, so downstream consumers never receive `null`/`undefined` SERP data.
 - **Defensive Google Ads Parsing:** Keyword idea fetches pre-initialize response buffers so error logs retain the upstream text even when parsing fails.
 - **Centralised Google Ads API versioning:** Keyword idea and volume requests now read the Google Ads REST version from a single constant (currently `v21`), making upgrades a one-line change.
 - **Canonical Domain Settings Fetch:** The domain settings modal now loads decrypted Search Console credentials by requesting `/api/domain` with the tracked site's canonical host, so credential fields update as soon as the modal opens.
