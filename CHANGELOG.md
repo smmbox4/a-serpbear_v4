@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Normalised SQLite boolean bindings so `/api/domains` updates persist matching `scrape_enabled` and `notification` flags, and added API regression coverage for the domain toggle.
 * Removed the `/api/dbmigrate` endpoint, dashboard auto-migration banner, and related hooks so database upgrades run exclusively from the Docker `entrypoint.sh`.
 * Collapsed the global body gutters on mobile so dashboard content can span the full viewport width on phones.
 * Completely restructured `README.md` with a product-focused overview, expanded environment variable reference, and refreshed provider comparison to reflect the current codebase.

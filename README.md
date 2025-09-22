@@ -234,6 +234,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 ## Troubleshooting & tips
 
 - **Missing screenshots:** If dashboard thumbnails show the fallback favicon, confirm `SCREENSHOT_API` is set and `NEXT_PUBLIC_SCREENSHOTS=true`.
+- **Domain scraping toggle not persisting:** The custom SQLite dialect now coerces boolean bindings to integers so `/api/domains` updates keep `scrape_enabled` and the legacy `notification` flag aligned.
 - **Scraper misconfiguration:** 500-series API responses often include descriptive JSON (with a `details` field) – surface these logs when opening support tickets.
 - **Cron timing:** Adjust cron expressions and `CRON_TIMEZONE` to align with your reporting cadence; expressions are normalised automatically, so quoting them in `.env` files is safe.
 - **Database errors after upgrades:** Run `npm run db:migrate` to apply schema changes. The app logs detailed SQL errors if migrations fail.
