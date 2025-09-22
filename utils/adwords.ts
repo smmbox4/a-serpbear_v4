@@ -117,16 +117,20 @@ const seedKeywordsFromTracking = async ({
       return seedKeywords;
    }
 
-   const updatedKeywords = [...seedKeywords];
-   const allKeywords:Keyword[] = await Keyword.findAll({ where: { domain: domainUrl } });
+   const keywordSet = new Set(seedKeywords);
+   const allKeywords:Keyword[] = await Keyword.findAll({
+      where: { domain: domainUrl },
+      order: [['volume', 'DESC']],
+   });
    const currentKeywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
+
    currentKeywords.slice(0, 100).forEach((keyword) => {
-      if (keyword.keyword && !updatedKeywords.includes(keyword.keyword)) {
-         updatedKeywords.push(keyword.keyword);
+      if (keyword.keyword) {
+         keywordSet.add(keyword.keyword);
       }
    });
 
-   return updatedKeywords;
+   return Array.from(keywordSet);
 };
 
 /**
@@ -242,7 +246,7 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
 
    let fetchedKeywords: IdeaKeyword[] = [];
    if (accessToken) {
-      const seedKeywords = [...keywords];
+      let seedKeywords = [...keywords];
 
       // Load Keywords from Google Search Console File.
       if ((seedType === 'searchconsole' || seedSCKeywords) && domainUrl) {
