@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. See [standa
 * Documented the new screenshot and console logging environment flags in `.env.example`, the README, and integration tests.
 * Encoded the nested Google Search request passed to ScrapingRobot so locale parameters stay bundled within the delegated `url` query parameter.
 * Retained server-side logging in the production bundle by gating Next.js `compiler.removeConsole` behind the `NEXT_REMOVE_CONSOLE` environment flag.
+* Centralised the Google Ads REST API version behind a `GOOGLE_ADS_API_VERSION` constant, updated documentation, and refreshed tests to ensure both keyword ideas and historical metrics use `v21`.
 * Settings now reload the window only when enabling a scraper from the previous `'none'` state, and the scraper modal has Jest coverage to verify the behaviour.
 * Search Console hooks key their queries by the active domain slug, skip fetches without a slug, and include tests that confirm refetching when switching domains.
 * Domain settings accept `null` domains, short-circuit the lookup fetch when closed, and continue guarding destructive actions behind a non-null domain selection.

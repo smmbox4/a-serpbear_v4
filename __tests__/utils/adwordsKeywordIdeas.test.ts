@@ -92,6 +92,9 @@ describe('getAdwordsKeywordIdeas', () => {
 
     // Check that the second call (to Google Ads API) has the correct payload format
     const googleAdsCall = mockFetch.mock.calls[1];
+    expect(googleAdsCall[0]).toBe(
+      `https://googleads.googleapis.com/${adwordsUtils.GOOGLE_ADS_API_VERSION}/customers/1234567890:generateKeywordIdeas`,
+    );
     expect(googleAdsCall[1].body).toBeDefined();
     const payload = JSON.parse(googleAdsCall[1].body);
     
@@ -146,7 +149,7 @@ describe('getKeywordsVolume', () => {
     // This test verifies that the improved error handling works correctly
     // The payload format changes are verified by the fact that the API calls
     // now properly handle non-JSON responses without crashing
-    
+
     const keywords = [{ ID: 1, keyword: 'test keyword', country: 'US' }] as any;
     const result = await adwordsUtils.getKeywordsVolume(keywords);
 
@@ -158,7 +161,7 @@ describe('getKeywordsVolume', () => {
   it('handles errors gracefully without JSON parsing failures', async () => {
     // This test verifies the main issue reported by the user is fixed:
     // No more "Unexpected token '<'" errors when APIs return HTML
-    
+
     const keywords = [{ ID: 1, keyword: 'test keyword', country: 'US' }] as any;
     
     // Even without proper setup, should not throw JSON parsing errors
