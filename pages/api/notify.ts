@@ -40,7 +40,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
          const theDomain = await Domain.findOne({ where: { domain: reqDomain } });
          if (theDomain) {
             const domainPlain = theDomain.get({ plain: true }) as DomainType;
-            if (domainPlain.notify_enabled !== false && domainPlain.notification !== false) {
+            if (domainPlain.scrape_enabled !== false && domainPlain.notification !== false) {
                await sendNotificationEmail(domainPlain, settings);
             }
          }
@@ -49,7 +49,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
          if (allDomains && allDomains.length > 0) {
             const domains = allDomains.map((el) => el.get({ plain: true }));
             for (const domain of domains) {
-               if (domain.notify_enabled !== false && domain.notification !== false) {
+               if (domain.scrape_enabled !== false && domain.notification !== false) {
                   await sendNotificationEmail(domain, settings);
                }
             }

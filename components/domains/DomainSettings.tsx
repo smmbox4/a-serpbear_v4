@@ -19,8 +19,8 @@ type DomainSettingsError = {
 
 const deriveDomainActiveState = (domainData?: DomainType | null) => {
    if (!domainData) { return true; }
-   const { scrape_enabled, notify_enabled, notification } = domainData;
-   return (scrape_enabled !== false) && (notify_enabled !== false) && (notification !== false);
+   const { scrape_enabled, notification } = domainData;
+   return (scrape_enabled !== false) && (notification !== false);
 };
 
 const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
@@ -36,7 +36,6 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
          property_type: 'domain', url: '', client_email: '', private_key: '',
       },
       scrape_enabled: initialActiveState,
-      notify_enabled: initialActiveState,
    }));
 
    const { mutate: updateMutate, error: domainUpdateError, isLoading: isUpdating } = useUpdateDomain(() => closeModal(false));
@@ -50,7 +49,6 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
          ...prevSettings,
          search_console: currentSearchConsoleSettings || prevSettings.search_console,
          scrape_enabled: nextActive,
-         notify_enabled: nextActive,
       }));
    });
 
@@ -58,7 +56,6 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
       setDomainSettings(prevSettings => ({
          ...prevSettings,
          scrape_enabled: next,
-         notify_enabled: next,
       }));
    };
 

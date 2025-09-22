@@ -134,7 +134,6 @@ describe('DomainSettings Component', () => {
          domain: mockDomain,
          domainSettings: expect.objectContaining({
             scrape_enabled: false,
-            notify_enabled: false,
          }),
       });
    });

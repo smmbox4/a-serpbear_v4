@@ -18,10 +18,8 @@ const normalizeDomainPatch = (patch: Partial<DomainSettings>): Partial<DomainTyp
    const updates: Partial<DomainType> = {};
    if (typeof patch.scrape_enabled === 'boolean') {
       updates.scrape_enabled = patch.scrape_enabled;
-   }
-   if (typeof patch.notify_enabled === 'boolean') {
-      updates.notify_enabled = patch.notify_enabled;
-      updates.notification = patch.notify_enabled;
+      // Update the legacy notification field to match scrape_enabled
+      updates.notification = patch.scrape_enabled;
    }
    if (typeof patch.notification_interval === 'string') {
       updates.notification_interval = patch.notification_interval;
