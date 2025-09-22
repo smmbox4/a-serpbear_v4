@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^14.0.0",
     "@types/cookies": "^0.7.7",
     "@types/cryptr": "^4.0.1",
