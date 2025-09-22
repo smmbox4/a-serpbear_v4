@@ -1,4 +1,5 @@
 import countries from '../../utils/countries';
+import { resolveCountryCode } from '../../utils/scraperHelpers';
 
 interface SerpApiResult {
    title: string,
@@ -11,17 +12,18 @@ const serpapi:ScraperSettings = {
    name: 'SerpApi.com',
    website: 'serpapi.com',
    allowsCity: true,
-   headers: (keyword, settings) => {
+   headers: (keyword: KeywordType, settings: SettingsType) => {
       return {
          'Content-Type': 'application/json',
          'X-API-Key': settings.scraping_api,
       };
    },
    scrapeURL: (keyword, settings) => {
-      const countryName = countries[keyword.country || 'US'][0];
+      const country = resolveCountryCode(keyword.country);
+      const countryName = countries[country][0];
       const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);
       const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
-      return `https://serpapi.com/search?q=${encodeURIComponent(keyword.keyword)}&num=100&gl=${keyword.country}&device=${keyword.device}${location}&api_key=${settings.scraping_api}`;
+      return `https://serpapi.com/search?q=${encodeURIComponent(keyword.keyword)}&num=100&gl=${country}&device=${keyword.device}${location}&api_key=${settings.scraping_api}`;
    },
    resultObjectKey: 'organic_results',
    serpExtractor: (content) => {

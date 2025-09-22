@@ -1,4 +1,5 @@
 import countries from '../../utils/countries';
+import { resolveCountryCode } from '../../utils/scraperHelpers';
 
 interface SearchApiResult {
    title: string,
@@ -11,14 +12,14 @@ const searchapi:ScraperSettings = {
   name: 'SearchApi.io',
   website: 'searchapi.io',
   allowsCity: true,
-  headers: (keyword, settings) => {
+  headers: (keyword: KeywordType, settings: SettingsType) => {
      return {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${settings.scraping_api}`,
      };
   },
   scrapeURL: (keyword) => {
-   const country = keyword.country || 'US';
+   const country = resolveCountryCode(keyword.country);
    const countryName = countries[country][0];
    const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);
    const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';

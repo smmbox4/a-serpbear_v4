@@ -1,4 +1,5 @@
 import countries from '../../utils/countries';
+import { resolveCountryCode } from '../../utils/scraperHelpers';
 
 interface HasDataResult {
    title: string,
@@ -11,14 +12,14 @@ const hasdata:ScraperSettings = {
    name: 'HasData',
    website: 'hasdata.com',
    allowsCity: true,
-   headers: (keyword, settings) => {
+   headers: (keyword: KeywordType, settings: SettingsType) => {
       return {
          'Content-Type': 'application/json',
          'x-api-key': settings.scraping_api,
       };
    },
    scrapeURL: (keyword, settings) => {
-      const country = keyword.country || 'US';
+      const country = resolveCountryCode(keyword.country);
       const countryName = countries[country][0];
       const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);
       const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';

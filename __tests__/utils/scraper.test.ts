@@ -1,4 +1,49 @@
 import { serializeError } from '../../utils/errorSerialization';
+import { resolveCountryCode } from '../../utils/scraperHelpers';
+
+describe('resolveCountryCode', () => {
+  it('returns the country when no allowed countries array is provided', () => {
+    expect(resolveCountryCode('CA')).toBe('CA');
+    expect(resolveCountryCode('DE')).toBe('DE');
+  });
+
+  it('returns fallback when country is empty or undefined', () => {
+    expect(resolveCountryCode('')).toBe('US');
+    expect(resolveCountryCode(undefined as any)).toBe('US');
+    expect(resolveCountryCode('', ['CA', 'US'])).toBe('US');
+  });
+
+  it('returns country when it exists in allowed countries array', () => {
+    const allowedCountries = ['US', 'CA', 'GB', 'DE'];
+    expect(resolveCountryCode('CA', allowedCountries)).toBe('CA');
+    expect(resolveCountryCode('ca', allowedCountries)).toBe('ca'); // case preserved
+    expect(resolveCountryCode('GB', allowedCountries)).toBe('GB');
+  });
+
+  it('returns fallback when country is not in allowed countries array', () => {
+    const allowedCountries = ['US', 'CA', 'GB', 'DE'];
+    expect(resolveCountryCode('FR', allowedCountries)).toBe('US');
+    expect(resolveCountryCode('ZZ', allowedCountries)).toBe('US');
+  });
+
+  it('supports case-insensitive matching for allowed countries', () => {
+    const allowedCountries = ['US', 'CA', 'GB', 'DE'];
+    expect(resolveCountryCode('ca', allowedCountries)).toBe('ca');
+    expect(resolveCountryCode('us', allowedCountries)).toBe('us');
+    expect(resolveCountryCode('gb', allowedCountries)).toBe('gb');
+  });
+
+  it('supports custom fallback country', () => {
+    const allowedCountries = ['CA', 'GB', 'DE'];
+    expect(resolveCountryCode('FR', allowedCountries, 'CA')).toBe('CA');
+    expect(resolveCountryCode('', allowedCountries, 'GB')).toBe('GB');
+  });
+
+  it('handles empty allowed countries array', () => {
+    expect(resolveCountryCode('CA', [])).toBe('CA');
+    expect(resolveCountryCode('DE', [])).toBe('DE');
+  });
+});
 
 describe('serializeError', () => {
   it('prefixes status codes and flattens nested request info', () => {
