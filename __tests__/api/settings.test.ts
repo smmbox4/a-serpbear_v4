@@ -25,6 +25,22 @@ jest.mock('fs/promises', () => ({
   writeFile: jest.fn(),
 }));
 
+// Mock the logger to prevent console output during tests
+jest.mock('../../utils/logger', () => ({
+  logger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+    verbose: jest.fn(),
+  },
+}));
+
+// Mock the API logging middleware
+jest.mock('../../utils/apiLogging', () => ({
+  withApiLogging: (handler: any) => handler,
+}));
+
 const encryptMock = jest.fn((value: string) => value);
 const readFileMock = readFile as unknown as jest.Mock;
 const verifyUserMock = verifyUser as unknown as jest.Mock;

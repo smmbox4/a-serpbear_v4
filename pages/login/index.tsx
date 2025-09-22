@@ -50,7 +50,8 @@ const Login: NextPage = () => {
                router.push('/');
             }
          } catch (fetchError) {
-            setError({ type: 'unknown', msg: 'The server.' });
+            console.error('Login request failed:', fetchError);
+            setError({ type: 'network_error', msg: 'Network error: Unable to connect to the server.' });
             setTimeout(() => { setError(null); }, 3000);
          }
       }

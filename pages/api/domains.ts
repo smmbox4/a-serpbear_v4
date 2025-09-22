@@ -6,6 +6,7 @@ import Keyword from '../../database/models/keyword';
 import getdomainStats from '../../utils/domains';
 import verifyUser from '../../utils/verifyUser';
 import { checkSearchConsoleIntegration, removeLocalSCData } from '../../utils/searchConsole';
+import { withApiLogging } from '../../utils/apiLogging';
 
 type DomainsGetRes = {
    domains: DomainType[]
@@ -29,20 +30,18 @@ type DomainsUpdateRes = {
    error?: string|null,
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
    await db.sync();
    
-   // Allow GET requests without authentication for basic domain info
-   if (req.method === 'GET') {
-      return getDomains(req, res);
-   }
-   
-   // All other methods require authentication
+   // Check authentication for all requests now - changed from previous behavior
    const authorized = verifyUser(req, res);
    if (authorized !== 'authorized') {
       return res.status(401).json({ error: authorized });
    }
    
+   if (req.method === 'GET') {
+      return getDomains(req, res);
+   }
    if (req.method === 'POST') {
       return addDomain(req, res);
    }
@@ -52,21 +51,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    if (req.method === 'PUT') {
       return updateDomain(req, res);
    }
-   return res.status(502).json({ error: 'Unrecognized Route.' });
-}
+   return res.status(405).json({ error: 'Method not allowed' });
+};
 
 export const getDomains = async (req: NextApiRequest, res: NextApiResponse<DomainsGetRes>) => {
    const withStats = !!req?.query?.withstats;
    
-   // Check authentication status
-   const authorized = verifyUser(req, res);
-   const isAuthenticated = authorized === 'authorized';
-   
    try {
-      if (!isAuthenticated) {
-         // Return empty domains array for unauthenticated users
-         return res.status(200).json({ domains: [] });
-      }
       
       const allDomains: Domain[] = await Domain.findAll();
       const formattedDomains: DomainType[] = allDomains.map((el) => {
@@ -155,3 +146,8 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
       return res.status(400).json({ domain: null, error: 'Error Updating Domain. An Unknown Error Occurred.' });
    }
 };
+
+export default withApiLogging(handler, { 
+   name: 'domains',
+   logBody: false 
+});
