@@ -16,6 +16,7 @@ services:
       - SECRET=4715aed321jhje43625dd
       - APIKEY=5saedXklbbjbjbhp3pih4fdnakhjwq5
       - SESSION_DURATION=24
+      - NEXT_PUBLIC_SCREENSHOTS=true
       - SEARCH_CONSOLE_CLIENT_EMAIL=
       - SEARCH_CONSOLE_PRIVATE_KEY=--
       - NEXT_PUBLIC_APP_URL=https://serp.hugev.xyz
