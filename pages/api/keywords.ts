@@ -182,6 +182,7 @@ const addKeywords = async (req: NextApiRequest, res: NextApiResponse<KeywordsGet
          position: 0,
          updating: true,
          history: JSON.stringify({}),
+         lastResult: JSON.stringify([]),
          url: '',
          tags: JSON.stringify(tagsArray.slice(0, 10)), // Limit to 10 tags
          sticky: false,

@@ -171,11 +171,41 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
          const dateKey = `${theDate.getFullYear()}-${theDate.getMonth() + 1}-${theDate.getDate()}`;
          history[dateKey] = newPos;
 
+         const normalizeResult = (result: RefreshResult['result']): string => {
+            if (result === undefined || result === null) {
+               return '[]';
+            }
+
+            if (typeof result === 'string') {
+               return result;
+            }
+
+            if (Array.isArray(result)) {
+               return JSON.stringify(result);
+            }
+
+            try {
+               return JSON.stringify(result);
+            } catch (error) {
+               console.warn('[WARNING] Failed to serialise keyword result:', error);
+               return '[]';
+            }
+         };
+
+         const normalizedResult = normalizeResult(updatedKeyword.result);
+         let parsedNormalizedResult: KeywordLastResult[] = [];
+         try {
+            const maybeParsedResult = JSON.parse(normalizedResult);
+            parsedNormalizedResult = Array.isArray(maybeParsedResult) ? maybeParsedResult : [];
+         } catch {
+            parsedNormalizedResult = [];
+         }
+
          const updatedVal = {
             position: newPos,
             updating: false,
             url: updatedKeyword.url,
-            lastResult: updatedKeyword.result,
+            lastResult: parsedNormalizedResult,
             history,
             lastUpdated: updatedKeyword.error ? keyword.lastUpdated : theDate.toJSON(),
             lastUpdateError: updatedKeyword.error
@@ -194,7 +224,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
          try {
             await keywordRaw.update({
                ...updatedVal,
-               lastResult: Array.isArray(updatedKeyword.result) ? JSON.stringify(updatedKeyword.result) : updatedKeyword.result,
+               lastResult: normalizedResult,
                history: JSON.stringify(history),
             });
             console.log('[SUCCESS] Updating the Keyword: ', keyword.keyword);
