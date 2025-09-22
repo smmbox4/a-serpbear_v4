@@ -42,7 +42,9 @@ type KeywordType = {
    lastUpdateError: {date: string, error: string, scraper: string} | false,
    scData?: KeywordSCData,
     uid?: string
-   location?: string
+   location?: string,
+   state?: string,
+   city?: string,
 }
 
 type KeywordLastResult = {

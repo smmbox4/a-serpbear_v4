@@ -218,7 +218,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 
 ## Development workflow
 
-- **Node.js version:** Use `nvm use` to adopt the `20.18.0` runtime pinned in `.nvmrc`.
+- **Node.js version:** Use `nvm use` to adopt the `20.18.1` runtime pinned in `.nvmrc`.
 - **Install dependencies:** `npm install`
 - **Code quality:**
   - `npm run lint` for ESLint (JavaScript/TypeScript).
