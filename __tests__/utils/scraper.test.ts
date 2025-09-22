@@ -1,4 +1,5 @@
 import { serializeError } from '../../utils/errorSerialization';
+import { extractScrapedResult, getSerp } from '../../utils/scraper';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 
 describe('resolveCountryCode', () => {
@@ -102,5 +103,33 @@ describe('serializeError', () => {
   it('returns the raw string for readable inputs', () => {
     const message = 'Simple error message';
     expect(serializeError(message)).toBe(message);
+  });
+});
+
+describe('getSerp', () => {
+  it('resolves Google interstitial links before matching domains', () => {
+    const html = `
+      <body>
+        <div id="search">
+          <div>
+            <div>
+              <div>
+                <a href="/interstitial?url=https://example.com/landing">
+                  <h3>Example site</h3>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    `;
+
+    const extracted = extractScrapedResult(html, 'desktop');
+    expect(extracted).toHaveLength(1);
+    expect(extracted[0].url).toBe('https://example.com/landing');
+
+    const serp = getSerp('example.com', extracted);
+    expect(serp.position).toBe(1);
+    expect(serp.url).toBe('https://example.com/landing');
   });
 });
