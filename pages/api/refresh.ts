@@ -54,7 +54,7 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
 
    try {
       const settings = await getAppSettings();
-      if (!settings || (settings && settings.scraper_type === 'never')) {
+      if (!settings || (settings && settings.scraper_type === 'none')) {
          return res.status(400).json({ error: 'Scraper has not been set up yet.' });
       }
       const query = req.query.id === 'all' && domain ? { domain } : { ID: { [Op.in]: keywordIDs } };
@@ -86,7 +86,7 @@ const getKeywordSearchResults = async (req: NextApiRequest, res: NextApiResponse
    }
    try {
       const settings = await getAppSettings();
-      if (!settings || (settings && settings.scraper_type === 'never')) {
+      if (!settings || (settings && settings.scraper_type === 'none')) {
          return res.status(400).json({ error: 'Scraper has not been set up yet.' });
       }
       const dummyKeyword:KeywordType = {
