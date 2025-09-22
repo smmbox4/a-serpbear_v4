@@ -3,7 +3,7 @@ import { setTimeout as sleep } from 'timers/promises';
 import { Op } from 'sequelize';
 import { readFile, writeFile } from 'fs/promises';
 import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
-import parseKeywords, { normaliseHistory } from './parseKeywords';
+import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
 import Domain from '../database/models/domain';
 import { serializeError } from './errorSerialization';
@@ -170,7 +170,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
          ? updatedKeyword.position
          : Number(updatedKeyword.position ?? keyword.position ?? 0) || 0;
 
-      const history = normaliseHistory(keyword.history);
+      const { history } = keyword;
       history[dateKey] = newPos;
 
       const normalizeResult = (result: any): string => {
