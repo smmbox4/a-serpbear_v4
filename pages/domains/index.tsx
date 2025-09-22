@@ -12,6 +12,7 @@ import { fetchDomainScreenshot, useFetchDomains } from '../../services/domains';
 import DomainItem from '../../components/domains/DomainItem';
 import Icon from '../../components/common/Icon';
 import Footer from '../../components/common/Footer';
+import { withAuth } from '../../hooks/useAuth';
 
 type thumbImages = { [domain:string] : string }
 
@@ -164,4 +165,4 @@ const Domains: NextPage = () => {
    );
 };
 
-export default Domains;
+export default withAuth(Domains);
