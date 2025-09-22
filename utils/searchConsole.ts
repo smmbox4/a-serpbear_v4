@@ -44,7 +44,9 @@ export const isSearchConsoleDataFreshForToday = (
  */
 const fetchSearchConsoleData = async (domain:DomainType, days:number, type?:string, api?:SCAPISettings): Promise<fetchConsoleDataResponse> => {
    if (!domain) return { error: true, errorMsg: 'Domain Not Provided!' };
-   if (!api?.private_key || !api?.client_email) return { error: true, errorMsg: 'Search Console API Data Not Available.' };
+   if (!api?.private_key || !api?.client_email) {
+      return { error: true, errorMsg: 'Search Console API data is not available.' };
+   }
    const domainName = domain.domain;
    const defaultSCSettings = { property_type: 'domain', url: '', client_email: '', private_key: '' };
    const domainSettings = domain.search_console ? JSON.parse(domain.search_console) : defaultSCSettings;

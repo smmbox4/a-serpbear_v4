@@ -198,7 +198,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                      outline-none focus:border-indigo-300 ${!allowsCity ? ' cursor-not-allowed' : ''} `}
                      disabled={!allowsCity}
                      title={!allowsCity ? `Your scraper ${scraperName} doesn't have city level scraping feature.` : ''}
-                     placeholder={`State (Optional)${!allowsCity ? `. Not available for ${scraperName}.` : ''}`}
+                     placeholder={`State (Optional${!allowsCity ? ` — not available for ${scraperName}` : ''})`}
                      value={newKeywordsData.state}
                      onChange={(e) => setNewKeywordsData({ ...newKeywordsData, state: e.target.value })}
                   />
@@ -210,7 +210,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                      outline-none focus:border-indigo-300 ${!allowsCity ? ' cursor-not-allowed' : ''} `}
                      disabled={!allowsCity}
                      title={!allowsCity ? `Your scraper ${scraperName} doesn't have city level scraping feature.` : ''}
-                     placeholder={`City (Optional)${!allowsCity ? `. Not available for ${scraperName}.` : ''}`}
+                     placeholder={`City (Optional${!allowsCity ? ` — not available for ${scraperName}` : ''})`}
                      value={newKeywordsData.city}
                      onChange={(e) => setNewKeywordsData({ ...newKeywordsData, city: e.target.value })}
                   />

@@ -2,31 +2,30 @@ import { NextRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
+const parseJsonResponse = async (res: Response) => {
+   const text = await res.text();
+   if (!text) { return {}; }
+   try {
+      return JSON.parse(text);
+   } catch (error) {
+      const snippet = text.substring(0, 200) || `status ${res.status}`;
+      throw new Error(res.ok ? `Unexpected response (${res.status}): ${snippet}` : snippet);
+   }
+};
+
 export function useTestAdwordsIntegration(onSuccess?: Function) {
    return useMutation(async (payload:{developer_token:string, account_id:string}) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ ...payload }) };
       const res = await fetch(`${window.location.origin}/api/adwords`, fetchOpts);
-      if (res.status >= 400 && res.status < 600) {
-         let errorMessage = 'Bad response from server';
-         try {
-            const contentType = res.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-               const errorData = await res.json();
-               errorMessage = errorData?.error ? errorData.error : 'Bad response from server';
-            } else {
-               // Handle HTML error pages or other non-JSON responses
-               const textResponse = await res.text();
-               console.warn('Non-JSON error response received:', textResponse.substring(0, 200));
-               errorMessage = `Server error (${res.status}): Please try again later`;
-            }
-         } catch (parseError) {
-            console.warn('Failed to parse error response:', parseError);
-            errorMessage = `Server error (${res.status}): Please try again later`;
-         }
+      const responsePayload = await parseJsonResponse(res);
+      if (!res.ok) {
+         const errorMessage = typeof responsePayload === 'string'
+            ? responsePayload
+            : responsePayload?.error || responsePayload?.message || `Server error (${res.status}): Please try again later`;
          throw new Error(errorMessage);
       }
-      return res.json();
+      return responsePayload;
    }, {
       onSuccess: async (data) => {
          console.log('Ideas Added:', data);

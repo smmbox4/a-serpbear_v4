@@ -7,6 +7,8 @@ export const dummyDomain = {
    lastUpdated: '2022-11-11T10:00:32.243',
    added: '2022-11-11T10:00:32.244',
    tags: '',
+   scrape_enabled: true,
+   notify_enabled: true,
    notification: true,
    notification_interval: 'daily',
    notification_emails: '',

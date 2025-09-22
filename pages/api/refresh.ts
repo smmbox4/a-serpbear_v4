@@ -2,11 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { Op } from 'sequelize';
 import db from '../../database/database';
 import Keyword from '../../database/models/keyword';
+import Domain from '../../database/models/domain';
 import refreshAndUpdateKeywords from '../../utils/refresh';
 import { getAppSettings } from './settings';
 import verifyUser from '../../utils/verifyUser';
 import parseKeywords from '../../utils/parseKeywords';
 import { scrapeKeywordFromGoogle } from '../../utils/scraper';
+import { serializeError } from '../../utils/errorSerialization';
 
 type KeywordsRefreshRes = {
    keywords?: KeywordType[]
@@ -52,6 +54,10 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
    const { domain } = req.query || {};
    console.log('keywordIDs: ', keywordIDs);
 
+   if (req.query.id !== 'all' && (!keywordIDs || keywordIDs.length === 0)) {
+      return res.status(400).json({ error: 'No valid keyword IDs provided' });
+   }
+
    try {
       const settings = await getAppSettings();
       console.log('[REFRESH] Scraper type:', settings?.scraper_type || 'none');
@@ -61,22 +67,51 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
          return res.status(400).json({ error: 'Scraper has not been set up yet.' });
       }
       const query = req.query.id === 'all' && domain ? { domain } : { ID: { [Op.in]: keywordIDs } };
-      await Keyword.update({ updating: true }, { where: query });
       const keywordQueries: Keyword[] = await Keyword.findAll({ where: query });
 
-      console.log(`[REFRESH] Processing ${keywordQueries.length} keywords for ${req.query.id === 'all' ? `domain: ${domain}` : 
-         `IDs: ${Array.isArray(keywordIDs) ? keywordIDs.join(',') : 'none'}`}`);
+      if (keywordQueries.length === 0) {
+         return res.status(404).json({ error: 'No keywords found for the provided filters.' });
+      }
+
+      const domainNames = Array.from(new Set(keywordQueries.map((keyword) => keyword.domain).filter(Boolean)));
+      const domainRecords = await Domain.findAll({ where: { domain: domainNames }, attributes: ['domain', 'scrape_enabled'] });
+      const scrapeEnabledMap = new Map(domainRecords.map((record) => {
+         const plain = record.get({ plain: true }) as DomainType;
+         return [plain.domain, plain.scrape_enabled !== false];
+      }));
+
+      const keywordsToRefresh = keywordQueries.filter((keyword) => scrapeEnabledMap.get(keyword.domain) !== false);
+      const skippedKeywords = keywordQueries.filter((keyword) => scrapeEnabledMap.get(keyword.domain) === false);
+
+      if (skippedKeywords.length > 0) {
+         const skippedIds = skippedKeywords.map((keyword) => keyword.ID);
+         await Keyword.update({ updating: false }, { where: { ID: skippedIds } });
+      }
+
+      if (keywordsToRefresh.length === 0) {
+         return res.status(200).json({ keywords: [] });
+      }
+
+      const keywordIdsToRefresh = keywordsToRefresh.map((keyword) => keyword.ID);
+      await Keyword.update({ updating: true }, { where: { ID: keywordIdsToRefresh } });
+
+      console.log(`[REFRESH] Processing ${keywordsToRefresh.length} keywords for ${req.query.id === 'all' ? `domain: ${domain}` :
+         `IDs: ${keywordIdsToRefresh.join(',')}`}`);
 
       let keywords = [];
 
-      // If Single Keyword wait for the scraping process,
-      // else, Process the task in background. Do not wait.
-    if (keywordIDs && keywordIDs.length === 1) {
-         const refreshed: KeywordType[] = await refreshAndUpdateKeywords(keywordQueries, settings);
-         keywords = refreshed;
-      } else {
-         refreshAndUpdateKeywords(keywordQueries, settings);
-         keywords = parseKeywords(keywordQueries.map((el) => el.get({ plain: true })));
+      try {
+         if (keywordIdsToRefresh.length === 1) {
+            const refreshed: KeywordType[] = await refreshAndUpdateKeywords(keywordsToRefresh, settings);
+            keywords = refreshed;
+         } else {
+            refreshAndUpdateKeywords(keywordsToRefresh, settings);
+            keywords = parseKeywords(keywordsToRefresh.map((el) => el.get({ plain: true })));
+         }
+      } catch (refreshError) {
+         const message = serializeError(refreshError);
+         console.log('[REFRESH] ERROR refreshAndUpdateKeywords: ', message);
+         return res.status(500).json({ error: message });
       }
 
       return res.status(200).json({ keywords });

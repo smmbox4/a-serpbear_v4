@@ -3,6 +3,7 @@ import { setTimeout as sleep } from 'timers/promises';
 import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
 import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
+import Domain from '../database/models/domain';
 import { serializeError } from './errorSerialization';
 
 /**
@@ -13,8 +14,37 @@ import { serializeError } from './errorSerialization';
  * @returns {Promise}
  */
 const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsType): Promise<KeywordType[]> => {
-   const keywords:KeywordType[] = rawkeyword.map((el) => el.get({ plain: true }));
    if (!rawkeyword || rawkeyword.length === 0) { return []; }
+
+   const domainNames = Array.from(new Set(rawkeyword.map((el) => el.domain).filter(Boolean)));
+   let scrapePermissions = new Map<string, boolean>();
+
+   if (domainNames.length > 0) {
+      const domains = await Domain.findAll({ where: { domain: domainNames }, attributes: ['domain', 'scrape_enabled'] });
+      scrapePermissions = new Map(domains.map((domain) => {
+         const domainPlain = domain.get({ plain: true }) as DomainType;
+         return [domainPlain.domain, domainPlain.scrape_enabled !== false];
+      }));
+   }
+
+   const skippedKeywords: Keyword[] = [];
+   const eligibleKeywordModels = rawkeyword.filter((keyword) => {
+      const isEnabled = scrapePermissions.get(keyword.domain);
+      if (isEnabled === false) {
+         skippedKeywords.push(keyword);
+         return false;
+      }
+      return true;
+   });
+
+   if (skippedKeywords.length > 0) {
+      const skippedIds = skippedKeywords.map((keyword) => keyword.ID);
+      await Keyword.update({ updating: false }, { where: { ID: skippedIds } });
+   }
+
+   if (eligibleKeywordModels.length === 0) { return []; }
+
+   const keywords:KeywordType[] = eligibleKeywordModels.map((el) => el.get({ plain: true }));
    const start = performance.now();
    const updatedKeywords: KeywordType[] = [];
 
@@ -30,7 +60,7 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
          }
       }
    } else {
-      for (const keyword of rawkeyword) {
+      for (const keyword of eligibleKeywordModels) {
          console.log('START SCRAPE: ', keyword.keyword);
          const updatedkeyword = await refreshAndUpdateKeyword(keyword, settings);
          updatedKeywords.push(updatedkeyword);
