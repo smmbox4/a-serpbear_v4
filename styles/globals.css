@@ -13,18 +13,19 @@ body {
    padding-inline: var(--layout-inline);
 }
 
-@media (max-width: 760px) {
-   body {
-      padding-inline: 0;
-   }
-}
-
 .topbar {
    position: relative;
 }
 
 .topbar__back {
    position: absolute;
+}
+
+@media (max-width: 760px) {
+   .topbar {
+      margin-inline: calc(-1 * var(--layout-inline));
+      padding-inline: var(--layout-inline);
+   }
 }
 
 @media (min-width: 1024px) {
