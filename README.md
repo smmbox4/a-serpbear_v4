@@ -255,5 +255,5 @@ Check [`AGENTS.md`](./AGENTS.md) for repository-wide contribution guidelines.
 
 ## License
 
-SerpBear is distributed under the [GNU Affero General Public License v3.0](./LICENSE). Commercial support and custom integrations are available—open a discussion if you need help deploying the platform at scale.
+SerpBear is distributed under the [MIT License](./LICENSE). Commercial support and custom integrations are available—open a discussion if you need help deploying the platform at scale.
 
