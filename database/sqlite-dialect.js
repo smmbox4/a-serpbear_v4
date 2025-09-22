@@ -55,14 +55,14 @@ function hasFlag(value, flag) {
 
 function normalizeNamedBindings(params) {
   if (!params || typeof params !== 'object' || Array.isArray(params)) {
-    return coerceBooleanBindings(params);
+    return params;
   }
   const normalized = {};
   for (const [key, value] of Object.entries(params)) {
     if (typeof key === 'string' && key.length > 0 && ['$', '@', ':'].includes(key[0])) {
-      normalized[key.slice(1)] = coerceBooleanBindings(value);
+      normalized[key.slice(1)] = value;
     } else {
-      normalized[key] = coerceBooleanBindings(value);
+      normalized[key] = value;
     }
   }
   return normalized;
