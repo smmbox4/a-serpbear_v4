@@ -82,9 +82,10 @@ const Settings = ({ closeSettings }:SettingsProps) => {
          setTimeout(() => { setSettingsError(null); }, 3000);
       } else {
          // Perform Update
+         const previousScraperType = appSettings?.settings?.scraper_type;
          await updateMutateAsync(settings);
-         // If Scraper is updated, refresh the page.
-         if (appSettings.settings === 'none' && scraper_type !== 'none') {
+         // If Scraper is updated, refresh the page when enabling from a disabled state.
+         if (previousScraperType === 'none' && scraper_type !== 'none') {
             window.location.reload();
          }
       }

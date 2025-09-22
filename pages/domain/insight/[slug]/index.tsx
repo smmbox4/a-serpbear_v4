@@ -83,7 +83,7 @@ const InsightPage: NextPage = () => {
 
          <CSSTransition in={showDomainSettings} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter>
             <DomainSettings
-            domain={showDomainSettings && theDomains && activDomain && activDomain.domain ? activDomain : false}
+            domain={showDomainSettings && theDomains && activDomain && activDomain.domain ? activDomain : null}
             closeModal={setShowDomainSettings}
             />
          </CSSTransition>

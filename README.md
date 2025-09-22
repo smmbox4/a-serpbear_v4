@@ -16,7 +16,7 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Email Notification:** Get notified of your keyword position changes daily/weekly/monthly through email.
 - **SERP API:** SerpBear comes with built-in API that you can use for your marketing & data reporting tools.
 - **Keyword Research:** Ability to research keywords and auto-generate keyword ideas from your tracked website's content by integrating your Google Ads test account.
-- **Google Search Console Integration:** Get the actual visit count, impressions & more for each keyword. Cached data refreshes automatically once per cron day based on the configured timezone, can be manually refreshed from settings, and falls back to global credentials when domain-level credentials aren't configured.
+- **Google Search Console Integration:** Get the actual visit count, impressions & more for each keyword. Cached data refreshes automatically once per cron day based on the configured timezone, can be manually refreshed from settings, and falls back to global credentials when domain-level credentials aren't configured. Dashboards now automatically refetch when switching between domains thanks to slug-keyed queries, ensuring the Search Console view and insight reports stay aligned with the active property.
 - **Mobile App:** Add the PWA app to your mobile for a better mobile experience.
 - **Zero Cost to RUN:** Run the App on mogenius.com or Fly.io for free.
 - **Robust Error Handling:** Improved input validation, safer JSON parsing, and a shared error-serialization helper that keeps scraper and refresh logs consistent.
@@ -39,6 +39,8 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 ### Continuous Integration
 
 Every pull request and all pushes to the `main` and `dev` branches run through a GitHub Actions workflow defined in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). The pipeline installs dependencies with `npm ci`, executes both JavaScript and CSS linting, runs the Jest test suite via `npm run test:ci`, and builds the production bundle. The workflow also provisions a minimal `.env.local` file so environment validation passes and restores a cache for `.next/cache` to speed up subsequent builds.
+
+All workflows now run inside concurrency groups with `cancel-in-progress: true`, so a fresh push or pull request update automatically stops any in-flight CI or Docker image builds before starting the latest run.
 
 #### Screenshot capture configuration
 
