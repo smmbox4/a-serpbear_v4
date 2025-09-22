@@ -21,7 +21,7 @@ export const sanitizeHtml = (input: string): string => {
       iterations++;
    } while (sanitized !== previous && iterations < maxIterations);
    return sanitized
-      .replace(/javascript:/gi, '') // Remove javascript: protocol
+      .replace(/(?:javascript:|vbscript:|data:)/gi, '') // Remove dangerous protocols
       .replace(/\son\w+\s*=\s*[^>\s]*/gi, '') // Remove event handlers like onclick=...
       .trim()
       .substring(0, 1000); // Limit length
