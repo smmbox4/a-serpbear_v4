@@ -1,5 +1,6 @@
 import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
+import { parseLocation } from '../../utils/location';
 
 interface HasDataResult {
    title: string,
@@ -21,8 +22,9 @@ const hasdata:ScraperSettings = {
    scrapeURL: (keyword, settings) => {
       const country = resolveCountryCode(keyword.country);
       const countryName = countries[country][0];
-      const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);
-      const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
+      const { city, state } = parseLocation(keyword.location, keyword.country);
+      const locationParts = [city, state, countryName].filter(Boolean);
+      const location = city || state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
       return `https://api.scrape-it.cloud/scrape/google/serp?q=${encodeURIComponent(keyword.keyword)}${location}&num=100&gl=${country.toLowerCase()}&deviceType=${keyword.device}`;
    },
    resultObjectKey: 'organicResults',

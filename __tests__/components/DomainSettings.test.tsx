@@ -41,7 +41,7 @@ const mockDomain: DomainType = {
       private_key: 'initial-key',
    }),
    notifications: '',
-   keywordCount: 0,
+   keywordsTracked: 0,
 };
 
 describe('DomainSettings Component', () => {

@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Consolidated keyword location metadata into a single `location` column, migrated existing records, and introduced shared helpers so the API, UI, scrapers, and email exports consistently format and validate paired city/state input.
+* Removed the persisted `domain.keywordCount` column in favour of a computed `keywordsTracked` value returned by the domains API and rendered throughout the dashboard.
 * Normalised SQLite boolean bindings so `/api/domains` updates persist matching `scrape_enabled` and `notification` flags, and added API regression coverage for the domain toggle.
 * Removed the `/api/dbmigrate` endpoint, dashboard auto-migration banner, and related hooks so database upgrades run exclusively from the Docker `entrypoint.sh`.
 * Collapsed the global body gutters on mobile so dashboard content can span the full viewport width on phones.

@@ -7,6 +7,7 @@ import ChartSlim from '../common/ChartSlim';
 import KeywordPosition from './KeywordPosition';
 import { generateTheChartData } from '../../utils/client/generateChartData';
 import { formattedNum } from '../../utils/client/helpers';
+import { parseLocation } from '../../utils/location';
 
 type KeywordProps = {
    keywordData: KeywordType,
@@ -48,7 +49,6 @@ const Keyword = (props: KeywordProps) => {
         keyword,
         domain,
         ID,
-        city,
         position,
         url = '',
         lastUpdated,
@@ -58,6 +58,7 @@ const Keyword = (props: KeywordProps) => {
         updating = false,
         lastUpdateError = false,
         volume,
+        location,
      } = keywordData;
 
    const [showOptions, setShowOptions] = useState(false);
@@ -100,6 +101,19 @@ const Keyword = (props: KeywordProps) => {
       return bestPos || false;
    }, [history]);
 
+   const { city: locationCity = '', state: locationState = '' } = useMemo(() => {
+      const parsed = parseLocation(location, country);
+      return {
+         city: parsed.city || '',
+         state: parsed.state || '',
+      };
+   }, [location, country]);
+
+   const displayLocation = useMemo(() => {
+      const parts = [locationCity, locationState].filter((part) => part && part.trim() !== '');
+      return parts.join(', ');
+   }, [locationCity, locationState]);
+
    const optionsButtonStyle = 'block px-2 py-2 cursor-pointer hover:bg-indigo-50 hover:text-blue-700';
 
    return (
@@ -128,9 +142,9 @@ const Keyword = (props: KeywordProps) => {
                   <span className="block text-ellipsis overflow-hidden whitespace-nowrap">
                      {keyword}
                   </span>
-                  {city && (
+                  {displayLocation && (
                      <span className="block text-sm text-gray-500 lg:inline lg:ml-1">
-                        ({city})
+                        ({displayLocation})
                      </span>
                   )}
                </span>
@@ -260,5 +274,4 @@ const Keyword = (props: KeywordProps) => {
       </div>
    );
  };
-
  export default Keyword;

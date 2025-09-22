@@ -32,8 +32,7 @@ describe('valueSerp scraper', () => {
       keyword: 'best coffee beans',
       country: 'US',
       device: 'mobile',
-      city: 'Miami',
-      state: 'FL',
+      location: 'Miami,FL,US',
     };
 
     const url = valueSerp.scrapeURL!(

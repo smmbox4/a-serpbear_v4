@@ -9,7 +9,7 @@ type DomainType = {
    notification_emails: string,
    lastUpdated: string,
    added: string,
-   keywordCount?: number,
+   keywordsTracked?: number,
    keywordsUpdated?: string,
    avgPosition?: number,
    scVisits?: number,
@@ -41,9 +41,8 @@ type KeywordType = {
    updating: boolean,
    lastUpdateError: {date: string, error: string, scraper: string} | false,
    scData?: KeywordSCData,
-   uid?: string
-   city?: string
-   state?: string
+    uid?: string
+   location?: string
 }
 
 type KeywordLastResult = {
@@ -132,8 +131,7 @@ type KeywordAddPayload = {
    country: string,
    domain: string,
    tags?: string,
-   city?:string,
-   state?:string
+   location?: string
 }
 
 type SearchAnalyticsRawItem = {

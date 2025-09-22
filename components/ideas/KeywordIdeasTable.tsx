@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { useAddKeywords } from '../../services/keywords';
+import { formatLocation } from '../../utils/location';
 import Icon from '../common/Icon';
 import KeywordIdea from './KeywordIdea';
 import useWindowResize from '../../hooks/useWindowResize';
@@ -105,6 +106,7 @@ const IdeasKeywordsTable = ({
                country,
                domain: isResearchPage ? addKeywordDomain : (domain?.domain || ''),
                tags: '',
+               location: formatLocation({ country }),
             });
          }
       });

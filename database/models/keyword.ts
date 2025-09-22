@@ -20,13 +20,7 @@ class Keyword extends Model {
    country!: string;
 
    @Column({ type: DataType.STRING, allowNull: true, defaultValue: '' })
-   city!: string;
-
-   @Column({ type: DataType.STRING, allowNull: true, defaultValue: '' })
-   state!: string;
-
-   @Column({ type: DataType.STRING, allowNull: true, defaultValue: '' })
-   latlong!: string;
+   location!: string;
 
    @Column({ type: DataType.STRING, allowNull: false, defaultValue: '' })
    domain!: string;
@@ -71,8 +65,6 @@ class Keyword extends Model {
    @Column({ type: DataType.STRING, allowNull: true, defaultValue: 'false' })
    lastUpdateError!: string;
 
-   @Column({ type: DataType.STRING, allowNull: true })
-   settings!: string;
 }
 
 export default Keyword;

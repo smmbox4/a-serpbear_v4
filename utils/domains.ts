@@ -17,7 +17,7 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
       // First Get ALl The Keywords for this Domain
       const allKeywords:Keyword[] = await Keyword.findAll({ where: { domain: domain.domain } });
       const keywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
-      domainWithStat.keywordCount = keywords.length;
+      domainWithStat.keywordsTracked = keywords.length;
       const keywordPositions = keywords.reduce((acc, itm) => (acc + itm.position), 0);
       const KeywordsUpdateDates: number[] = keywords.reduce((acc: number[], itm) => [...acc, new Date(itm.lastUpdated).getTime()], [0]);
       const lastKeywordUpdateDate = Math.max(...KeywordsUpdateDates);
