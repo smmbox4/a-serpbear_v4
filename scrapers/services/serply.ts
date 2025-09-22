@@ -1,3 +1,5 @@
+import { resolveCountryCode } from '../../utils/scraperHelpers';
+
 interface SerplyResult {
    title: string,
    link: string,
@@ -9,8 +11,8 @@ const serply:ScraperSettings = {
    id: 'serply',
    name: 'Serply',
    website: 'serply.io',
-   headers: (keyword: KeywordType, settings: SettingsType) => {
-      const country = scraperCountries.includes(keyword.country.toUpperCase()) ? keyword.country : 'US';
+   headers: (keyword, settings) => {
+      const country = resolveCountryCode(keyword.country, scraperCountries);
       return {
          'Content-Type': 'application/json',
          'X-User-Agent': keyword.device === 'mobile' ? 'mobile' : 'desktop',
@@ -18,8 +20,8 @@ const serply:ScraperSettings = {
          'X-Proxy-Location': country,
       };
    },
-   scrapeURL: (keyword: KeywordType) => {
-      const country = scraperCountries.includes(keyword.country.toUpperCase()) ? keyword.country : 'US';
+   scrapeURL: (keyword) => {
+      const country = resolveCountryCode(keyword.country, scraperCountries);
       const searchParams = new URLSearchParams({
          q: keyword.keyword,
          num: '100',

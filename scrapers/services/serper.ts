@@ -1,3 +1,5 @@
+import { resolveCountryCode } from '../../utils/scraperHelpers';
+
 interface SerperResult {
    title: string,
    link: string,
@@ -9,8 +11,8 @@ const serper:ScraperSettings = {
    name: 'Serper.dev',
    website: 'serper.dev',
    allowsCity: true,
-   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: countryData) => {
-      const country = keyword.country || 'US';
+   scrapeURL: (keyword, settings, countryData) => {
+      const country = resolveCountryCode(keyword.country);
       const lang = countryData[country][2];
       console.log('Serper URL :', `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}&num=100&apiKey=${settings.scraping_api}`);
       return `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}&num=100&apiKey=${settings.scraping_api}`;
