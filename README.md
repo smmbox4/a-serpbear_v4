@@ -16,7 +16,7 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Email Notification:** Get notified of your keyword position changes daily/weekly/monthly through email.
 - **SERP API:** SerpBear comes with built-in API that you can use for your marketing & data reporting tools.
 - **Keyword Research:** Ability to research keywords and auto-generate keyword ideas from your tracked website's content by integrating your Google Ads test account.
-- **Domain-level toggles:** Pause scraping or notification email delivery per domain; UI switches update instantly and API/cron jobs skip disabled domains.
+- **Domain-level status toggle:** Flip domains between Active and Deactive states to pause both scraping and notification email delivery; UI switches update instantly and API/cron jobs skip disabled domains.
 - **Auto-zooming charts:** Rank trend charts now compute dynamic min/max bounds so sparkline and full charts focus on the captured data instead of the entire 1–100 range.
 - **Google Search Console Integration:** Get the actual visit count, impressions & more for each keyword. Cached data refreshes automatically once per cron day based on the configured timezone, can be manually refreshed from settings, and falls back to global credentials when domain-level credentials aren't configured. Dashboards now automatically refetch when switching between domains thanks to slug-keyed queries, ensuring the Search Console view and insight reports stay aligned with the active property.
 - **Mobile App:** Add the PWA app to your mobile for a better mobile experience.

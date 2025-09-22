@@ -29,6 +29,9 @@ const mockDomain: DomainType = {
    added: '2023-01-01',
    updated: '2023-01-01',
    tags: '',
+   scrape_enabled: true,
+   notify_enabled: true,
+   notification: true,
    notification_interval: 'daily',
    notification_emails: 'test@example.com',
    search_console: JSON.stringify({
@@ -97,6 +100,43 @@ describe('DomainSettings Component', () => {
       expect(screen.getByText('Domain Settings')).toBeInTheDocument();
       expect(screen.getByText('Notification')).toBeInTheDocument();
       expect(screen.getByText('Search Console')).toBeInTheDocument();
+   });
+
+   it('syncs scrape and notify flags when toggling the unified active control', async () => {
+      mockUseFetchDomain.mockImplementation(() => {});
+      const mutateMock = jest.fn();
+      mockUseUpdateDomain.mockReturnValue({
+         mutate: mutateMock,
+         error: null,
+         isLoading: false,
+      });
+
+      renderWithQueryClient(
+         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
+      );
+
+      expect(screen.getByText('Active')).toBeInTheDocument();
+      const toggle = screen.getByLabelText('Toggle domain active status');
+      fireEvent.click(toggle);
+
+      await waitFor(() => {
+         expect(screen.getByText('Deactive')).toBeInTheDocument();
+      });
+
+      const updateButton = screen.getByText('Update Settings');
+      fireEvent.click(updateButton);
+
+      await waitFor(() => {
+         expect(mutateMock).toHaveBeenCalled();
+      });
+
+      expect(mutateMock).toHaveBeenCalledWith({
+         domain: mockDomain,
+         domainSettings: expect.objectContaining({
+            scrape_enabled: false,
+            notify_enabled: false,
+         }),
+      });
    });
 
    it('preserves user changes to other settings when async fetch completes (functional state update fix)', async () => {
