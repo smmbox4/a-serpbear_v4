@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file. Releases no
 * Fixed the mistyped `RefreshResult` import in `utils/refresh.ts` so the TypeScript parser can load the refresh utility during linting and tests.
 * Replaced the separate per-domain `scrape_enabled`/`notify_enabled` toggles with a unified Active/Deactive control that keeps both flags in sync across cached UI state, API payloads, and cron guards so paused domains skip scraping and email runs together.
 * Updated the Serply scraper to build `/v1/search` URLs with query-string parameters so the keyword travels via `?q=` alongside locale and pagination options.
+* Updated the ValueSerp scraper to drop the hard-coded `num=100` query parameter while continuing to pass device, language, and optional location filters for each keyword.
 * Introduced dynamic chart bounds and a shared client helper so SERP line charts and sparklines zoom to the observed rank range instead of hard-coding 1–100.
 * Honoured the `NEXT_PUBLIC_SCREENSHOTS` environment flag in services and the dashboard so deployments can opt out of screenshot fetches and rely on favicons without UI clutter.
 * Returned an HTML OAuth callback from `/api/adwords` that posts an `adwordsIntegrated` message, accepted empty keyword-idea validation responses, and surfaced upstream errors in the settings toast listener.

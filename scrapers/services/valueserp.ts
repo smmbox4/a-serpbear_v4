@@ -20,8 +20,8 @@ const valueSerp:ScraperSettings = {
       const location = keyword.city || keyword.state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
       const device = keyword.device === 'mobile' ? '&device=mobile' : '';
       const lang = countryData[country][2];
-      console.log(`https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&num=100&output=json&include_answer_box=false&include_advertiser_info=false`);
-      return `https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&num=100&output=json&include_answer_box=false&include_advertiser_info=false`;
+      console.log(`https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&output=json&include_answer_box=false&include_advertiser_info=false`);
+      return `https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&output=json&include_answer_box=false&include_advertiser_info=false`;
    },
    resultObjectKey: 'organic_results',
    serpExtractor: (content) => {
