@@ -12,7 +12,7 @@ const serpapi:ScraperSettings = {
    name: 'SerpApi.com',
    website: 'serpapi.com',
    allowsCity: true,
-   headers: (keyword, settings) => {
+   headers: (keyword: KeywordType, settings: SettingsType) => {
       return {
          'Content-Type': 'application/json',
          'X-API-Key': settings.scraping_api,

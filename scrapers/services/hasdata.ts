@@ -12,7 +12,7 @@ const hasdata:ScraperSettings = {
    name: 'HasData',
    website: 'hasdata.com',
    allowsCity: true,
-   headers: (keyword, settings) => {
+   headers: (keyword: KeywordType, settings: SettingsType) => {
       return {
          'Content-Type': 'application/json',
          'x-api-key': settings.scraping_api,

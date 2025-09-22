@@ -12,7 +12,7 @@ const searchapi:ScraperSettings = {
   name: 'SearchApi.io',
   website: 'searchapi.io',
   allowsCity: true,
-  headers: (keyword, settings) => {
+  headers: (keyword: KeywordType, settings: SettingsType) => {
      return {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${settings.scraping_api}`,

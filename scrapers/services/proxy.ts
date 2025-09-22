@@ -8,7 +8,7 @@ const proxy:ScraperSettings = {
    headers: () => {
       return { Accept: 'gzip,deflate,compress;' };
    },
-   scrapeURL: (keyword) => {
+   scrapeURL: (keyword: KeywordType) => {
       return `https://www.google.com/search?num=100&q=${encodeURI(keyword.keyword)}`;
    },
    serpExtractor: (content) => {
