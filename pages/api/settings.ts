@@ -4,6 +4,7 @@ import Cryptr from 'cryptr';
 import getConfig from 'next/config';
 import verifyUser from '../../utils/verifyUser';
 import allScrapers from '../../scrapers/index';
+import { withApiLogging } from '../../utils/apiLogging';
 
 const SETTINGS_DEFAULTS: SettingsType = {
    scraper_type: 'none',
@@ -37,7 +38,7 @@ type SettingsGetResponse = {
    details?: string,
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
    // Allow GET requests without authentication for public settings
    if (req.method === 'GET') {
       return getSettings(req, res);
@@ -52,8 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    if (req.method === 'PUT') {
       return updateSettings(req, res);
    }
-   return res.status(502).json({ error: 'Unrecognized Route.' });
-}
+   return res.status(405).json({ error: 'Method not allowed' });
+};
 
 const getSettings = async (req: NextApiRequest, res: NextApiResponse<SettingsGetResponse>) => {
    try {
@@ -191,3 +192,8 @@ export const getAppSettings = async () : Promise<SettingsType> => {
       };
    }
 };
+
+export default withApiLogging(handler, { 
+   name: 'settings',
+   logBody: false 
+});

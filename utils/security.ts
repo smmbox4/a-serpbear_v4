@@ -20,9 +20,19 @@ export const sanitizeHtml = (input: string): string => {
       sanitized = sanitized.replace(/<[^>]*>/g, '');
       iterations++;
    } while (sanitized !== previous && iterations < maxIterations);
+   // Remove javascript: protocol
+   sanitized = sanitized.replace(/javascript:/gi, '');
+   
+   // Remove event handlers like onclick=... (apply until stable or max iterations reached)
+   let prevSanitized;
+   let eventRemoveIterations = 0;
+   do {
+      prevSanitized = sanitized;
+      sanitized = sanitized.replace(/\son\w+\s*=\s*[^>\s]*/gi, '');
+      eventRemoveIterations++;
+   } while (sanitized !== prevSanitized && eventRemoveIterations < maxIterations);
+
    return sanitized
-      .replace(/javascript:/gi, '') // Remove javascript: protocol
-      .replace(/\son\w+\s*=\s*[^>\s]*/gi, '') // Remove event handlers like onclick=...
       .trim()
       .substring(0, 1000); // Limit length
 };
@@ -53,7 +63,7 @@ export const sanitizeDomain = (domain: string): { isValid: boolean; sanitized: s
    }
    
    const sanitized = domain.trim().toLowerCase().substring(0, 253); // RFC 1035 limit
-   const domainRegex = /^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]?(\.[a-z0-9][a-z0-9-]{0,61}[a-z0-9]?)*$/;
+   const domainRegex = /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(\.([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?))*$/;
    
    return {
       isValid: domainRegex.test(sanitized),

@@ -1,0 +1,146 @@
+name: Code Review
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  actions: write
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Restore Next.js cache
+        id: next-cache
+        uses: actions/cache@v3
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}
+          restore-keys: ${{ runner.os }}-next-
+
+      - name: Create environment file
+        run: |
+          cat <<'ENV' > .env.local
+          SCREENSHOT_API=test
+          SECRET=test
+          USER=test
+          PASSWORD=test
+          ENV
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint JavaScript
+        run: npm run lint
+
+      - name: Lint styles
+        run: npm run lint:css
+
+      - name: Run tests
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
+
+  eslint:
+    name: ESLint SARIF
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install @microsoft/eslint-formatter-sarif --no-save
+
+      - name: Run ESLint
+        run: |
+          # Run ESLint and always produce a SARIF file
+          npx eslint . \
+            --config .eslintrc.js \
+            --ext .js,.jsx,.ts,.tsx \
+            --format @microsoft/eslint-formatter-sarif \
+            --output-file eslint-results.sarif || true
+
+          # If ESLint didn’t produce the file, create an empty SARIF report
+          if [ ! -f eslint-results.sarif ]; then
+            echo '{"version":"2.1.0","runs":[]}' > eslint-results.sarif
+          fi
+        env:
+          SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
+
+      - name: Upload ESLint results
+        if: success() && (hashFiles('eslint-results.sarif') != '')
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: eslint-results.sarif
+
+  osv-scan-push:
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+    name: OSV Scanner (push/scheduled)
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.2
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    with:
+      scan-args: -r --skip-git ./
+
+  osv-scan-pr:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: OSV Scanner (pull requests)
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.2
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    with:
+      scan-args: -r --skip-git ./
+
+  njsscan:
+    name: NodeJS Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Run njsscan
+        id: njsscan
+        uses: ajinabraham/njsscan-action@7237412fdd36af517e2745077cedbf9d6900d711
+        with:
+          args: '. --sarif --output results.sarif || true'
+
+      - name: Upload njsscan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif

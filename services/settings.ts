@@ -74,7 +74,6 @@ export const useMigrateDatabase = (onSuccess:Function|undefined) => {
    const queryClient = useQueryClient();
 
    return useMutation(async () => {
-      // console.log('settings: ', JSON.stringify(settings));
       const res = await fetch(`${window.location.origin}/api/dbmigrate`, { method: 'POST' });
       if (res.status >= 400 && res.status < 600) {
          throw new Error('Bad response from server');
@@ -85,11 +84,15 @@ export const useMigrateDatabase = (onSuccess:Function|undefined) => {
          if (onSuccess) {
             onSuccess(res);
          }
-         toast('Database Updated!', { icon: '✔️' });
+         // Only show toast if migrations were actually run
+         if (res?.migrationsRun > 0) {
+            toast(`Database Updated! ${res.migrationsRun} migration(s) applied.`, { icon: '✔️' });
+         }
          queryClient.invalidateQueries(['settings']);
+         queryClient.invalidateQueries(['dbmigrate']);
       },
-      onError: () => {
-         console.log('Error Updating Database!!!');
+      onError: (error) => {
+         console.error('Error Updating Database:', error);
          toast('Error Updating Database.', { icon: '⚠️' });
       },
    });
