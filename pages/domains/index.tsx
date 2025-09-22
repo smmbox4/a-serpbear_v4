@@ -28,7 +28,7 @@ const Domains: NextPage = () => {
    const { data: domainsData, isLoading } = useFetchDomains(router, true);
    const { data: migrationStatus, refetch: refetchMigrationStatus } = useCheckMigrationStatus();
 
-   const migrateDatabase = useMigrateDatabase((result) => {
+   const migrateDatabase = useMigrateDatabase((result: { migrated: boolean; migrationsRun: number; error?: string }) => {
       setIsAutoMigrating(false);
       refetchMigrationStatus();
       if (result?.migrationsRun > 0) {
@@ -129,7 +129,7 @@ const Domains: NextPage = () => {
          )}
          {isAutoMigrating && (
                <div className=' p-3 bg-blue-600 text-white text-sm text-center'>
-                  <Icon type="loading" size={16} className="inline mr-2" />
+                  <Icon type="loading" size={16} classes="inline mr-2" />
                   Updating database automatically...
                </div>
          )}
