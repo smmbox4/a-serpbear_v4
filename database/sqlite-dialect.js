@@ -14,11 +14,36 @@ function normalizeCallback(fn) {
   return () => {};
 }
 
+function isPlainObject(value) {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+function coerceBooleanBindings(value) {
+  if (typeof value === 'boolean') {
+    return value ? 1 : 0;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => coerceBooleanBindings(item));
+  }
+  if (isPlainObject(value)) {
+    const coerced = {};
+    for (const [key, nestedValue] of Object.entries(value)) {
+      coerced[key] = coerceBooleanBindings(nestedValue);
+    }
+    return coerced;
+  }
+  return value;
+}
+
 function normalizeParams(params) {
   if (typeof params === 'undefined') {
     return undefined;
   }
-  return params;
+  return coerceBooleanBindings(params);
 }
 
 function hasFlag(value, flag) {
@@ -30,14 +55,14 @@ function hasFlag(value, flag) {
 
 function normalizeNamedBindings(params) {
   if (!params || typeof params !== 'object' || Array.isArray(params)) {
-    return params;
+    return coerceBooleanBindings(params);
   }
   const normalized = {};
   for (const [key, value] of Object.entries(params)) {
     if (typeof key === 'string' && key.length > 0 && ['$', '@', ':'].includes(key[0])) {
-      normalized[key.slice(1)] = value;
+      normalized[key.slice(1)] = coerceBooleanBindings(value);
     } else {
-      normalized[key] = value;
+      normalized[key] = coerceBooleanBindings(value);
     }
   }
   return normalized;
