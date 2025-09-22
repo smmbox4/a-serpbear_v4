@@ -81,12 +81,17 @@ jobs:
 
       - name: Run ESLint
         run: |
+          # Run ESLint and always produce a SARIF file
           npx eslint . \
             --config .eslintrc.js \
             --ext .js,.jsx,.ts,.tsx \
             --format @microsoft/eslint-formatter-sarif \
-            --output-file eslint-results.sarif
-        continue-on-error: true
+            --output-file eslint-results.sarif || true
+
+          # If ESLint didn’t produce the file, create an empty SARIF report
+          if [ ! -f eslint-results.sarif ]; then
+            echo '{"version":"2.1.0","runs":[]}' > eslint-results.sarif
+          fi
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
 
@@ -95,12 +100,23 @@ jobs:
         with:
           sarif_file: eslint-results.sarif
 
-  osv-scan:
-    name: OSV Scanner
+  osv-scan-push:
+    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+    name: OSV Scanner (push/scheduled)
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.2
     permissions:
       contents: read
       security-events: write
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.2
+    with:
+      scan-args: -r --skip-git ./
+
+  osv-scan-pr:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: OSV Scanner (pull requests)
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.2.2
+    permissions:
+      contents: read
+      security-events: write
     with:
       scan-args: -r --skip-git ./
 
