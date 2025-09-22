@@ -278,6 +278,78 @@ export const scrapeKeywordFromGoogle = async (keyword:KeywordType, settings:Sett
  * @param {string} device - The device of the keyword.
  * @returns {SearchResult[]}
  */
+const GOOGLE_BASE_URL = 'https://www.google.com';
+const GOOGLE_REDIRECT_PATHS = ['/url', '/interstitial', '/imgres', '/aclk', '/link'];
+const GOOGLE_REDIRECT_PARAMS = ['url', 'q', 'imgurl', 'target', 'dest', 'u', 'adurl'];
+
+const ensureAbsoluteURL = (value: string | undefined | null, base: string = GOOGLE_BASE_URL): string | null => {
+   if (!value) { return null; }
+   const trimmedValue = value.trim();
+   if (!trimmedValue) { return null; }
+
+   if (trimmedValue.startsWith('//')) {
+      try {
+         return new URL(`https:${trimmedValue}`).toString();
+      } catch (error) {
+         console.log('[ERROR] Failed to normalise protocol-relative URL', trimmedValue, error);
+         return null;
+      }
+   }
+
+   const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmedValue);
+   if (hasScheme) {
+      try {
+         return new URL(trimmedValue).toString();
+      } catch (error) {
+         console.log('[ERROR] Failed to normalise absolute URL', trimmedValue, error);
+         return null;
+      }
+   }
+
+   if (trimmedValue.startsWith('/')) {
+      try {
+         return new URL(trimmedValue, base).toString();
+      } catch (error) {
+         console.log('[ERROR] Failed to resolve relative URL', trimmedValue, error);
+         return null;
+      }
+   }
+
+   try {
+      return new URL(`https://${trimmedValue}`).toString();
+   } catch (error) {
+      console.log('[ERROR] Failed to coerce host-only URL', trimmedValue, error);
+      return null;
+   }
+};
+
+const normaliseGoogleHref = (href: string | undefined | null): string | null => {
+   if (!href) { return null; }
+
+   let resolvedURL: URL;
+   try {
+      resolvedURL = new URL(href, GOOGLE_BASE_URL);
+   } catch (error) {
+      console.log('[ERROR] Unable to resolve scraped href', href, error);
+      return ensureAbsoluteURL(href);
+   }
+
+   const isRedirectPath = GOOGLE_REDIRECT_PATHS.some((redirectPath) => resolvedURL.pathname.startsWith(redirectPath));
+
+   if (isRedirectPath) {
+      for (let i = 0; i < GOOGLE_REDIRECT_PARAMS.length; i += 1) {
+         const redirectParam = GOOGLE_REDIRECT_PARAMS[i];
+         const candidate = resolvedURL.searchParams.get(redirectParam);
+         const absoluteCandidate = ensureAbsoluteURL(candidate, resolvedURL.origin);
+         if (absoluteCandidate) {
+            return absoluteCandidate;
+         }
+      }
+   }
+
+   return resolvedURL.toString();
+};
+
 export const extractScrapedResult = (content: string, device: string): SearchResult[] => {
    const extractedResult = [];
 
@@ -297,20 +369,11 @@ export const extractScrapedResult = (content: string, device: string): SearchRes
    for (let i = 0; i < searchResultItems.length; i += 1) {
       if (searchResultItems[i]) {
          const title = $(searchResultItems[i]).html();
-         const url = $(searchResultItems[i]).closest('a').attr('href');
-         if (title && url) {
-            // Filter out internal Google links (navigation, tools, etc.)
-            try {
-               const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
-               if (parsedURL.origin === GOOGLE_BASE_URL) {
-                  continue; // Skip Google internal links
-               }
-            } catch (error) {
-               // Skip malformed URLs
-               continue;
-            }
+         const rawURL = $(searchResultItems[i]).closest('a').attr('href');
+         const normalisedURL = normaliseGoogleHref(rawURL);
+         if (title && normalisedURL) {
             lastPosition += 1;
-            extractedResult.push({ title, url, position: lastPosition });
+            extractedResult.push({ title, url: normalisedURL, position: lastPosition });
          }
       }
    }
@@ -323,22 +386,13 @@ export const extractScrapedResult = (content: string, device: string): SearchRes
          const item = $(items[i]);
          const linkDom = item.find('a[role="presentation"]');
          if (linkDom) {
-            const url = linkDom.attr('href');
+            const rawURL = linkDom.attr('href');
             const titleDom = linkDom.find('[role="link"]');
             const title = titleDom ? titleDom.text() : '';
-            if (title && url) {
-               // Filter out internal Google links (navigation, tools, etc.)
-               try {
-                  const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
-                  if (parsedURL.origin === GOOGLE_BASE_URL) {
-                     continue; // Skip Google internal links
-                  }
-               } catch (error) {
-                  // Skip malformed URLs
-                  continue;
-               }
+            const normalisedURL = normaliseGoogleHref(rawURL);
+            if (title && normalisedURL) {
                lastPosition += 1;
-               extractedResult.push({ title, url, position: lastPosition });
+               extractedResult.push({ title, url: normalisedURL, position: lastPosition });
             }
          }
       }
@@ -353,18 +407,50 @@ export const extractScrapedResult = (content: string, device: string): SearchRes
  * @param {SearchResult[]} result - The search result array extracted from the Google Search result.
  * @returns {SERPObject}
  */
+const resolveResultURL = (value: string | undefined | null): URL | null => {
+   if (!value) { return null; }
+   try {
+      return new URL(value);
+   } catch (err) {
+      try {
+         return new URL(value, GOOGLE_BASE_URL);
+      } catch (error) {
+         console.log('[ERROR] Unable to resolve SERP result URL', value, error);
+         return null;
+      }
+   }
+};
+
 export const getSerp = (domainURL:string, result:SearchResult[]) : SERPObject => {
    if (result.length === 0 || !domainURL) { return { position: 0, url: '' }; }
-   const URLToFind = new URL(domainURL.includes('https://') ? domainURL : `https://${domainURL}`);
-   const theURL = URLToFind.hostname + URLToFind.pathname;
-   const isURL = URLToFind.pathname !== '/';
+
+   let URLToFind: URL;
+   try {
+      URLToFind = domainURL.includes('://') ? new URL(domainURL) : new URL(`https://${domainURL}`);
+   } catch (error) {
+      console.log('[ERROR] Invalid domain URL provided to getSerp', domainURL, error);
+      return { position: 0, url: '' };
+   }
+
+   const targetHost = URLToFind.hostname;
+   const targetPath = URLToFind.pathname.replace(/\/$/, '');
+   const hasSpecificPath = targetPath.length > 0;
+
    const foundItem = result.find((item) => {
-      const itemURL = new URL(item.url.includes('https://') ? item.url : `https://${item.url}`);
-      if (isURL && `${theURL}/` === itemURL.hostname + itemURL.pathname) {
-         return true;
+      const parsedURL = resolveResultURL(item.url);
+      if (!parsedURL) { return false; }
+
+      const rawValue = item.url ? item.url.trim() : '';
+      const looksRelative = rawValue.startsWith('/') || rawValue.startsWith('?') || rawValue.startsWith('#');
+      if (looksRelative && parsedURL.origin === GOOGLE_BASE_URL) { return false; }
+
+      const itemPath = parsedURL.pathname.replace(/\/$/, '');
+      if (hasSpecificPath) {
+         return parsedURL.hostname === targetHost && itemPath === targetPath;
       }
-      return URLToFind.hostname === itemURL.hostname;
+      return parsedURL.hostname === targetHost;
    });
+
    return { position: foundItem ? foundItem.position : 0, url: foundItem && foundItem.url ? foundItem.url : '' };
 };
 
