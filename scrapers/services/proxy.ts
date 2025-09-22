@@ -1,5 +1,7 @@
 import * as cheerio from 'cheerio';
 
+const GOOGLE_BASE_URL = 'https://www.google.com';
+
 const proxy:ScraperSettings = {
    id: 'proxy',
    name: 'Proxy',
@@ -30,7 +32,17 @@ const proxy:ScraperSettings = {
          const title = $(children[index]).text();
          const url = $(children[index]).closest('a').attr('href');
          const cleanedURL = url ? url.replaceAll(/^.+?(?=https:|$)/g, '').replaceAll(/(&).*/g, '') : '';
-         if (title && url) {
+         if (title && url && cleanedURL) {
+            // Filter out internal Google links (navigation, tools, etc.)
+            try {
+               const parsedURL = new URL(cleanedURL.startsWith('http') ? cleanedURL : `https://${cleanedURL}`);
+               if (parsedURL.origin === GOOGLE_BASE_URL) {
+                  continue; // Skip Google internal links
+               }
+            } catch (error) {
+               // Skip malformed URLs
+               continue;
+            }
             lastPosition += 1;
             extractedResult.push({ title, url: cleanedURL, position: lastPosition });
          }

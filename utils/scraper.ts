@@ -6,6 +6,8 @@ import countries from './countries';
 import { serializeError } from './errorSerialization';
 import allScrapers from '../scrapers/index';
 
+const GOOGLE_BASE_URL = 'https://www.google.com';
+
 type SearchResult = {
    title: string,
    url: string,
