@@ -43,7 +43,7 @@
     "react-query": "^3.39.2",
     "react-timeago": "^7.1.0",
     "react-transition-group": "^4.4.5",
-    "react-window": "^1.8.8",
+    "react-window": "^1.8.11",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.34.0",
     "sequelize-cli": "^6.6.3",
