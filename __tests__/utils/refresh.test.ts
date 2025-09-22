@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import refreshAndUpdateKeywords from '../../utils/refresh';
 import Domain from '../../database/models/domain';
 import Keyword from '../../database/models/keyword';
@@ -74,6 +75,11 @@ describe('refreshAndUpdateKeywords', () => {
     expect(removeFromRetryQueueSpy).toHaveBeenCalledWith(1);
     expect(removeFromRetryQueueSpy).toHaveBeenCalledWith(2);
     expect(removeFromRetryQueueSpy).toHaveBeenCalledWith(3);
+
+    expect(Keyword.update).toHaveBeenCalledWith(
+      { updating: false },
+      { where: { ID: { [Op.in]: [1, 2, 3] } } },
+    );
 
     // Verify calls were made sequentially (order should match input order)
     expect(callOrder).toEqual([1, 2, 3]);

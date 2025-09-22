@@ -119,7 +119,7 @@ The Docker image now bakes the production build output produced by `npm run buil
 - ships a pruned `node_modules/` directory with only production dependencies so cron jobs and migrations can `require()` their helpers,
 - omits build-time manifests such as `package.json` and `package-lock.json` to reduce attack surface and shrink the final layer,
 - exposes port `3000` by default while still persisting `/app/data` for SQLite storage.
-- reports container health by explicitly loading Node's built-in `http` module before probing `http://localhost:3000/api/domains`, keeping the runtime health check compatible with stricter execution environments.
+- relies on external orchestration for health monitoring instead of shipping a baked-in Docker `HEALTHCHECK`, simplifying container start-up and avoiding redundant HTTP probes.
 - retains server-side `console.*` logging so API traffic, scraper activity, and error diagnostics surface in container logs; set `NEXT_REMOVE_CONSOLE=true` if you need to strip non-error output for bespoke deployments.
 
 If you need to seed or snapshot the SQLite database before running the container, populate the `data/` directory locally—those files are now copied into the runtime image without being deleted during the build.
