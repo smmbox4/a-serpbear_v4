@@ -266,4 +266,70 @@ describe('refreshAndUpdateKeywords', () => {
 
     consoleSpy.mockRestore();
   });
+
+  it('normalises array scraper results correctly', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    const mockPlainKeyword = {
+      ID: 43,
+      keyword: 'test array keyword',
+      domain: 'example.com',
+      device: 'desktop',
+      country: 'US',
+      city: '',
+      state: '',
+      position: 0,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      lastUpdateError: 'false',
+    };
+
+    const keywordModel = {
+      ID: mockPlainKeyword.ID,
+      keyword: mockPlainKeyword.keyword,
+      domain: mockPlainKeyword.domain,
+      get: jest.fn().mockReturnValue(mockPlainKeyword),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    const settings = {
+      scraper_type: 'serpapi',
+      scrape_retry: false,
+    } as SettingsType;
+
+    // Test with array result (this validates the simplified normalizeResult function)
+    const arrayResult = [
+      { position: 1, url: 'https://example.com', title: 'Test Result 1' },
+      { position: 2, url: 'https://example2.com', title: 'Test Result 2' }
+    ];
+
+    const updatedKeyword = {
+      ID: mockPlainKeyword.ID,
+      position: 1,
+      url: 'https://example.com',
+      result: arrayResult,
+      error: false,
+    } as RefreshResult;
+
+    const updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+
+    // Verify the array was properly JSON.stringified 
+    expect(keywordModel.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        lastResult: JSON.stringify(arrayResult),
+      }),
+    );
+
+    // Verify the lastResult is parsed back to an array
+    expect(updated.lastResult).toEqual(arrayResult);
+
+    consoleSpy.mockRestore();
+  });
 });
