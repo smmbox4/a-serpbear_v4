@@ -3,7 +3,7 @@ import { setTimeout as sleep } from 'timers/promises';
 import { Op } from 'sequelize';
 import { readFile, writeFile } from 'fs/promises';
 import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
-import parseKeywords from './parseKeywords';
+import parseKeywords, { normaliseHistory } from './parseKeywords';
 import Keyword from '../database/models/keyword';
 import Domain from '../database/models/domain';
 import { serializeError } from './errorSerialization';
@@ -160,87 +160,103 @@ const refreshAndUpdateKeyword = async (keyword: Keyword, settings: SettingsType)
  */
 export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: RefreshResult, settings: SettingsType): Promise<KeywordType> => {
    const keywordParsed = parseKeywords([keywordRaw.get({ plain: true })]);
-      const keyword = keywordParsed[0];
-      // const updatedKeyword = refreshed;
-      let updated = keyword;
+   const keyword = keywordParsed[0];
+   let updated = keyword;
 
-      if (updatedKeyword && keyword) {
-         const newPos = updatedKeyword.position;
-         const { history } = keyword;
-         const theDate = new Date();
-         const dateKey = `${theDate.getFullYear()}-${theDate.getMonth() + 1}-${theDate.getDate()}`;
-         history[dateKey] = newPos;
+   if (updatedKeyword && keyword) {
+      const theDate = new Date();
+      const dateKey = `${theDate.getFullYear()}-${theDate.getMonth() + 1}-${theDate.getDate()}`;
+      const newPos = typeof updatedKeyword.position === 'number'
+         ? updatedKeyword.position
+         : Number(updatedKeyword.position ?? keyword.position ?? 0) || 0;
 
-         const normalizeResult = (result: any): string => {
-            if (result === undefined || result === null) {
-               return '[]';
-            }
+      const history = normaliseHistory(keyword.history);
+      history[dateKey] = newPos;
 
-            if (typeof result === 'string') {
-               return result;
-            }
-
-            try {
-               return JSON.stringify(result);
-            } catch (error) {
-               console.warn('[WARNING] Failed to serialise keyword result:', error);
-               return '[]';
-            }
-         };
-
-         const normalizedResult = normalizeResult(updatedKeyword.result);
-         let parsedNormalizedResult: KeywordLastResult[] = [];
-         try {
-            const maybeParsedResult = JSON.parse(normalizedResult);
-            parsedNormalizedResult = Array.isArray(maybeParsedResult) ? maybeParsedResult : [];
-         } catch {
-            parsedNormalizedResult = [];
+      const normalizeResult = (result: any): string => {
+         if (result === undefined || result === null) {
+            return '[]';
          }
 
-         const updatedVal = {
-            position: newPos,
-            updating: false,
-            url: updatedKeyword.url,
-            lastResult: parsedNormalizedResult,
-            history,
-            lastUpdated: updatedKeyword.error ? keyword.lastUpdated : theDate.toJSON(),
-            lastUpdateError: updatedKeyword.error
-               ? JSON.stringify({ date: theDate.toJSON(), error: serializeError(updatedKeyword.error), scraper: settings.scraper_type })
-               : 'false',
-         };
-
-         // If failed, Add to Retry Queue Cron
-         if (updatedKeyword.error && settings?.scrape_retry) {
-            await retryScrape(keyword.ID);
-         } else {
-            await removeFromRetryQueue(keyword.ID);
+         if (typeof result === 'string') {
+            return result;
          }
 
-         // Update the Keyword Position in Database
          try {
-            await keywordRaw.update({
-               ...updatedVal,
-               lastResult: normalizedResult,
-               history: JSON.stringify(history),
-            });
-            console.log('[SUCCESS] Updating the Keyword: ', keyword.keyword);
-            // Safely parse lastUpdateError, fallback to false if parsing fails
-            let parsedError: false | { date: string; error: string; scraper: string } = false;
-            try {
-               if (updatedVal.lastUpdateError !== 'false') {
-                  parsedError = JSON.parse(updatedVal.lastUpdateError);
-               }
-            } catch (parseError) {
-               console.log('[WARNING] Failed to parse lastUpdateError:', updatedVal.lastUpdateError);
-               parsedError = false;
-            }
-            updated = { ...keyword, ...updatedVal, lastUpdateError: parsedError };
+            return JSON.stringify(result);
          } catch (error) {
-            console.log('[ERROR] Updating SERP for Keyword', keyword.keyword, error);
+            console.warn('[WARNING] Failed to serialise keyword result:', error);
+            return '[]';
          }
+      };
+
+      const normalizedResult = normalizeResult(updatedKeyword.result);
+      let parsedNormalizedResult: KeywordLastResult[] = [];
+      try {
+         const maybeParsedResult = JSON.parse(normalizedResult);
+         parsedNormalizedResult = Array.isArray(maybeParsedResult) ? maybeParsedResult : [];
+      } catch {
+         parsedNormalizedResult = [];
       }
 
-      return updated;
+      const hasError = Boolean(updatedKeyword.error);
+      const lastUpdatedValue = hasError
+         ? (typeof keyword.lastUpdated === 'string' ? keyword.lastUpdated : null)
+         : theDate.toJSON();
+      const lastUpdateErrorValue = hasError
+         ? JSON.stringify({ date: theDate.toJSON(), error: serializeError(updatedKeyword.error), scraper: settings.scraper_type })
+         : 'false';
+      const urlValue = typeof updatedKeyword.url === 'string' ? updatedKeyword.url : null;
+
+      const dbPayload = {
+         position: newPos,
+         updating: 0,
+         url: urlValue,
+         lastResult: normalizedResult,
+         history: JSON.stringify(history),
+         lastUpdated: lastUpdatedValue,
+         lastUpdateError: lastUpdateErrorValue,
+      };
+
+      if (updatedKeyword.error && settings?.scrape_retry) {
+         await retryScrape(keyword.ID);
+      } else {
+         await removeFromRetryQueue(keyword.ID);
+      }
+
+      try {
+         await keywordRaw.update(dbPayload);
+         console.log('[SUCCESS] Updating the Keyword: ', keyword.keyword);
+
+         let parsedError: false | { date: string; error: string; scraper: string } = false;
+         if (dbPayload.lastUpdateError !== 'false') {
+            try {
+               parsedError = JSON.parse(dbPayload.lastUpdateError ?? 'false');
+            } catch (parseError) {
+               console.log('[WARNING] Failed to parse lastUpdateError:', dbPayload.lastUpdateError);
+               parsedError = false;
+            }
+         }
+
+         const effectiveLastUpdated = dbPayload.lastUpdated
+            ?? (typeof keyword.lastUpdated === 'string' ? keyword.lastUpdated : '');
+
+         updated = {
+            ...keyword,
+            position: newPos,
+            updating: false,
+            url: dbPayload.url ?? '',
+            lastResult: parsedNormalizedResult,
+            history,
+            lastUpdated: effectiveLastUpdated,
+            lastUpdateError: parsedError,
+         };
+      } catch (error) {
+         console.log('[ERROR] Updating SERP for Keyword', keyword.keyword, error);
+      }
+   }
+
+   return updated;
 };
 
 /**

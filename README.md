@@ -73,6 +73,8 @@ The default compose stack maps `./data` to the container so your SQLite database
 - SQLite files live under `./data` by default; mount that directory when running inside containers to keep your historical data.
 - Apply new migrations with `npm run db:migrate` and roll back the most recent migration via `npm run db:revert`.
 - The bundled Sequelize/Umzug tooling works in both local and Docker environments without additional global installs.
+- Keyword history rows now default to `{}`. The included migrations (automatically executed by `entrypoint.sh` on container start)
+  also backfill any legacy `'[]'` payloads so refresh jobs always receive plain objects.
 
 ---
 
