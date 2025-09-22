@@ -141,6 +141,7 @@ If you don't want to use proxies, you can use third party Scraping services to s
 
 The Scraping Robot integration now explicitly sends both Google locale parameters—`hl` for language and `gl` for geographic targeting—and percent-encodes the nested Google Search URL so the returned SERP data matches the country configured for each keyword.
 Serply API requests now encode the keyword, pagination count, and language as query-string parameters (`?q=...&num=100&hl=...`) so the upstream service receives the correct filters.
+ValueSerp API calls now omit the `num` pagination parameter while still forwarding device, language, and optional location filters configured for each keyword.
 
 **Tech Stack**
 
