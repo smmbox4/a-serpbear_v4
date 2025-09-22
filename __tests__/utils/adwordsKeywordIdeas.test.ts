@@ -10,6 +10,7 @@ jest.mock('../../utils/searchConsole', () => ({
 jest.mock('../../utils/adwords', () => ({
   ...jest.requireActual('../../utils/adwords'),
   getAdwordsCredentials: jest.fn(),
+  getAdwordsAccessToken: jest.fn(),
 }));
 
 describe('getAdwordsKeywordIdeas', () => {
@@ -139,6 +140,15 @@ describe('getAdwordsKeywordIdeas', () => {
 describe('getKeywordsVolume', () => {
   const originalFetch = global.fetch;
   const mockedGetAdwordsCredentials = adwordsUtils.getAdwordsCredentials as jest.MockedFunction<typeof adwordsUtils.getAdwordsCredentials>;
+  const mockedGetAdwordsAccessToken = adwordsUtils.getAdwordsAccessToken as jest.MockedFunction<typeof adwordsUtils.getAdwordsAccessToken>;
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+    global.fetch = originalFetch;
+    // Ensure the mocks are reset and ready to use
+    mockedGetAdwordsCredentials.mockReset();
+    mockedGetAdwordsAccessToken.mockReset();
+  });
 
   afterEach(() => {
     global.fetch = originalFetch;
@@ -166,6 +176,69 @@ describe('getKeywordsVolume', () => {
     
     // Even without proper setup, should not throw JSON parsing errors
     await expect(adwordsUtils.getKeywordsVolume(keywords)).resolves.toBeDefined();
+  });
+
+  it('sends correct URL format to Google Ads API for generateKeywordHistoricalMetrics', async () => {
+    // Mock credentials 
+    const mockCredentials = {
+      client_id: 'test-client-id',
+      client_secret: 'test-client-secret',
+      developer_token: 'test-dev-token',
+      account_id: '123-456-7890',
+      refresh_token: 'test-refresh-token',
+    };
+    
+    // Mock both the credentials and access token functions
+    mockedGetAdwordsCredentials.mockResolvedValue(mockCredentials);
+    mockedGetAdwordsAccessToken.mockResolvedValue('test-access-token');
+
+    const mockFetch = jest.fn();
+    
+    // Mock the Google Ads API request  
+    mockFetch.mockResolvedValue({
+      json: async () => ({ results: [] }),
+      text: async () => JSON.stringify({ results: [] }),
+      status: 200,
+      headers: {
+        get: jest.fn().mockReturnValue('application/json'),
+      },
+    });
+
+    global.fetch = mockFetch;
+
+    const keywords = [{ ID: 1, keyword: 'test keyword', country: 'US' }] as any;
+    
+    const result = await adwordsUtils.getKeywordsVolume(keywords);
+    
+    console.log('Result:', result);
+    console.log('Number of fetch calls:', mockFetch.mock.calls.length);
+    if (mockFetch.mock.calls.length > 0) {
+      mockFetch.mock.calls.forEach((call, index) => {
+        console.log(`Call ${index}:`, call[0]);
+      });
+    }
+
+    // Should have successful result with volumes (not an error)
+    expect(result.error).toBeUndefined();
+
+    // Check that the Google Ads API call was made
+    expect(mockFetch.mock.calls.length).toBeGreaterThan(0);
+    
+    // Find the call that contains generateKeywordHistoricalMetrics
+    const googleAdsCall = mockFetch.mock.calls.find(call => 
+      call[0].includes('generateKeywordHistoricalMetrics')
+    );
+    
+    expect(googleAdsCall).toBeDefined();
+    expect(googleAdsCall[0]).toBe(
+      `https://googleads.googleapis.com/${adwordsUtils.GOOGLE_ADS_API_VERSION}/customers/1234567890:generateKeywordHistoricalMetrics`,
+    );
+    expect(googleAdsCall[1].body).toBeDefined();
+    const payload = JSON.parse(googleAdsCall[1].body);
+    
+    // Verify the payload structure for generateKeywordHistoricalMetrics
+    expect(payload.keywords).toEqual(['test keyword']);
+    expect(payload.geoTargetConstants).toEqual(['geoTargetConstants/2840']);
   });
 });
 
