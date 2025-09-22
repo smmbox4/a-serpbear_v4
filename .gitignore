@@ -42,3 +42,5 @@ TODO
 
 #database
 data/verify-fix.js
+SARIF test files
+*.sarif
