@@ -31,13 +31,18 @@ type DomainsUpdateRes = {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
    await db.sync();
+   
+   // Allow GET requests without authentication for basic domain info
+   if (req.method === 'GET') {
+      return getDomains(req, res);
+   }
+   
+   // All other methods require authentication
    const authorized = verifyUser(req, res);
    if (authorized !== 'authorized') {
       return res.status(401).json({ error: authorized });
    }
-   if (req.method === 'GET') {
-      return getDomains(req, res);
-   }
+   
    if (req.method === 'POST') {
       return addDomain(req, res);
    }
@@ -52,7 +57,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 export const getDomains = async (req: NextApiRequest, res: NextApiResponse<DomainsGetRes>) => {
    const withStats = !!req?.query?.withstats;
+   
+   // Check authentication status
+   const authorized = verifyUser(req, res);
+   const isAuthenticated = authorized === 'authorized';
+   
    try {
+      if (!isAuthenticated) {
+         // Return empty domains array for unauthenticated users
+         return res.status(200).json({ domains: [] });
+      }
+      
       const allDomains: Domain[] = await Domain.findAll();
       const formattedDomains: DomainType[] = allDomains.map((el) => {
          const domainItem:DomainType = el.get({ plain: true });

@@ -54,12 +54,18 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
 
    try {
       const settings = await getAppSettings();
-      if (!settings || (settings && settings.scraper_type === 'never')) {
+      console.log('[REFRESH] Scraper type:', settings?.scraper_type || 'none');
+      
+      if (!settings || (settings && settings.scraper_type === 'none')) {
+         console.log('[REFRESH] ERROR: Scraper not configured');
          return res.status(400).json({ error: 'Scraper has not been set up yet.' });
       }
       const query = req.query.id === 'all' && domain ? { domain } : { ID: { [Op.in]: keywordIDs } };
       await Keyword.update({ updating: true }, { where: query });
       const keywordQueries: Keyword[] = await Keyword.findAll({ where: query });
+
+      console.log(`[REFRESH] Processing ${keywordQueries.length} keywords for ${req.query.id === 'all' ? `domain: ${domain}` : 
+         `IDs: ${Array.isArray(keywordIDs) ? keywordIDs.join(',') : 'none'}`}`);
 
       let keywords = [];
 
@@ -75,7 +81,7 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
 
       return res.status(200).json({ keywords });
    } catch (error) {
-      console.log('ERROR refreshTheKeywords: ', error);
+      console.log('[REFRESH] ERROR refreshTheKeywords: ', error instanceof Error ? error.message : error);
       return res.status(400).json({ error: 'Error refreshing keywords!' });
    }
 };
@@ -86,7 +92,7 @@ const getKeywordSearchResults = async (req: NextApiRequest, res: NextApiResponse
    }
    try {
       const settings = await getAppSettings();
-      if (!settings || (settings && settings.scraper_type === 'never')) {
+      if (!settings || (settings && settings.scraper_type === 'none')) {
          return res.status(400).json({ error: 'Scraper has not been set up yet.' });
       }
       const dummyKeyword:KeywordType = {

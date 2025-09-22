@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 const cronRefreshkeywords = async (req: NextApiRequest, res: NextApiResponse<CRONRefreshRes>) => {
    try {
       const settings = await getAppSettings();
-      if (!settings || (settings && settings.scraper_type === 'never')) {
+      if (!settings || (settings && settings.scraper_type === 'none')) {
          return res.status(400).json({ started: false, error: 'Scraper has not been set up yet.' });
       }
       await Keyword.update({ updating: true }, { where: {} });

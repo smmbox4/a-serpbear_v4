@@ -38,13 +38,17 @@ type SettingsGetResponse = {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+   // Allow GET requests without authentication for public settings
+   if (req.method === 'GET') {
+      return getSettings(req, res);
+   }
+   
+   // All other methods require authentication
    const authorized = verifyUser(req, res);
    if (authorized !== 'authorized') {
       return res.status(401).json({ error: authorized });
    }
-   if (req.method === 'GET') {
-      return getSettings(req, res);
-   }
+   
    if (req.method === 'PUT') {
       return updateSettings(req, res);
    }
@@ -53,13 +57,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 const getSettings = async (req: NextApiRequest, res: NextApiResponse<SettingsGetResponse>) => {
    try {
+      // Check authentication status
+      const authorized = verifyUser(req, res);
+      const isAuthenticated = authorized === 'authorized';
+      
       const settings = await getAppSettings();
       if (!settings) {
          return res.status(500).json({ error: 'Settings could not be loaded.' });
       }
+      
       const config = getConfig();
       const version = config?.publicRuntimeConfig?.version;
-      return res.status(200).json({ settings: { ...settings, version } });
+      
+      if (isAuthenticated) {
+         // Return full settings for authenticated users
+         return res.status(200).json({ settings: { ...settings, version } });
+      } else {
+         // Return only safe, public settings for unauthenticated users
+         const publicSettings = {
+            scraper_type: settings.scraper_type || 'none',
+            available_scapers: settings.available_scapers || [],
+            search_console_integrated: settings.search_console_integrated || false,
+            version
+         };
+         return res.status(200).json({ settings: publicSettings });
+      }
    } catch (error) {
       console.log('[ERROR] Loading App Settings. ', error);
       const message = error instanceof Error ? error.message : 'Unknown error';

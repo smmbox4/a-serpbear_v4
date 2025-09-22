@@ -15,15 +15,22 @@ type MigrationPostResponse = {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-   const authorized = verifyUser(req, res);
-   if (authorized === 'authorized' && req.method === 'GET') {
+   // Allow GET requests without authentication to check migration status
+   if (req.method === 'GET') {
       await db.sync();
       return getMigrationStatus(req, res);
    }
-   if (authorized === 'authorized' && req.method === 'POST') {
+   
+   // All other methods require authentication
+   const authorized = verifyUser(req, res);
+   if (authorized !== 'authorized') {
+      return res.status(401).json({ error: authorized });
+   }
+   
+   if (req.method === 'POST') {
       return migrateDatabase(req, res);
    }
-   return res.status(401).json({ error: authorized });
+   return res.status(502).json({ error: 'Unrecognized Route.' });
 }
 
 const getMigrationStatus = async (req: NextApiRequest, res: NextApiResponse<MigrationGetResponse>) => {

@@ -96,7 +96,7 @@ const Domains: NextPage = () => {
 
    return (
       <div data-testid="domains" className="Domain flex flex-col min-h-screen">
-         {((!scraper_type || (scraper_type === 'none')) && !isAppSettingsLoading) && (
+         {(!isAppSettingsLoading && scraper_type === 'none') && (
                <div className=' p-3 bg-red-600 text-white text-sm text-center'>
                   A Scrapper/Proxy has not been set up Yet. Open Settings to set it up and start using the app.
                </div>
