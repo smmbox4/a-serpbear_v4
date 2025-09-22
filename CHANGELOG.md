@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Collapsed the global body gutters on mobile so dashboard content can span the full viewport width on phones.
 * Completely restructured `README.md` with a product-focused overview, expanded environment variable reference, and refreshed provider comparison to reflect the current codebase.
 * Replaced Jest's `jest-environment-jsdom` dependency with `@happy-dom/jest-environment` to eliminate deprecated transitive packages and speed up DOM-focused tests.
 * Added `npm run setup:git` to configure `init.defaultBranch` for the repository and avoid Git initialization warnings.
