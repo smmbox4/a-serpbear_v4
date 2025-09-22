@@ -51,6 +51,66 @@ export type KeywordIdeasDatabase = {
    updated: number
 }
 
+type SeedKeywordBaseOptions = {
+   seedKeywords: string[];
+   seedType: IdeaSettings['seedType'];
+   domainUrl: string;
+};
+
+type SearchConsoleSeedOptions = SeedKeywordBaseOptions & { seedSCKeywords: boolean };
+type TrackingSeedOptions = SeedKeywordBaseOptions & { seedCurrentKeywords: boolean };
+
+const seedKeywordsFromSearchConsole = async ({
+   seedKeywords,
+   seedType,
+   seedSCKeywords,
+   domainUrl,
+}: SearchConsoleSeedOptions): Promise<string[]> => {
+   if (!domainUrl || (!seedSCKeywords && seedType !== 'searchconsole')) {
+      return seedKeywords;
+   }
+
+   const updatedKeywords = [...seedKeywords];
+   const domainSCData = await readLocalSCData(domainUrl);
+   if (!domainSCData) {
+      return updatedKeywords;
+   }
+
+   const { thirtyDays } = domainSCData;
+   if (Array.isArray(thirtyDays)) {
+      const sortedSCKeywords = thirtyDays.sort((a, b) => (b.impressions > a.impressions ? 1 : -1));
+      sortedSCKeywords.slice(0, 100).forEach((sckeywrd) => {
+         if (sckeywrd.keyword && !updatedKeywords.includes(sckeywrd.keyword)) {
+            updatedKeywords.push(sckeywrd.keyword);
+         }
+      });
+   }
+
+   return updatedKeywords;
+};
+
+const seedKeywordsFromTracking = async ({
+   seedKeywords,
+   seedType,
+   seedCurrentKeywords,
+   domainUrl,
+}: TrackingSeedOptions): Promise<string[]> => {
+   if (!domainUrl || (!seedCurrentKeywords && seedType !== 'tracking')) {
+      return seedKeywords;
+   }
+
+   const updatedKeywords = [...seedKeywords];
+   const allKeywords:Keyword[] = await Keyword.findAll({ where: { domain: domainUrl } });
+   const currentKeywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
+   currentKeywords.slice(0, 100).forEach((keyword) => {
+      if (keyword.keyword && !updatedKeywords.includes(keyword.keyword)) {
+         updatedKeywords.push(keyword.keyword);
+      }
+   });
+
+   return updatedKeywords;
+};
+
 /**
  * The function `getAdwordsCredentials` reads and decrypts Google Ads credentials from the App settings file.
  * @returns {Promise<false | AdwordsCredentials>} returns either a decrypted `AdwordsCredentials` object if the settings are successfully decrypted,
@@ -164,33 +224,21 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
 
    let fetchedKeywords: IdeaKeyword[] = [];
    if (accessToken) {
-      const seedKeywords = [...keywords];
+      let seedKeywords = [...keywords];
 
-      // Load Keywords from Google Search Console File.
-      if ((seedType === 'searchconsole' || seedSCKeywords) && domainUrl) {
-         const domainSCData = await readLocalSCData(domainUrl);
-         if (domainSCData && domainSCData.thirtyDays && Array.isArray(domainSCData.thirtyDays)) {
-            const scKeywords = domainSCData.thirtyDays;
-            const sortedSCKeywords = scKeywords.sort((a, b) => (b.impressions > a.impressions ? 1 : -1));
-            sortedSCKeywords.slice(0, 100).forEach((sckeywrd) => {
-               if (sckeywrd.keyword && !seedKeywords.includes(sckeywrd.keyword)) {
-                  seedKeywords.push(sckeywrd.keyword);
-               }
-            });
-         }
-      }
+      seedKeywords = await seedKeywordsFromSearchConsole({
+         seedKeywords,
+         seedType,
+         seedSCKeywords,
+         domainUrl,
+      });
 
-      // Load all Keywords from Database
-      if ((seedType === 'tracking' || seedCurrentKeywords) && domainUrl) {
-         const allKeywords:Keyword[] = await Keyword.findAll({ where: { domain: domainUrl } });
-         const currentKeywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
-         // Limit to 100 keywords, similar to searchconsole
-         currentKeywords.slice(0, 100).forEach((keyword) => {
-            if (keyword.keyword && !seedKeywords.includes(keyword.keyword)) {
-               seedKeywords.push(keyword.keyword);
-            }
-         });
-      }
+      seedKeywords = await seedKeywordsFromTracking({
+         seedKeywords,
+         seedType,
+         seedCurrentKeywords,
+         domainUrl,
+      });
 
       if (['tracking', 'searchconsole'].includes(seedType) && seedKeywords.length === 0) {
          const errMessage = seedType === 'tracking'
@@ -227,7 +275,7 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
          });
 
          let ideaData;
-         let responseText: string;
+         let responseText = '';
          try {
             responseText = await resp.text();
             const contentType = resp.headers.get('content-type');
