@@ -16,13 +16,14 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Email Notification:** Get notified of your keyword position changes daily/weekly/monthly through email.
 - **SERP API:** SerpBear comes with built-in API that you can use for your marketing & data reporting tools.
 - **Keyword Research:** Ability to research keywords and auto-generate keyword ideas from your tracked website's content by integrating your Google Ads test account.
-- **Domain-level toggles:** Pause scraping or notification email delivery per domain; UI switches update instantly and API/cron jobs skip disabled domains.
+- **Domain-level status toggle:** Flip domains between Active and Deactive states to pause both scraping and notification email delivery; UI switches update instantly and API/cron jobs skip disabled domains.
 - **Auto-zooming charts:** Rank trend charts now compute dynamic min/max bounds so sparkline and full charts focus on the captured data instead of the entire 1–100 range.
 - **Google Search Console Integration:** Get the actual visit count, impressions & more for each keyword. Cached data refreshes automatically once per cron day based on the configured timezone, can be manually refreshed from settings, and falls back to global credentials when domain-level credentials aren't configured. Dashboards now automatically refetch when switching between domains thanks to slug-keyed queries, ensuring the Search Console view and insight reports stay aligned with the active property.
 - **Mobile App:** Add the PWA app to your mobile for a better mobile experience.
 - **Zero Cost to RUN:** Run the App on mogenius.com or Fly.io for free.
 - **Robust Error Handling:** Improved input validation, safer JSON parsing, and a shared error-serialization helper that keeps scraper and refresh logs consistent.
 - **Defensive Google Ads Parsing:** Keyword idea fetches pre-initialize response buffers so error logs retain the upstream text even when parsing fails.
+- **Centralised Google Ads API versioning:** Keyword idea and volume requests now read the Google Ads REST version from a single constant (currently `v21`), making upgrades a one-line change.
 - **Canonical Domain Settings Fetch:** The domain settings modal now loads decrypted Search Console credentials by requesting `/api/domain` with the tracked site's canonical host, so credential fields update as soon as the modal opens.
 - **Resilient Settings API:** `/api/settings` now tolerates missing runtime configuration and still returns version metadata when available.
 - **Defaulted Configuration:** Settings API responses merge persisted values with safe defaults so required fields like scraper selection and notifications never disappear.

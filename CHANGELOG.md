@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Changed
 
-* Added per-domain `scrape_enabled`/`notify_enabled` toggles with database migration, cached UI updates, and API/cron guards so paused domains skip scraping and email runs.
+* Replaced the separate per-domain `scrape_enabled`/`notify_enabled` toggles with a unified Active/Deactive control that keeps both flags in sync across cached UI state, API payloads, and cron guards so paused domains skip scraping and email runs together.
 * Updated the Serply scraper to build `/v1/search` URLs with query-string parameters so the keyword travels via `?q=` alongside locale and pagination options.
 * Introduced dynamic chart bounds and a shared client helper so SERP line charts and sparklines zoom to the observed rank range instead of hard-coding 1–100.
 * Honoured the `NEXT_PUBLIC_SCREENSHOTS` environment flag in services and the dashboard so deployments can opt out of screenshot fetches and rely on favicons without UI clutter.
@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. See [standa
 * Documented the new screenshot and console logging environment flags in `.env.example`, the README, and integration tests.
 * Encoded the nested Google Search request passed to ScrapingRobot so locale parameters stay bundled within the delegated `url` query parameter.
 * Retained server-side logging in the production bundle by gating Next.js `compiler.removeConsole` behind the `NEXT_REMOVE_CONSOLE` environment flag.
+* Centralised the Google Ads REST API version behind a `GOOGLE_ADS_API_VERSION` constant, updated documentation, and refreshed tests to ensure both keyword ideas and historical metrics use `v21`.
 * Settings now reload the window only when enabling a scraper from the previous `'none'` state, and the scraper modal has Jest coverage to verify the behaviour.
 * Search Console hooks key their queries by the active domain slug, skip fetches without a slug, and include tests that confirm refetching when switching domains.
 * Domain settings accept `null` domains, short-circuit the lookup fetch when closed, and continue guarding destructive actions behind a non-null domain selection.
