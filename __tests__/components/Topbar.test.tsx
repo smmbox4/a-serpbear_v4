@@ -29,13 +29,26 @@ describe('TopBar Component', () => {
       const globalsPath = path.join(process.cwd(), 'styles', 'globals.css');
       const css = fs.readFileSync(globalsPath, 'utf8');
 
-      const mobileTopbarRule = new RegExp(
-         '@media \\(max-width: 760px\\)\\s*{\\s*\\.topbar {[^}]*margin-inline: '
-         + 'calc\\(-1 \\* var\\(--layout-inline\\)\\);[^}]*padding-inline: var\\(--layout-inline\\);',
-      );
-      const mobileBodyOverride = /@media \(max-width: 760px\)\s*{\s*body\s*{/;
-
-      expect(css).toMatch(mobileTopbarRule);
+      // More robust CSS validation with better error reporting and maintainability
+      // Extract the mobile media query section for targeted testing
+      const mobileMediaQueryRegex = /@media\s*\(\s*max-width:\s*760px\s*\)\s*\{([^{}]*\{[^{}]*\}[^{}]*)\}/;
+      const mobileMediaMatch = css.match(mobileMediaQueryRegex);
+      
+      expect(mobileMediaMatch).toBeTruthy();
+      
+      if (mobileMediaMatch) {
+         const mobileSection = mobileMediaMatch[1];
+         
+         // Validate topbar class exists in mobile section
+         expect(mobileSection).toMatch(/\.topbar\s*\{/);
+         
+         // Validate specific CSS properties with flexible whitespace handling
+         expect(mobileSection).toMatch(/margin-inline:\s*calc\(\s*-1\s*\*\s*var\(\s*--layout-inline\s*\)\s*\)\s*;/);
+         expect(mobileSection).toMatch(/padding-inline:\s*var\(\s*--layout-inline\s*\)\s*;/);
+      }
+      
+      // Ensure no body overrides in mobile media queries (maintains body gutters)
+      const mobileBodyOverride = /@media\s*\(\s*max-width:\s*760px\s*\)\s*\{[^}]*body\s*\{/;
       expect(css).not.toMatch(mobileBodyOverride);
    });
 });
