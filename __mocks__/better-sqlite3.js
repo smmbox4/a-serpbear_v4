@@ -57,14 +57,15 @@ class MockBetterSqlite3 {
 
   execute(sql, params) {
     const trimmed = sql.trim();
-    // Safe regex patterns to prevent ReDoS attacks - use non-greedy quantifiers and character limits
-    const createMatch = /^CREATE[ \t\r\n]+TABLE[ \t\r\n]+(\w+)/i.exec(trimmed);
+    // ReDoS-safe regex patterns - use bounded quantifiers to prevent catastrophic backtracking
+    // Limit whitespace to prevent ReDoS while allowing reasonable formatting (up to 500 chars)
+    const createMatch = /^CREATE[ \t\r\n]{1,500}TABLE[ \t\r\n]{1,500}(\w+)/i.exec(trimmed);
     if (createMatch) {
       const tableName = createMatch[1];
       this.ensureTable(tableName);
       return { changes: 0 };
     }
-    const insertMatch = /^INSERT[ \t\r\n]+INTO[ \t\r\n]+(\w+)/i.exec(trimmed);
+    const insertMatch = /^INSERT[ \t\r\n]{1,500}INTO[ \t\r\n]{1,500}(\w+)/i.exec(trimmed);
     if (insertMatch) {
       const tableName = insertMatch[1];
       const table = this.ensureTable(tableName);
@@ -113,8 +114,9 @@ class MockBetterSqlite3 {
 
   select(sql) {
     const trimmed = sql.trim();
-    // Safe regex pattern to prevent ReDoS attacks - use specific character classes instead of \s+
-    const selectMatch = /^SELECT[ \t\r\n]+(.+?)[ \t\r\n]+FROM[ \t\r\n]+(\w+)/i.exec(trimmed);
+    // ReDoS-safe regex pattern - use bounded quantifiers to prevent catastrophic backtracking
+    // Limit whitespace to prevent ReDoS while allowing reasonable formatting (up to 500 chars)
+    const selectMatch = /^SELECT[ \t\r\n]{1,500}(.+?)[ \t\r\n]{1,500}FROM[ \t\r\n]{1,500}(\w+)/i.exec(trimmed);
     if (!selectMatch) {
       return [];
     }
