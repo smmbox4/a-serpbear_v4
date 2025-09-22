@@ -1,7 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import SingleDomain from '../../pages/domain/[slug]';
-import { useAddDomain, useDeleteDomain, useFetchDomains, useUpdateDomain } from '../../services/domains';
+import { useAddDomain, useDeleteDomain, useFetchDomain, useFetchDomains, useUpdateDomain } from '../../services/domains';
 import { useAddKeywords, useDeleteKeywords,
    useFavKeywords, useFetchKeywords, useRefreshKeywords, useFetchSingleKeyword } from '../../services/keywords';
 import { dummyDomain, dummyKeywords, dummySettings } from '../../__mocks__/data';
@@ -22,6 +22,7 @@ jest.mock('react-chartjs-2', () => ({
 }));
 
 const useFetchDomainsFunc = useFetchDomains as jest.Mock<any>;
+const useFetchDomainFunc = useFetchDomain as jest.Mock<any>;
 const useFetchKeywordsFunc = useFetchKeywords as jest.Mock<any>;
 const useDeleteKeywordsFunc = useDeleteKeywords as jest.Mock<any>;
 const useFavKeywordsFunc = useFavKeywords as jest.Mock<any>;
@@ -39,6 +40,7 @@ describe('SingleDomain Page', () => {
    beforeEach(() => {
       useFetchSettingsFunc.mockImplementation(() => ({ data: { settings: dummySettings }, isLoading: false }));
       useFetchDomainsFunc.mockImplementation(() => ({ data: { domains: [dummyDomain] }, isLoading: false }));
+      useFetchDomainFunc.mockImplementation(() => ({ data: { domain: dummyDomain }, isLoading: false }));
       useFetchKeywordsFunc.mockImplementation(() => ({ keywordsData: { keywords: dummyKeywords }, keywordsLoading: false }));
       const fetchPayload = { history: dummyKeywords[0].history || [], searchResult: dummyKeywords[0].lastResult || [] };
       useFetchSingleKeywordFunc.mockImplementation(() => ({ data: fetchPayload, isLoading: false }));
@@ -212,5 +214,48 @@ describe('SingleDomain Page', () => {
       if (lowestPosSortOption) fireEvent.click(lowestPosSortOption);
       const secondKeywordTitle = document.querySelector('.domKeywords_keywords .keyword:nth-child(1) a')?.textContent;
       expect(secondKeywordTitle).toBe('image compressor');
+   });
+
+   it('populates Search Console settings after fetching the canonical domain data', async () => {
+      const decryptedSearchConsole = {
+         property_type: 'url',
+         url: 'https://compressimage.io/',
+         client_email: 'client@compressimage.io',
+         private_key: '---PRIVATE KEY---',
+      };
+
+      let hasInvokedSuccess = false;
+
+      useFetchDomainFunc.mockImplementation((routerArg, domainValue, onSuccess) => {
+         const domainResponse = {
+            ...dummyDomain,
+            search_console: JSON.stringify(decryptedSearchConsole),
+         };
+         if (!hasInvokedSuccess && domainValue === dummyDomain.domain && typeof onSuccess === 'function') {
+            hasInvokedSuccess = true;
+            onSuccess(domainResponse);
+         }
+         return { data: { domain: domainResponse }, isLoading: false };
+      });
+
+      render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
+
+      const openSettingsButton = screen.getByTestId('show_domain_settings');
+      fireEvent.click(openSettingsButton);
+
+      await waitFor(() => {
+         expect(useFetchDomainFunc).toHaveBeenCalledWith(expect.anything(), dummyDomain.domain, expect.any(Function));
+      });
+
+      const settingsModal = await screen.findByTestId('domain_settings');
+      const searchConsoleTab = within(settingsModal).getByText('Search Console');
+      fireEvent.click(searchConsoleTab);
+
+      await waitFor(() => {
+         expect(screen.getByPlaceholderText('Search Console Property URL. eg: https://mywebsite.com/')).toHaveValue(decryptedSearchConsole.url);
+      });
+
+      expect(screen.getByPlaceholderText('myapp@appspot.gserviceaccount.com')).toHaveValue(decryptedSearchConsole.client_email);
+      expect(screen.getByPlaceholderText('-----BEGIN PRIVATE KEY-----/ssssaswdkihad....')).toHaveValue(decryptedSearchConsole.private_key);
    });
 });
