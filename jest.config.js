@@ -17,11 +17,12 @@ const customJestConfig = {
   moduleDirectories: ['node_modules', '<rootDir>/'],
   testEnvironment: 'jest-environment-jsdom',
   transformIgnorePatterns: [
-    '/node_modules/(?!(sequelize)/)',
+    '/node_modules/(?!(sequelize|until-async|@bundled-es-modules|msw|uuid)/)',
   ],
   moduleNameMapper: {
     '^uuid$': uuidPath,
     'better-sqlite3': '<rootDir>/__mocks__/better-sqlite3.js',
+    '^until-async$': '<rootDir>/__mocks__/until-async.js',
   },
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
 };
