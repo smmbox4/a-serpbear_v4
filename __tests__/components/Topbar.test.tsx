@@ -31,7 +31,7 @@ describe('TopBar Component', () => {
 
       // More robust CSS validation with better error reporting and maintainability
       // Extract the mobile media query section for targeted testing
-      const mobileMediaQueryRegex = /@media\s*\(\s*max-width:\s*760px\s*\)\s*\{([^{}]*\{[^{}]*\}[^{}]*)\}/;
+      const mobileMediaQueryRegex = /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{([^{}]*\{[^{}]*\}[^{}]*)\}/;
       const mobileMediaMatch = css.match(mobileMediaQueryRegex);
       
       expect(mobileMediaMatch).toBeTruthy();
@@ -48,7 +48,16 @@ describe('TopBar Component', () => {
       }
       
       // Ensure no body overrides in mobile media queries (maintains body gutters)
-      const mobileBodyOverride = /@media\s*\(\s*max-width:\s*760px\s*\)\s*\{[^}]*body\s*\{/;
+      const mobileBodyOverride = /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{[^}]*body\s*\{/;
       expect(css).not.toMatch(mobileBodyOverride);
+   });
+
+   it('keeps the mobile layout edge-to-edge without centering offsets', () => {
+      const { container } = render(<TopBar showSettings={jest.fn} showAddModal={jest.fn} />);
+      const topbarElement = container.querySelector('.topbar');
+
+      expect(topbarElement).toBeInTheDocument();
+      expect(topbarElement?.classList.contains('md:mx-auto')).toBe(true);
+      expect(topbarElement?.classList.contains('mx-auto')).toBe(false);
    });
 });

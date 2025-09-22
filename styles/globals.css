@@ -21,7 +21,7 @@ body {
    position: absolute;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 767px) {
    .topbar {
       margin-inline: calc(-1 * var(--layout-inline));
       padding-inline: var(--layout-inline);
