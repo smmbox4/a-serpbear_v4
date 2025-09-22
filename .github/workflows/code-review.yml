@@ -83,7 +83,6 @@ jobs:
         run: |
           # Run ESLint and always produce a SARIF file
           npx eslint . \
-            --config .eslintrc.js \
             --ext .js,.jsx,.ts,.tsx \
             --format @microsoft/eslint-formatter-sarif \
             --output-file eslint-results.sarif || true
