@@ -6,6 +6,8 @@ import countries from './countries';
 import { serializeError } from './errorSerialization';
 import allScrapers from '../scrapers/index';
 
+const GOOGLE_BASE_URL = 'https://www.google.com';
+
 type SearchResult = {
    title: string,
    url: string,
@@ -297,6 +299,16 @@ export const extractScrapedResult = (content: string, device: string): SearchRes
          const title = $(searchResultItems[i]).html();
          const url = $(searchResultItems[i]).closest('a').attr('href');
          if (title && url) {
+            // Filter out internal Google links (navigation, tools, etc.)
+            try {
+               const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
+               if (parsedURL.origin === GOOGLE_BASE_URL) {
+                  continue; // Skip Google internal links
+               }
+            } catch (error) {
+               // Skip malformed URLs
+               continue;
+            }
             lastPosition += 1;
             extractedResult.push({ title, url, position: lastPosition });
          }
@@ -315,6 +327,16 @@ export const extractScrapedResult = (content: string, device: string): SearchRes
             const titleDom = linkDom.find('[role="link"]');
             const title = titleDom ? titleDom.text() : '';
             if (title && url) {
+               // Filter out internal Google links (navigation, tools, etc.)
+               try {
+                  const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
+                  if (parsedURL.origin === GOOGLE_BASE_URL) {
+                     continue; // Skip Google internal links
+                  }
+               } catch (error) {
+                  // Skip malformed URLs
+                  continue;
+               }
                lastPosition += 1;
                extractedResult.push({ title, url, position: lastPosition });
             }
