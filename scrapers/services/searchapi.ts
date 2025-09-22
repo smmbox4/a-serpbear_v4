@@ -11,13 +11,13 @@ const searchapi:ScraperSettings = {
   name: 'SearchApi.io',
   website: 'searchapi.io',
   allowsCity: true,
-  headers: (keyword, settings) => {
+  headers: (keyword: KeywordType, settings: SettingsType) => {
      return {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${settings.scraping_api}`,
      };
   },
-  scrapeURL: (keyword) => {
+  scrapeURL: (keyword: KeywordType) => {
    const country = keyword.country || 'US';
    const countryName = countries[country][0];
    const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);

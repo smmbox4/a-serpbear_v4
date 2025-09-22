@@ -9,7 +9,7 @@ const serply:ScraperSettings = {
    id: 'serply',
    name: 'Serply',
    website: 'serply.io',
-   headers: (keyword, settings) => {
+   headers: (keyword: KeywordType, settings: SettingsType) => {
       const country = scraperCountries.includes(keyword.country.toUpperCase()) ? keyword.country : 'US';
       return {
          'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ const serply:ScraperSettings = {
          'X-Proxy-Location': country,
       };
    },
-   scrapeURL: (keyword) => {
+   scrapeURL: (keyword: KeywordType) => {
       const country = scraperCountries.includes(keyword.country.toUpperCase()) ? keyword.country : 'US';
       const searchParams = new URLSearchParams({
          q: keyword.keyword,

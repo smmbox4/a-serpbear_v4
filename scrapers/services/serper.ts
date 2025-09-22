@@ -9,7 +9,7 @@ const serper:ScraperSettings = {
    name: 'Serper.dev',
    website: 'serper.dev',
    allowsCity: true,
-   scrapeURL: (keyword, settings, countryData) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: countryData) => {
       const country = keyword.country || 'US';
       const lang = countryData[country][2];
       console.log('Serper URL :', `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}&num=100&apiKey=${settings.scraping_api}`);

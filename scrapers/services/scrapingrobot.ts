@@ -2,7 +2,7 @@ const scrapingRobot:ScraperSettings = {
    id: 'scrapingrobot',
    name: 'Scraping Robot',
    website: 'scrapingrobot.com',
-   scrapeURL: (keyword, settings, countryData) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: countryData) => {
       const country = keyword.country || 'US';
       const device = keyword.device === 'mobile' ? '&mobile=true' : '';
       const lang = countryData[country][2];

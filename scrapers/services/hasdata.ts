@@ -11,13 +11,13 @@ const hasdata:ScraperSettings = {
    name: 'HasData',
    website: 'hasdata.com',
    allowsCity: true,
-   headers: (keyword, settings) => {
+   headers: (keyword: KeywordType, settings: SettingsType) => {
       return {
          'Content-Type': 'application/json',
          'x-api-key': settings.scraping_api,
       };
    },
-   scrapeURL: (keyword, settings) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType) => {
       const country = keyword.country || 'US';
       const countryName = countries[country][0];
       const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);

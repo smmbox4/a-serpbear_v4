@@ -12,7 +12,7 @@ const spaceSerp:ScraperSettings = {
    name: 'Space Serp',
    website: 'spaceserp.com',
    allowsCity: true,
-   scrapeURL: (keyword, settings, countryData) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: countryData) => {
       const country = keyword.country || 'US';
       const countryName = countries[country][0];
       const locationParts = [keyword.city, keyword.state, countryName].filter(Boolean);
