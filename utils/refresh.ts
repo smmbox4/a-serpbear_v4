@@ -40,6 +40,7 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
    if (skippedKeywords.length > 0) {
       const skippedIds = skippedKeywords.map((keyword) => keyword.ID);
       await Keyword.update({ updating: false }, { where: { ID: skippedIds } });
+      await Promise.all(skippedIds.map((id) => removeFromRetryQueue(id)));
    }
 
    if (eligibleKeywordModels.length === 0) { return []; }
