@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import { readFile, writeFile } from 'fs/promises';
 import HttpsProxyAgent from 'https-proxy-agent';
 import countries from './countries';
+import { serializeError } from './errorSerialization';
 import allScrapers from '../scrapers/index';
 
 type SearchResult = {
@@ -141,34 +142,6 @@ const buildScraperError = (res: any) => {
       body: errorBody,
       request_info: res.request_info || null,
    };
-};
-
-/**
- * Converts error objects to readable strings for logging and storage
- */
-const serializeError = (error: any): string => {
-   if (!error) return 'Unknown error';
-   if (typeof error === 'string') return error;
-   if (error instanceof Error) return error.message;
-
-   if (typeof error === 'object') {
-      const message = error.message || error.error || error.detail || error.error_message || '';
-      const status = error.status ? `[${error.status}] ` : '';
-      const requestInfo = error.request_info?.error || '';
-
-      const parts = [status, message, requestInfo]
-         .filter(part => part && part !== 'null' && part !== 'undefined');
-      
-      if (parts.length > 0) return parts.join(' ').trim();
-
-      try {
-         return JSON.stringify(error);
-      } catch {
-         return error.toString() !== '[object Object]' ? error.toString() : 'Unserializable error object';
-      }
-   }
-
-   return String(error);
 };
 
 /**

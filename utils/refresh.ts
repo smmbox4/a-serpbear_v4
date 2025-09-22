@@ -3,51 +3,7 @@ import { setTimeout as sleep } from 'timers/promises';
 import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
 import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
-
-/**
- * Safely serializes error objects to readable strings
- */
-const serializeError = (error: any): string => {
-   if (!error) return 'Unknown error';
-
-   // If it's already a string, return it
-   if (typeof error === 'string') return error;
-
-   // If it's an Error object, get the message
-   if (error instanceof Error) return error.message;
-
-   // For complex objects, try to extract meaningful information
-   if (typeof error === 'object') {
-      // Handle nested error objects by recursively extracting error info
-      const extractErrorInfo = (obj: any): string => {
-         if (typeof obj === 'string') return obj;
-         if (typeof obj === 'object' && obj !== null) {
-            return obj.message || obj.error || obj.detail || obj.error_message || JSON.stringify(obj);
-         }
-         return String(obj);
-      };
-
-      // Try to get a meaningful error message from common error patterns
-      const message = extractErrorInfo(error.message || error.error || error.detail || error.error_message);
-      const status = error.status ? `[${error.status}] ` : '';
-      const errorInfo = extractErrorInfo(error.request_info?.error);
-
-      // If we have specific parts, combine them
-      if (message || status || errorInfo) {
-         const parts = [status, message, errorInfo].filter((part) => part && part !== 'null' && part !== 'undefined');
-         if (parts.length > 0) return parts.join(' ').trim();
-      }
-
-      // Fall back to JSON serialization
-      try {
-         return JSON.stringify(error);
-      } catch {
-         return error.toString() !== '[object Object]' ? error.toString() : 'Unserializable error object';
-      }
-   }
-
-   return String(error);
-};
+import { serializeError } from './errorSerialization';
 
 /**
  * Refreshes the Keywords position by Scraping Google Search Result by
