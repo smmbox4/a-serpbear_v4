@@ -1,5 +1,21 @@
 import Keyword from '../database/models/keyword';
 
+export const normaliseHistory = (rawHistory: unknown): KeywordHistory => {
+   if (!rawHistory || typeof rawHistory !== 'object' || Array.isArray(rawHistory)) {
+      return {};
+   }
+
+   return Object.entries(rawHistory as Record<string, unknown>).reduce<KeywordHistory>((acc, [key, value]) => {
+      if (!key) { return acc; }
+
+      const numericValue = typeof value === 'number' ? value : Number(value);
+      if (!Number.isNaN(numericValue)) {
+         acc[key] = numericValue;
+      }
+      return acc;
+   }, {});
+};
+
 /**
  * Parses the SQL Keyword Model object to frontend cosumable object.
  * @param {Keyword[]} allKeywords - Keywords to scrape
@@ -7,8 +23,9 @@ import Keyword from '../database/models/keyword';
  */
 const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
    const parsedItems = allKeywords.map((keywrd:Keyword) => {
-      let history: KeywordHistory = {};
-      try { history = JSON.parse(keywrd.history); } catch { history = {}; }
+      let historyRaw: unknown;
+      try { historyRaw = JSON.parse(keywrd.history); } catch { historyRaw = {}; }
+      const history = normaliseHistory(historyRaw);
 
       let tags: string[] = [];
       try { tags = JSON.parse(keywrd.tags); } catch { tags = []; }

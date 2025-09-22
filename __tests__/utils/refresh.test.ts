@@ -332,4 +332,123 @@ describe('refreshAndUpdateKeywords', () => {
 
     consoleSpy.mockRestore();
   });
+
+  it('coerces optional scalars when scrape results omit URLs', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2024-05-20T12:00:00.000Z'));
+
+    const mockPlainKeyword = {
+      ID: 99,
+      keyword: 'missing url keyword',
+      domain: 'example.com',
+      device: 'desktop',
+      country: 'US',
+      city: '',
+      state: '',
+      position: 11,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      url: 'https://example.com/existing',
+      tags: '[]',
+      lastUpdateError: 'false',
+    };
+
+    const keywordModel = {
+      ID: mockPlainKeyword.ID,
+      keyword: mockPlainKeyword.keyword,
+      domain: mockPlainKeyword.domain,
+      get: jest.fn().mockReturnValue(mockPlainKeyword),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    const settings = {
+      scraper_type: 'serpapi',
+      scrape_retry: false,
+    } as SettingsType;
+
+    const updatedKeyword = {
+      ID: mockPlainKeyword.ID,
+      position: 5,
+      result: [],
+      error: false,
+    } as RefreshResult;
+
+    try {
+      await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+
+      expect(keywordModel.update).toHaveBeenCalledTimes(1);
+      const payload = (keywordModel.update as jest.Mock).mock.calls[0][0];
+
+      expect(payload.url).toBeNull();
+      expect(payload.lastUpdated).toBe('2024-05-20T12:00:00.000Z');
+      expect(payload.lastUpdateError).toBe('false');
+      expect(payload.updating).toBe(0);
+      expect(Object.values(payload).some((value) => value === undefined)).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('normalises legacy array history payloads before persisting new entries', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2024-05-20T12:00:00.000Z'));
+
+    const mockPlainKeyword = {
+      ID: 77,
+      keyword: 'legacy history keyword',
+      domain: 'example.com',
+      device: 'desktop',
+      country: 'US',
+      city: '',
+      state: '',
+      position: 8,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '[]',
+      lastResult: '[]',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      lastUpdateError: 'false',
+    };
+
+    const keywordModel = {
+      ID: mockPlainKeyword.ID,
+      keyword: mockPlainKeyword.keyword,
+      domain: mockPlainKeyword.domain,
+      get: jest.fn().mockReturnValue(mockPlainKeyword),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    const settings = {
+      scraper_type: 'serpapi',
+      scrape_retry: false,
+    } as SettingsType;
+
+    const updatedKeyword = {
+      ID: mockPlainKeyword.ID,
+      position: 3,
+      url: 'https://example.com/result',
+      result: [],
+      error: false,
+    } as RefreshResult;
+
+    try {
+      const updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+
+      expect(keywordModel.update).toHaveBeenCalledTimes(1);
+      const payload = (keywordModel.update as jest.Mock).mock.calls[0][0];
+      const storedHistory = JSON.parse(payload.history);
+
+      expect(storedHistory).toEqual({ '2024-5-20': 3 });
+      expect(updated.history).toEqual({ '2024-5-20': 3 });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
 });
