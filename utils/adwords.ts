@@ -242,7 +242,7 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
 
    let fetchedKeywords: IdeaKeyword[] = [];
    if (accessToken) {
-      const seedKeywords = [...keywords];
+      let seedKeywords = [...keywords];
 
       // Load Keywords from Google Search Console File.
       if ((seedType === 'searchconsole' || seedSCKeywords) && domainUrl) {

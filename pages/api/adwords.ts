@@ -11,6 +11,59 @@ type adwordsValidateResp = {
    error?: string|null,
 }
 
+type IntegrationResultOptions = {
+   success: boolean;
+   message?: string;
+   statusCode?: number;
+};
+
+const respondWithIntegrationResult = (
+   req: NextApiRequest,
+   res: NextApiResponse,
+   { success, message = '', statusCode }: IntegrationResultOptions,
+) => {
+   const host = req.headers.host || '';
+   const protocol = host.includes('localhost:') ? 'http://' : 'https://';
+   const origin = `${protocol}${host}`;
+   const status = success ? 'success' : 'error';
+   const payload = { type: 'adwordsIntegrated', status, message };
+   const redirectUrl = `${origin}/settings?ads=integrated&status=${status}${message ? `&detail=${encodeURIComponent(message)}` : ''}`;
+
+   const html = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Google Ads Integration</title>
+  </head>
+  <body>
+    <script>
+      (function() {
+        const payload = ${JSON.stringify(payload)};
+        const redirectUrl = ${JSON.stringify(redirectUrl)};
+        try {
+          if (window.opener && typeof window.opener.postMessage === 'function') {
+            window.opener.postMessage(payload, window.location.origin);
+            window.close();
+            return;
+          }
+        } catch (err) {
+          console.warn('Failed to notify opener', err);
+        }
+        if (redirectUrl) {
+          window.location.replace(redirectUrl);
+        }
+      })();
+    </script>
+    <p>Google Ads integration ${success ? 'completed' : 'failed'}. You can close this window.</p>
+  </body>
+</html>`;
+
+   return res
+      .status(statusCode ?? (success ? 200 : 400))
+      .setHeader('Content-Type', 'text/html; charset=utf-8')
+      .send(html);
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
    await db.sync();
    const authorized = verifyUser(req, res);
@@ -48,9 +101,13 @@ const getAdwordsRefreshToken = async (req: NextApiRequest, res: NextApiResponse)
             if (r?.tokens?.refresh_token) {
                const adwords_refresh_token = cryptr.encrypt(r.tokens.refresh_token);
                await writeFile(`${process.cwd()}/data/settings.json`, JSON.stringify({ ...settings, adwords_refresh_token }), { encoding: 'utf-8' });
-               return res.status(200).json({ message: 'Integrated.' });
+               return respondWithIntegrationResult(req, res, { success: true, message: 'Integrated.' });
             }
-            return res.status(400).json({ error: 'Error Getting the Google Ads Refresh Token. Please Try Again!' });
+            return respondWithIntegrationResult(req, res, {
+               success: false,
+               message: 'Error Getting the Google Ads Refresh Token. Please Try Again!',
+               statusCode: 400,
+            });
          } catch (error:any) {
             let errorMsg = error?.response?.data?.error;
             if (typeof errorMsg !== 'string' || !errorMsg) {
@@ -59,14 +116,26 @@ const getAdwordsRefreshToken = async (req: NextApiRequest, res: NextApiResponse)
                errorMsg += ` Redirected URL: ${redirectURL}`;
             }
             console.log('[Error] Getting Google Ads Refresh Token! Reason: ', errorMsg);
-            return res.status(400).json({ error: 'Error Saving the Google Ads Refresh Token. Please Try Again!' });
+            return respondWithIntegrationResult(req, res, {
+               success: false,
+               message: 'Error Saving the Google Ads Refresh Token. Please Try Again!',
+               statusCode: 400,
+            });
          }
-      } else {
-         return res.status(400).json({ error: 'No Code Provided By Google. Please Try Again!' });
       }
+
+      return respondWithIntegrationResult(req, res, {
+         success: false,
+         message: 'No Code Provided By Google. Please Try Again!',
+         statusCode: 400,
+      });
    } catch (error) {
       console.log('[ERROR] Getting Google Ads Refresh Token: ', error);
-      return res.status(400).json({ error: 'Error Getting Google Ads Refresh Token. Please Try Again!' });
+      return respondWithIntegrationResult(req, res, {
+         success: false,
+         message: 'Error Getting Google Ads Refresh Token. Please Try Again!',
+         statusCode: 400,
+      });
    }
 };
 
@@ -95,7 +164,7 @@ const validateAdwordsIntegration = async (req: NextApiRequest, res: NextApiRespo
             { country: 'US', language: '1000', keywords: ['compress'], seedType: 'custom' },
              true,
          );
-         if (keywords && Array.isArray(keywords) && keywords.length > 0) {
+         if (keywords && Array.isArray(keywords)) {
             return res.status(200).json({ valid: true });
          }
       }

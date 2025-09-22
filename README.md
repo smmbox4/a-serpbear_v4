@@ -16,6 +16,8 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Email Notification:** Get notified of your keyword position changes daily/weekly/monthly through email.
 - **SERP API:** SerpBear comes with built-in API that you can use for your marketing & data reporting tools.
 - **Keyword Research:** Ability to research keywords and auto-generate keyword ideas from your tracked website's content by integrating your Google Ads test account.
+- **Domain-level toggles:** Pause scraping or notification email delivery per domain; UI switches update instantly and API/cron jobs skip disabled domains.
+- **Auto-zooming charts:** Rank trend charts now compute dynamic min/max bounds so sparkline and full charts focus on the captured data instead of the entire 1–100 range.
 - **Google Search Console Integration:** Get the actual visit count, impressions & more for each keyword. Cached data refreshes automatically once per cron day based on the configured timezone, can be manually refreshed from settings, and falls back to global credentials when domain-level credentials aren't configured. Dashboards now automatically refetch when switching between domains thanks to slug-keyed queries, ensuring the Search Console view and insight reports stay aligned with the active property.
 - **Mobile App:** Add the PWA app to your mobile for a better mobile experience.
 - **Zero Cost to RUN:** Run the App on mogenius.com or Fly.io for free.
@@ -27,6 +29,7 @@ SerpBear is an Open Source Search Engine Position Tracking and Keyword Research 
 - **Reliable Sessions:** Configurable login durations now persist correctly and logging out clears authentication cookies immediately.
 - **API Hardening:** Notification email endpoint now enforces authentication for both UI and API key access.
 - **Safer Integrations:** Google Ads refresh-token retrieval handles incomplete error payloads and Search Console storage differentiates hyphenated and dotted domains.
+- **Polished Google Ads OAuth flow:** The `/api/adwords` callback now returns a lightweight HTML page that posts an `adwordsIntegrated` message back to the settings view, accepts empty keyword validation responses, and surfaces upstream error text directly in the toast feedback.
 - **Stable Search Console Emails:** Email summaries gracefully skip Search Console stats when cached data is unavailable, keeping Docker builds and cron runs healthy.
 - **Automated Security Scans:** GitHub CodeQL now reviews every push, pull request, and weekly schedule for vulnerabilities across the JavaScript/TypeScript codebase.
 - **Simplified Footer:** The in-app changelog drawer has been removed; the footer now only shows the installed version without fetching GitHub releases on load.
@@ -46,6 +49,7 @@ All workflows now run inside concurrency groups with `cancel-in-progress: true`,
 #### Screenshot capture configuration
 
 - **`SCREENSHOT_API` is now mandatory:** Set this environment variable to the API key provided by your screenshot vendor (for example [ScreenshotOne](https://screenshotone.com/)). The server refuses to load settings or queue screenshot jobs when the key is missing, returning 500-series API responses that explain the misconfiguration. Add the key to `.env.local`, your Docker secrets, or your deployment platform before launching the app.
+- **`NEXT_PUBLIC_SCREENSHOTS` toggles UI thumbnails:** Set this public flag to `false` if you want to skip requesting page screenshots. When disabled, the dashboard falls back to favicons, hides the reload button, and the thumbnail cache stays untouched on the client.
 
 #### How it Works
 

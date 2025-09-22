@@ -156,4 +156,25 @@ describe('/api/notify - authentication', () => {
       to: 'custom@example.com',
     }));
   });
+
+  it('skips domains with notifications disabled', async () => {
+    (verifyUser as jest.Mock).mockReturnValue('authorized');
+
+    const domainRecord = {
+      get: () => ({
+        domain: 'example.com',
+        notification: false,
+        notify_enabled: false,
+        notification_emails: 'custom@example.com',
+      }),
+    };
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([domainRecord]);
+
+    await handler(req as NextApiRequest, res as NextApiResponse);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
+    expect(nodeMailer.createTransport).not.toHaveBeenCalled();
+  });
 });

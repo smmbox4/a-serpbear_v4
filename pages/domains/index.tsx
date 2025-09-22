@@ -8,7 +8,7 @@ import TopBar from '../../components/common/TopBar';
 import AddDomain from '../../components/domains/AddDomain';
 import Settings from '../../components/settings/Settings';
 import { useCheckMigrationStatus, useFetchSettings, useMigrateDatabase } from '../../services/settings';
-import { fetchDomainScreenshot, useFetchDomains } from '../../services/domains';
+import { fetchDomainScreenshot, useFetchDomains, SCREENSHOTS_ENABLED } from '../../services/domains';
 import DomainItem from '../../components/domains/DomainItem';
 import Icon from '../../components/common/Icon';
 import Footer from '../../components/common/Footer';
@@ -76,6 +76,7 @@ const Domains: NextPage = () => {
    }, [domainsData]);
 
    useEffect(() => {
+      if (!SCREENSHOTS_ENABLED) { return; }
       if (domainsData?.domains && domainsData.domains.length > 0) {
          const fetchAllScreenshots = async () => {
             const screenshotPromises = domainsData.domains.map(async (domain: DomainType) => {
@@ -109,6 +110,7 @@ const Domains: NextPage = () => {
    }, [domainsData]);
 
    const manuallyUpdateThumb = async (domain: string) => {
+      if (!SCREENSHOTS_ENABLED) { return; }
       if (domain) {
          const domainThumb = await fetchDomainScreenshot(domain, true);
          if (domainThumb) {
@@ -163,6 +165,7 @@ const Domains: NextPage = () => {
                            isConsoleIntegrated={!!(appSettings && appSettings.search_console_integrated) || !!domainSCAPiObj[domain.ID] }
                            thumb={domainThumbs[domain.domain]}
                            updateThumb={manuallyUpdateThumb}
+                           screenshotsEnabled={SCREENSHOTS_ENABLED}
                            // isConsoleIntegrated={false}
                            />;
                })}

@@ -5,6 +5,7 @@ import Modal from '../common/Modal';
 import { useDeleteDomain, useFetchDomain, useUpdateDomain } from '../../services/domains';
 import InputField from '../common/InputField';
 import SelectField from '../common/SelectField';
+import ToggleField from '../common/ToggleField';
 
 type DomainSettingsProps = {
    domain:DomainType|null,
@@ -27,6 +28,8 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
       search_console: domain?.search_console ? JSON.parse(domain.search_console) : {
          property_type: 'domain', url: '', client_email: '', private_key: '',
       },
+      scrape_enabled: domain?.scrape_enabled ?? true,
+      notify_enabled: domain?.notify_enabled ?? (domain?.notification ?? true),
    }));
 
    const { mutate: updateMutate, error: domainUpdateError, isLoading: isUpdating } = useUpdateDomain(() => closeModal(false));
@@ -35,7 +38,12 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    // Get the Full Domain Data along with the Search Console API Data.
    useFetchDomain(router, domain?.domain || '', (domainObj:DomainType) => {
       const currentSearchConsoleSettings = domainObj.search_console && JSON.parse(domainObj.search_console);
-      setDomainSettings(prevSettings => ({ ...prevSettings, search_console: currentSearchConsoleSettings || prevSettings.search_console }));
+      setDomainSettings(prevSettings => ({
+         ...prevSettings,
+         search_console: currentSearchConsoleSettings || prevSettings.search_console,
+         scrape_enabled: domainObj.scrape_enabled ?? prevSettings.scrape_enabled,
+         notify_enabled: domainObj.notify_enabled ?? (domainObj.notification ?? prevSettings.notify_enabled),
+      }));
    });
 
    const updateDomain = () => {
@@ -83,14 +91,28 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
 
                <div>
                   {currentTab === 'notification' && (
-                     <div className="mb-4 flex justify-between items-center w-full">
-                        <InputField
-                        label='Notification Emails'
-                        onChange={(emails:string) => setDomainSettings({ ...domainSettings, notification_emails: emails })}
-                        value={domainSettings.notification_emails || ''}
-                        placeholder='Your Emails'
-                        />
-                     </div>
+                     <>
+                        <div className="mb-4 flex flex-col gap-3 w-full">
+                           <ToggleField
+                              label='Track keyword positions'
+                              value={domainSettings.scrape_enabled !== false}
+                              onChange={(scrape) => setDomainSettings({ ...domainSettings, scrape_enabled: scrape })}
+                           />
+                           <ToggleField
+                              label='Send notification emails'
+                              value={domainSettings.notify_enabled !== false}
+                              onChange={(notify) => setDomainSettings({ ...domainSettings, notify_enabled: notify })}
+                           />
+                        </div>
+                        <div className="mb-4 flex justify-between items-center w-full">
+                           <InputField
+                           label='Notification Emails'
+                           onChange={(emails:string) => setDomainSettings({ ...domainSettings, notification_emails: emails })}
+                           value={domainSettings.notification_emails || ''}
+                           placeholder='Your Emails'
+                           />
+                        </div>
+                     </>
                   )}
                   {currentTab === 'searchconsole' && (
                      <>

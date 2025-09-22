@@ -1,11 +1,35 @@
+import React from 'react';
+
 type ToggleFieldProps = {
    label: string;
    value: boolean;
    onChange: (bool:boolean) => void ;
    classNames?: string;
+   disabled?: boolean;
+   stopPropagation?: boolean;
 }
 
-const ToggleField = ({ label = '', value = false, onChange, classNames = '' }: ToggleFieldProps) => {
+const ToggleField = ({
+   label = '',
+   value = false,
+   onChange,
+   classNames = '',
+   disabled = false,
+   stopPropagation = false,
+}: ToggleFieldProps) => {
+   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (disabled) {
+         event.preventDefault();
+         event.stopPropagation();
+         return;
+      }
+      if (stopPropagation) {
+         event.preventDefault();
+         event.stopPropagation();
+      }
+      onChange(!value);
+   };
+
    return (
       <div className={`field--toggle w-full relative ${classNames}`}>
          <label className="relative inline-flex items-center cursor-pointer w-full justify-between">
@@ -15,7 +39,8 @@ const ToggleField = ({ label = '', value = false, onChange, classNames = '' }: T
             value={value.toString()}
             checked={!!value}
             className="sr-only peer"
-            onChange={() => onChange(!value)}
+            onChange={handleChange}
+            disabled={disabled}
             />
             <div className="relative rounded-3xl w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4
             peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800rounded-full peer dark:bg-gray-700

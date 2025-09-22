@@ -30,6 +30,12 @@ class Domain extends Model {
    @Column({ type: DataType.STRING, allowNull: true, defaultValue: JSON.stringify([]) })
    tags!: string;
 
+   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: true })
+   scrape_enabled!: boolean;
+
+   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: true })
+   notify_enabled!: boolean;
+
    @Column({ type: DataType.BOOLEAN, allowNull: true, defaultValue: true })
    notification!: boolean;
 

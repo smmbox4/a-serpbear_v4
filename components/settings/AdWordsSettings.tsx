@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useMutateKeywordsVolume, useTestAdwordsIntegration } from '../../services/adwords';
 import Icon from '../common/Icon';
 import SecretField from '../common/SecretField';
@@ -29,7 +30,34 @@ const AdWordsSettings = ({ settings, settingsError, updateSettings, performUpdat
    const cloudProjectIntegrated = adwords_client_id && adwords_client_secret && adwords_refresh_token;
    const hasAllCredentials = adwords_client_id && adwords_client_secret && adwords_refresh_token && adwords_developer_token && adwords_account_id;
 
-   const udpateAndAuthenticate = async () => {
+   useEffect(() => {
+      if (typeof window === 'undefined') { return undefined; }
+
+      const handleIntegrationMessage = (event: MessageEvent) => {
+         if (event.origin !== window.location.origin) { return; }
+         const data = event.data as { type?: string; status?: string; message?: string };
+         if (!data || data.type !== 'adwordsIntegrated') { return; }
+
+         if (data.status === 'success') {
+            toast('Google Ads has been integrated successfully!', { icon: '✔️' });
+            if (performUpdate) {
+               Promise.resolve(performUpdate()).catch((error) => {
+                  console.error('Failed to refresh settings after Google Ads integration', error);
+               });
+            }
+         } else {
+            const detail = data.message || 'Google Ads integration failed. Please try again.';
+            toast(detail, { icon: '⚠️' });
+         }
+      };
+
+      window.addEventListener('message', handleIntegrationMessage);
+      return () => {
+         window.removeEventListener('message', handleIntegrationMessage);
+      };
+   }, [performUpdate]);
+
+   const updateAndAuthenticate = async () => {
       if (adwords_client_id && adwords_client_secret) {
          if (performUpdate) {
             await performUpdate();
@@ -78,7 +106,7 @@ const AdWordsSettings = ({ settings, settingsError, updateSettings, performUpdat
             ${adwords_client_id && adwords_client_secret ? 'cursor-pointer' : ' cursor-not-allowed opacity-40'}
              hover:bg-blue-700 hover:text-white transition`}
             title='Insert All the data in the above fields to Authenticate'
-            onClick={udpateAndAuthenticate}>
+            onClick={updateAndAuthenticate}>
                <Icon type='google' size={14} /> {adwords_refresh_token ? 'Re-Authenticate' : 'Authenticate'} Integration
             </button>
          </div>

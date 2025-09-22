@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Changed
 
+* Added per-domain `scrape_enabled`/`notify_enabled` toggles with database migration, cached UI updates, and API/cron guards so paused domains skip scraping and email runs.
+* Introduced dynamic chart bounds and a shared client helper so SERP line charts and sparklines zoom to the observed rank range instead of hard-coding 1–100.
+* Honoured the `NEXT_PUBLIC_SCREENSHOTS` environment flag in services and the dashboard so deployments can opt out of screenshot fetches and rely on favicons without UI clutter.
+* Returned an HTML OAuth callback from `/api/adwords` that posts an `adwordsIntegrated` message, accepted empty keyword-idea validation responses, and surfaced upstream errors in the settings toast listener.
+* Hardened `/api/refresh` error handling by rejecting empty ID lists with HTTP 400, serialising scraper failures, and short-circuiting toggled-off domains.
+* Documented the new screenshot and console logging environment flags in `.env.example`, the README, and integration tests.
 * Encoded the nested Google Search request passed to ScrapingRobot so locale parameters stay bundled within the delegated `url` query parameter.
 * Retained server-side logging in the production bundle by gating Next.js `compiler.removeConsole` behind the `NEXT_REMOVE_CONSOLE` environment flag.
 * Settings now reload the window only when enabling a scraper from the previous `'none'` state, and the scraper modal has Jest coverage to verify the behaviour.

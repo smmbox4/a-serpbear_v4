@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../database/database';
 import Keyword from '../../database/models/keyword';
+import Domain from '../../database/models/domain';
 import { getAppSettings } from './settings';
 import verifyUser from '../../utils/verifyUser';
 import refreshAndUpdateKeywords from '../../utils/refresh';
@@ -28,8 +29,18 @@ const cronRefreshkeywords = async (req: NextApiRequest, res: NextApiResponse<CRO
       if (!settings || (settings && settings.scraper_type === 'none')) {
          return res.status(400).json({ started: false, error: 'Scraper has not been set up yet.' });
       }
-      await Keyword.update({ updating: true }, { where: {} });
-      const keywordQueries: Keyword[] = await Keyword.findAll();
+      const domainToggles = await Domain.findAll({ attributes: ['domain', 'scrape_enabled'] });
+      const enabledDomains = domainToggles
+         .map((dom) => dom.get({ plain: true }))
+         .filter((dom) => dom.scrape_enabled !== false)
+         .map((dom) => dom.domain);
+
+      if (enabledDomains.length === 0) {
+         return res.status(200).json({ started: false, error: 'No domains have scraping enabled.' });
+      }
+
+      await Keyword.update({ updating: true }, { where: { domain: enabledDomains } });
+      const keywordQueries: Keyword[] = await Keyword.findAll({ where: { domain: enabledDomains } });
 
       refreshAndUpdateKeywords(keywordQueries, settings);
 

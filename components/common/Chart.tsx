@@ -1,17 +1,19 @@
 import React from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import { calculateChartBounds } from '../../utils/client/chartBounds';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-type ChartProps ={
-   labels: string[],
-   series: number[],
-   reverse? : boolean,
-   noMaxLimit?: boolean
-}
+type ChartProps = {
+   labels: string[];
+   series: number[];
+   reverse?: boolean;
+   noMaxLimit?: boolean;
+};
 
-const Chart = ({ labels, series, reverse = true, noMaxLimit = false }:ChartProps) => {
+const Chart = ({ labels, series, reverse = true, noMaxLimit = false }: ChartProps) => {
+   const { min, max } = calculateChartBounds(series, { reverse, noMaxLimit });
    const options = {
       responsive: true,
       maintainAspectRatio: false,
@@ -19,21 +21,22 @@ const Chart = ({ labels, series, reverse = true, noMaxLimit = false }:ChartProps
       scales: {
          y: {
             reverse,
-            min: 1,
-            max: !noMaxLimit && reverse ? 100 : undefined,
+            min,
+            max,
          },
       },
       plugins: {
          legend: {
-             display: false,
+            display: false,
          },
-     },
+      },
    };
 
-   return <Line
-            datasetIdKey='XXX'
-            options={options}
-            data={{
+   return (
+      <Line
+         datasetIdKey="XXX"
+         options={options}
+         data={{
             labels,
             datasets: [
                {
@@ -43,8 +46,9 @@ const Chart = ({ labels, series, reverse = true, noMaxLimit = false }:ChartProps
                   backgroundColor: 'rgba(31, 205, 176, 0.5)',
                },
             ],
-            }}
-         />;
+         }}
+      />
+   );
 };
 
 export default Chart;
