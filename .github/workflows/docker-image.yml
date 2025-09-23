@@ -41,7 +41,7 @@ jobs:
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=raw,value=dev,enable=${{ github.ref == 'refs/heads/dev' }}
-            type=sha,priority=100,enable=${{ github.event_name == 'push' }}
+            type=sha,priority=100
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -51,5 +51,14 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.ref_name }}
+          cache-to: type=gha,scope=${{ github.ref_name }},mode=min
+
+  cleanup-caches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old caches for this repo
+        run: |
+          gh actions-cache delete --repo ${{ github.repository }} --all --confirm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
