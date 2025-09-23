@@ -27,7 +27,7 @@
     "cheerio": "^1.0.0",
     "cookies": "^0.9.1",
     "croner": "^9.0.0",
-    "cryptr": "^6.0.3",
+    "cryptr": "^6.4.0",
     "dayjs": "^1.11.5",
     "dotenv": "^16.6.1",
     "google-auth-library": "^10.3.0",
