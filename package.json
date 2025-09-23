@@ -20,7 +20,7 @@
   "dependencies": {
     "@googleapis/searchconsole": "^5.0.0",
     "@isaacs/ttlcache": "^1.4.1",
-    "@types/react-transition-group": "^4.4.5",
+    "@types/react-transition-group": "^4.4.12",
     "axios": "^1.12.2",
     "better-sqlite3": "^12.2.0",
     "chart.js": "^3.9.1",
