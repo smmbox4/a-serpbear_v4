@@ -26,4 +26,26 @@ describe('PageLoader', () => {
       expect(screen.queryByTestId('page-loader-overlay')).not.toBeInTheDocument();
       expect(container.firstChild).toHaveAttribute('aria-busy', 'false');
    });
+
+   it('uses default label when none provided', () => {
+      render(
+         <PageLoader isLoading>
+            <div>Content</div>
+         </PageLoader>,
+      );
+
+      expect(screen.getByRole('status', { name: 'Loading content' })).toBeInTheDocument();
+   });
+
+   it('does not have redundant sr-only text for accessibility', () => {
+      render(
+         <PageLoader isLoading label='Test loading'>
+            <div>Content</div>
+         </PageLoader>,
+      );
+
+      const status = screen.getByRole('status', { name: 'Test loading' });
+      const srOnlySpan = status.querySelector('.sr-only');
+      expect(srOnlySpan).toBeNull();
+   });
 });

@@ -20,7 +20,6 @@ const PageLoader = ({ isLoading, label = 'Loading content', children, className 
                data-testid='page-loader-overlay'
             >
                <Icon type='loading' size={48} />
-               <span className='sr-only'>{label}</span>
             </div>
          )}
       </div>

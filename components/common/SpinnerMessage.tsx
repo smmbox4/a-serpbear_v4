@@ -15,7 +15,6 @@ const SpinnerMessage = ({ label = 'Loading data', className = '' }: SpinnerMessa
          aria-label={label}
       >
          <Icon type='loading' size={24} />
-         <span className='sr-only'>{label}</span>
       </div>
    );
 };
