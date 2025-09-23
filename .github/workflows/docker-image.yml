@@ -57,10 +57,17 @@ jobs:
   cleanup-caches:
     runs-on: ubuntu-latest
     steps:
+      - name: Authenticate GH CLI
+        run: gh auth setup-git
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
       - name: Install actions-cache extension
         run: gh extension install actions/actions-cache
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Delete old caches for this repo
         run: gh actions-cache delete --repo ${{ github.repository }} --all --confirm
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
