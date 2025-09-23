@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { filterKeywords, keywordsByDevice, sortKeywords } from '../../utils/client/sortFilter';
 import Icon from '../common/Icon';
+import SpinnerMessage from '../common/SpinnerMessage';
 import Keyword from './Keyword';
 import KeywordDetails from './KeywordDetails';
 import KeywordFilters from './KeywordFilter';
@@ -175,7 +176,7 @@ const KeywordsTable = (props: KeywordsTableProps) => {
          !isLoading ? (
             <p className=' p-9 pt-[10%] text-center text-gray-500'>No Keywords Added for this Device Type.</p>
          ) : (
-            <p className=' p-9 pt-[10%] text-center text-gray-500'>Loading Keywords...</p>
+            <SpinnerMessage className='p-9 pt-[10%] text-center' label='Loading keywords' />
          )
       );
    }

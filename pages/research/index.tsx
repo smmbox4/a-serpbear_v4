@@ -13,6 +13,7 @@ import Settings from '../../components/settings/Settings';
 import SelectField from '../../components/common/SelectField';
 import allCountries, { adwordsLanguages } from '../../utils/countries';
 import Footer from '../../components/common/Footer';
+import PageLoader from '../../components/common/PageLoader';
 
 const Research: NextPage = () => {
    const router = useRouter();
@@ -22,7 +23,7 @@ const Research: NextPage = () => {
    const [country, setCountry] = useState('US');
    const [seedKeywords, setSeedKeywords] = useState('');
 
-   const { data: appSettings } = useFetchSettings();
+   const { data: appSettings, isLoading: isSettingsLoading } = useFetchSettings();
    const adwordsConnected = !!(appSettings && appSettings?.settings?.adwords_refresh_token
       && appSettings?.settings?.adwords_developer_token, appSettings?.settings?.adwords_account_id);
    const { data: keywordIdeasData, isLoading: isLoadingIdeas, isError: errorLoadingIdeas } = useFetchKeywordIdeas(router, adwordsConnected);
@@ -56,8 +57,10 @@ const Research: NextPage = () => {
    const buttonLabelStyle = 'ml-2 text-sm not-italic lg:invisible lg:opacity-0';
    const labelStyle = 'mb-2 font-semibold inline-block text-sm text-gray-700 capitalize w-full';
 
+   const isPageLoading = !router.isReady || isSettingsLoading || isLoadingIdeas;
+
    return (
-      <div className={'Login'}>
+      <PageLoader isLoading={isPageLoading} className='Login'>
          <Head>
             <title>Research Keywords - SerpBear</title>
          </Head>
@@ -143,7 +146,7 @@ const Research: NextPage = () => {
              <Settings closeSettings={() => setShowSettings(false)} />
          </CSSTransition>
          <Footer currentVersion={appSettings?.settings?.version ? appSettings.settings.version : ''} />
-      </div>
+      </PageLoader>
    );
 };
 

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Added a reusable page loader overlay and spinner placeholders so the domains dashboard, single-domain view, and research workspace stay blocked until router state and React Query data settle, while keeping loading labels accessible.
 * Removed redundant domain guards so dashboard headers, screenshots, and Search Console refreshes operate directly on the stored host names.
 * Removed the client-side guard that rejected blank domain slugs so `/api/domain` requests always hit the API and rely on server-side validation.
 * Replaced the fixed 105 rem layout cap with a reusable `desktop-container` utility so the dashboard and research views expand to 90 % of the viewport on large screens.

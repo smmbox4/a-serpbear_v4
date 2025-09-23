@@ -3,6 +3,7 @@ import { sortInsightItems } from '../../utils/insight';
 import SelectField from '../common/SelectField';
 import InsightItem from './InsightItem';
 import InsightStats from './InsightStats';
+import SpinnerMessage from '../common/SpinnerMessage';
 
 type SCInsightProps = {
    domain: DomainType | null,
@@ -112,7 +113,7 @@ const SCInsight = ({ insight, isLoading = true, isConsoleIntegrated = true, doma
                         )
                      }
                      {isConsoleIntegrated && isLoading && (
-                        <p className=' p-9 pt-[10%] text-center text-gray-500'>Loading Insight...</p>
+                        <SpinnerMessage className='p-9 pt-[10%] text-center' label='Loading insights' />
                      )}
                      {!isConsoleIntegrated && (
                         <p className=' p-9 pt-[10%] text-center text-gray-500'>

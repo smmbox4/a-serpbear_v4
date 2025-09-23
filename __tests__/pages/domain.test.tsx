@@ -14,6 +14,7 @@ jest.mock('../../services/settings');
 jest.mock('next/router', () => ({
    useRouter: () => ({
      query: { slug: dummyDomain.slug },
+     isReady: true,
    }),
 }));
 
@@ -59,6 +60,18 @@ describe('SingleDomain Page', () => {
    it('Render without crashing.', async () => {
       render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
       expect(screen.getByTestId('domain-header')).toBeInTheDocument();
+   });
+
+   it('renders the page loader while queries resolve', () => {
+      useFetchSettingsFunc.mockImplementation(() => ({ data: undefined, isLoading: true }));
+      useFetchDomainsFunc.mockImplementation(() => ({ data: undefined, isLoading: true }));
+      useFetchKeywordsFunc.mockImplementation(() => ({ keywordsData: undefined, keywordsLoading: true }));
+
+      render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
+
+      const overlay = screen.getByTestId('page-loader-overlay');
+      expect(overlay).toBeInTheDocument();
+      expect(overlay).toHaveClass('fixed');
    });
 
    it('applies gutter spacing between the sidebar and content area', () => {

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import * as ReactQuery from 'react-query';
 import { dummyDomain } from '../../__mocks__/data';
 import Domains from '../../pages/domains';
+import router from 'next-router-mock';
 
 // Mock the useAuth hook to always return authenticated state
 jest.mock('../../hooks/useAuth', () => ({
@@ -38,9 +39,39 @@ function createJsonResponse<T>(payload: T, status = 200): Response {
 }
 
 jest.mock('next/router', () => jest.requireActual('next-router-mock'));
-jest.spyOn(ReactQuery, 'useQuery').mockImplementation(jest.fn().mockReturnValue(
-   { data: { domains: [dummyDomain] }, isLoading: false, isSuccess: true },
-));
+
+type QueryOverrides = {
+   settings?: Partial<ReturnType<typeof ReactQuery.useQuery>>;
+   domains?: Partial<ReturnType<typeof ReactQuery.useQuery>>;
+};
+
+const useQuerySpy = jest.spyOn(ReactQuery, 'useQuery');
+
+const buildUseQueryImplementation = (overrides?: QueryOverrides) => {
+   const defaultSettings = {
+      data: { settings: { version: '0.0.0', scraper_type: 'proxy', search_console_integrated: false } },
+      isLoading: false,
+      isSuccess: true,
+   };
+   const defaultDomains = {
+      data: { domains: [dummyDomain] },
+      isLoading: false,
+      isSuccess: true,
+   };
+
+   const settingsResult = { ...defaultSettings, ...overrides?.settings };
+   const domainsResult = { ...defaultDomains, ...overrides?.domains };
+
+   return (queryKey: ReactQuery.QueryKey) => {
+      if (queryKey === 'settings') {
+         return settingsResult;
+      }
+      if (Array.isArray(queryKey) && queryKey[0] === 'domains') {
+         return domainsResult;
+      }
+      return { data: undefined, isLoading: false };
+   };
+};
 
 beforeAll(() => {
    global.fetch = fetchMock as unknown as typeof fetch;
@@ -51,6 +82,8 @@ afterAll(() => {
 });
 
 beforeEach(() => {
+   router.isReady = true;
+   useQuerySpy.mockImplementation(buildUseQueryImplementation());
    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = asUrlString(input);
       if (url.startsWith(`${window.location.origin}/api/domains`)) {
@@ -62,6 +95,7 @@ beforeEach(() => {
 
 afterEach(() => {
    fetchMock.mockReset();
+   useQuerySpy.mockReset();
 });
 
 describe('Domains Page', () => {
@@ -81,6 +115,23 @@ describe('Domains Page', () => {
           </QueryClientProvider>,
       );
       expect(container.querySelector('.domItem')).toBeInTheDocument();
+   });
+
+   it('displays the page loader while queries resolve', () => {
+      useQuerySpy.mockImplementation(buildUseQueryImplementation({
+         settings: { isLoading: true, data: undefined },
+         domains: { isLoading: true, data: undefined },
+      }));
+
+      render(
+          <QueryClientProvider client={queryClient}>
+              <Domains />
+          </QueryClientProvider>,
+      );
+
+      const overlay = screen.getByTestId('page-loader-overlay');
+      expect(overlay).toBeInTheDocument();
+      expect(overlay).toHaveClass('fixed');
    });
 
    it('wraps page content with the shared body gutter', () => {
