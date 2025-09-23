@@ -16,6 +16,7 @@ const SETTINGS_DEFAULTS: SettingsType = {
    notification_email_from_name: 'SerpBear',
    smtp_server: '',
    smtp_port: '',
+   smtp_tls_servername: '',
    smtp_username: '',
    smtp_password: '',
    scrape_interval: '',
@@ -97,18 +98,27 @@ const updateSettings = async (req: NextApiRequest, res: NextApiResponse<Settings
       return res.status(400).json({ error: 'Settings payload is required.' });
    }
    try {
+      const normalizedSettings: SettingsType = { ...settings };
+
+      Object.entries(normalizedSettings).forEach(([key, value]) => {
+         if (typeof value === 'string') {
+            (normalizedSettings as Record<string, unknown>)[key] = value.trim();
+         }
+      });
+
       const cryptr = new Cryptr(process.env.SECRET as string);
-      const scraping_api = settings.scraping_api ? cryptr.encrypt(settings.scraping_api.trim()) : '';
-      const smtp_password = settings.smtp_password ? cryptr.encrypt(settings.smtp_password.trim()) : '';
-      const search_console_client_email = settings.search_console_client_email ? cryptr.encrypt(settings.search_console_client_email.trim()) : '';
-      const search_console_private_key = settings.search_console_private_key ? cryptr.encrypt(settings.search_console_private_key.trim()) : '';
-      const adwords_client_id = settings.adwords_client_id ? cryptr.encrypt(settings.adwords_client_id.trim()) : '';
-      const adwords_client_secret = settings.adwords_client_secret ? cryptr.encrypt(settings.adwords_client_secret.trim()) : '';
-      const adwords_developer_token = settings.adwords_developer_token ? cryptr.encrypt(settings.adwords_developer_token.trim()) : '';
-      const adwords_account_id = settings.adwords_account_id ? cryptr.encrypt(settings.adwords_account_id.trim()) : '';
+      const encrypt = (value?: string) => (value ? cryptr.encrypt(value) : '');
+      const scraping_api = encrypt(normalizedSettings.scraping_api);
+      const smtp_password = encrypt(normalizedSettings.smtp_password);
+      const search_console_client_email = encrypt(normalizedSettings.search_console_client_email);
+      const search_console_private_key = encrypt(normalizedSettings.search_console_private_key);
+      const adwords_client_id = encrypt(normalizedSettings.adwords_client_id);
+      const adwords_client_secret = encrypt(normalizedSettings.adwords_client_secret);
+      const adwords_developer_token = encrypt(normalizedSettings.adwords_developer_token);
+      const adwords_account_id = encrypt(normalizedSettings.adwords_account_id);
 
       const securedSettings = {
-         ...settings,
+         ...normalizedSettings,
          scraping_api,
          smtp_password,
          search_console_client_email,
@@ -120,7 +130,7 @@ const updateSettings = async (req: NextApiRequest, res: NextApiResponse<Settings
       };
 
       await writeFile(`${process.cwd()}/data/settings.json`, JSON.stringify(securedSettings), { encoding: 'utf-8' });
-      return res.status(200).json({ settings });
+      return res.status(200).json({ settings: normalizedSettings });
    } catch (error) {
       console.log('[ERROR] Updating App Settings. ', error);
       const message = error instanceof Error ? error.message : 'Unknown error';

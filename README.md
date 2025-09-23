@@ -129,6 +129,8 @@ All runtime behaviour is controlled through environment variables. The tables be
 | `NOTIFICATION_EMAIL_FROM` | — | Optional | Sender email address that appears in notification emails. |
 | `NOTIFICATION_EMAIL_FROM_NAME` | `SerpBear` | Optional | Friendly sender name shown to recipients. |
 
+SerpBear also accepts an optional **SMTP TLS certificate hostname** override from the Notification settings modal (or via the `smtp_tls_servername` field in the settings API). Whitespace and trailing dots are trimmed automatically before the value is passed to Nodemailer as the TLS `servername`, making it easier to work with proxies or shared SMTP endpoints whose certificates do not match the connection host.
+
 ### Cron scheduling
 
 | Variable | Default | Required | Description |

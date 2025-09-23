@@ -24,6 +24,7 @@ export const defaultSettings: SettingsType = {
    notification_email: '',
    smtp_server: '',
    smtp_port: '',
+   smtp_tls_servername: '',
    smtp_username: '',
    smtp_password: '',
    notification_email_from: '',
@@ -60,9 +61,27 @@ const Settings = ({ closeSettings }:SettingsProps) => {
 
    const performUpdate = async () => {
       let error: null|SettingsError = null;
-      const { notification_interval, notification_email, notification_email_from, scraper_type, smtp_port, smtp_server, scraping_api } = settings;
+      const sanitizedSettings: SettingsType = { ...settings };
+
+      Object.entries(sanitizedSettings).forEach(([key, value]) => {
+         if (typeof value === 'string') {
+            (sanitizedSettings as Record<string, unknown>)[key] = value.trim();
+         }
+      });
+
+      setSettings(sanitizedSettings);
+
+      const {
+         notification_interval,
+         notification_email,
+         notification_email_from,
+         scraper_type,
+         smtp_port,
+         smtp_server,
+         scraping_api,
+      } = sanitizedSettings;
       if (notification_interval !== 'never') {
-         if (!settings.notification_email) {
+         if (!notification_email) {
             error = { type: 'no_email', msg: 'Insert a Valid Email address' };
          }
          if (notification_email && (!smtp_port || !smtp_server || !notification_email_from)) {
@@ -83,7 +102,7 @@ const Settings = ({ closeSettings }:SettingsProps) => {
       } else {
          // Perform Update
          const previousScraperType = appSettings?.settings?.scraper_type;
-         await updateMutateAsync(settings);
+         await updateMutateAsync(sanitizedSettings);
          // If Scraper is updated, refresh the page when enabling from a disabled state.
          if (previousScraperType === 'none' && scraper_type !== 'none') {
             window.location.reload();
