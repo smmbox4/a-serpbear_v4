@@ -175,6 +175,21 @@ export const checkRateLimit = (identifier: string, maxRequests: number = 100, wi
    };
 };
 
+/**
+ * Trims all string properties in an object
+ */
+export const trimStringProperties = <T extends Record<string, unknown>>(obj: T): T => {
+   const result = { ...obj };
+   
+   Object.entries(result).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+         (result as Record<string, unknown>)[key] = value.trim();
+      }
+   });
+   
+   return result;
+};
+
 // Export for testing purposes
 export const resetRateLimitStorage = () => {
    requestCounts = {};
