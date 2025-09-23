@@ -5,6 +5,7 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { useAddKeywords } from '../../services/keywords';
 import { formatLocation } from '../../utils/location';
 import Icon from '../common/Icon';
+import SpinnerMessage from '../common/SpinnerMessage';
 import KeywordIdea from './KeywordIdea';
 import useWindowResize from '../../hooks/useWindowResize';
 import useIsMobile from '../../hooks/useIsMobile';
@@ -174,7 +175,7 @@ const IdeasKeywordsTable = ({
       keywordsContent = (
          <>
             {isAdwordsIntegrated && isLoading && (
-               <p className=' p-9 pt-[10%] text-center text-gray-500'>Loading Keywords Ideas...</p>
+               <SpinnerMessage className='p-9 pt-[10%] text-center' label='Loading keyword ideas' />
             )}
             {isAdwordsIntegrated && noIdeasDatabase && !isLoading && (
                <p className=' p-9 pt-[10%] text-center text-gray-500'>

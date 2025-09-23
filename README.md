@@ -200,6 +200,11 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 - Connect a Google Ads test account to unlock keyword suggestions and historical volume data right inside SerpBear.
 - The app exposes the same functionality through its REST API, making it easy to integrate with reporting pipelines.
 
+### Loading states & accessibility
+
+- The domains dashboard, single-domain workspace, and research area now share a full-viewport loader that blocks interaction until router state and React Query data have settled.
+- Keyword, idea, and insight tables use a spinner-only placeholder with visually hidden labels so loading affordances stay consistent without repeating "Loading…" copy on screen.
+
 ### Notifications & reporting
 
 - Email digests summarise rank gains/losses, highlight top movers, and include Search Console traffic data when available.
