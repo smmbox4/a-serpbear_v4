@@ -147,8 +147,6 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
  * @returns {Promise<string>}
  */
 export const generateGoogleConsoleStats = async (domain:DomainType): Promise<string> => {
-      if (!domain?.domain) return '';
-
       const initialSCData = await readLocalSCData(domain.domain);
       let localSCData:SCDomainDataType | null = initialSCData === false ? null : initialSCData;
       const cronTimezone = process.env.CRON_TIMEZONE || 'America/New_York';

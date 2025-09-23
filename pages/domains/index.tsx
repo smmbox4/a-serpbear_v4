@@ -54,11 +54,9 @@ const Domains: NextPage = () => {
       if (domainsData?.domains && domainsData.domains.length > 0) {
          const fetchAllScreenshots = async () => {
             const screenshotPromises = domainsData.domains.map(async (domain: DomainType) => {
-               if (domain.domain) {
-                  const domainThumb = await fetchDomainScreenshot(domain.domain);
-                  if (domainThumb) {
-                     return { domain: domain.domain, thumb: domainThumb };
-                  }
+               const domainThumb = await fetchDomainScreenshot(domain.domain);
+               if (domainThumb) {
+                  return { domain: domain.domain, thumb: domainThumb };
                }
                return null;
             });
@@ -70,7 +68,7 @@ const Domains: NextPage = () => {
                setDomainThumbs((currentThumbs) => {
                   const newThumbs = { ...currentThumbs };
                   validScreenshots.forEach(({ domain, thumb }) => {
-                     if (domain && thumb) {
+                     if (thumb) {
                         newThumbs[domain] = thumb;
                      }
                   });
@@ -85,14 +83,12 @@ const Domains: NextPage = () => {
 
    const manuallyUpdateThumb = async (domain: string) => {
       if (!SCREENSHOTS_ENABLED) { return; }
-      if (domain) {
-         const domainThumb = await fetchDomainScreenshot(domain, true);
-         if (domainThumb) {
-            toast(`${domain} Screenshot Updated Successfully!`, { icon: '✔️' });
-            setDomainThumbs((currentThumbs) => ({ ...currentThumbs, [domain]: domainThumb }));
-         } else {
-            toast(`Failed to Fetch ${domain} Screenshot!`, { icon: '⚠️' });
-         }
+      const domainThumb = await fetchDomainScreenshot(domain, true);
+      if (domainThumb) {
+         toast(`${domain} Screenshot Updated Successfully!`, { icon: '✔️' });
+         setDomainThumbs((currentThumbs) => ({ ...currentThumbs, [domain]: domainThumb }));
+      } else {
+         toast(`Failed to Fetch ${domain} Screenshot!`, { icon: '⚠️' });
       }
    };
 
