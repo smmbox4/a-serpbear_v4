@@ -46,8 +46,8 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
       });
 
       const sanitizedHost = sanitizeHostname(normalizedSettings.smtp_server);
-      const sanitizedPort = trimString(normalizedSettings.smtp_port);
-      const sanitizedDefaultEmail = trimString(normalizedSettings.notification_email);
+      const sanitizedPort = normalizedSettings.smtp_port;
+      const sanitizedDefaultEmail = normalizedSettings.notification_email;
 
       normalizedSettings.smtp_server = sanitizedHost;
       normalizedSettings.smtp_port = sanitizedPort;
@@ -113,17 +113,17 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
    }
 
    const tlsServername = sanitizeHostname(smtp_tls_servername);
-   const fromAddress = trimString(notification_email_from) || 'no-reply@serpbear.com';
-   const fromName = trimString(notification_email_from_name) || 'SerpBear';
+   const fromAddress = notification_email_from || 'no-reply@serpbear.com';
+   const fromName = notification_email_from_name || 'SerpBear';
    const fromEmail = `${fromName} <${fromAddress}>`;
-   const portNum = parseInt(trimString(smtp_port), 10);
+   const portNum = parseInt(smtp_port, 10);
    const validPort = isNaN(portNum) ? 587 : Math.max(1, Math.min(65535, portNum)); // Default to 587, validate range
    const mailerSettings:any = { host: sanitizedHost, port: validPort };
    if (tlsServername) {
       mailerSettings.tls = { servername: tlsServername };
    }
-   const sanitizedUser = trimString(smtp_username);
-   const sanitizedPass = trimString(smtp_password);
+   const sanitizedUser = smtp_username;
+   const sanitizedPass = smtp_password;
    if (sanitizedUser || sanitizedPass) {
       mailerSettings.auth = {};
       if (sanitizedUser) mailerSettings.auth.user = sanitizedUser;
@@ -139,7 +139,7 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
       const emailHTML = await generateEmail(domainObj, keywords, settings);
 
       const domainNotificationEmails = trimString(domain.notification_emails);
-      const fallbackNotification = trimString(notification_email);
+      const fallbackNotification = notification_email;
 
       await transporter.sendMail({
          from: fromEmail,
