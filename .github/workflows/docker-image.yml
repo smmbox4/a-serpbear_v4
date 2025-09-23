@@ -1,12 +1,7 @@
 name: Build and Push Docker Image
 
 on:
-  push:
-    branches:
-      - "main"
-      - "dev"
-  release:
-    types: [published]
+  workflow_dispatch:
 
 permissions:
   contents: read
