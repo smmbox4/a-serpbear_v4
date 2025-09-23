@@ -8,6 +8,7 @@ import parseKeywords from '../../utils/parseKeywords';
 import verifyUser from '../../utils/verifyUser';
 import { canSendEmail, recordEmailSent } from '../../utils/emailThrottle';
 import { getAppSettings } from './settings';
+import { trimStringProperties } from '../../utils/security';
 
 type NotifyResponse = {
    success?: boolean
@@ -37,13 +38,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
    const reqDomain = req?.query?.domain as string || '';
    try {
       const settings = await getAppSettings();
-      const normalizedSettings: SettingsType = { ...settings };
-
-      Object.entries(normalizedSettings).forEach(([key, value]) => {
-         if (typeof value === 'string') {
-            (normalizedSettings as Record<string, unknown>)[key] = value.trim();
-         }
-      });
+      const normalizedSettings: SettingsType = trimStringProperties({ ...settings });
 
       const sanitizedHost = sanitizeHostname(normalizedSettings.smtp_server);
       const sanitizedPort = trimString(normalizedSettings.smtp_port);

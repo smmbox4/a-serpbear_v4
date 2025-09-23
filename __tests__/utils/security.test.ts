@@ -7,7 +7,8 @@ import {
    sanitizeSqlParam,
    sanitizeJsonInput,
    checkRateLimit,
-   resetRateLimitStorage
+   resetRateLimitStorage,
+   trimStringProperties
 } from '../../utils/security';
 
 describe('Security Utilities', () => {
@@ -171,6 +172,58 @@ describe('Security Utilities', () => {
          const result = checkRateLimit('test-user', 1, 60000);
          expect(result.allowed).toBe(false);
          expect(result.remaining).toBe(0);
+      });
+   });
+
+   describe('trimStringProperties', () => {
+      it('should trim all string properties in an object', () => {
+         const input = {
+            stringProp: '  trimmed  ',
+            anotherString: '\twhitespace\n',
+            numberProp: 123,
+            booleanProp: true,
+            nullProp: null,
+            undefinedProp: undefined
+         };
+
+         const result = trimStringProperties(input);
+
+         expect(result.stringProp).toBe('trimmed');
+         expect(result.anotherString).toBe('whitespace');
+         expect(result.numberProp).toBe(123);
+         expect(result.booleanProp).toBe(true);
+         expect(result.nullProp).toBe(null);
+         expect(result.undefinedProp).toBe(undefined);
+      });
+
+      it('should not modify the original object', () => {
+         const input = {
+            stringProp: '  original  ',
+            numberProp: 456
+         };
+
+         const result = trimStringProperties(input);
+
+         expect(input.stringProp).toBe('  original  ');
+         expect(result.stringProp).toBe('original');
+         expect(input).not.toBe(result);
+      });
+
+      it('should handle empty objects', () => {
+         const result = trimStringProperties({});
+         expect(result).toEqual({});
+      });
+
+      it('should handle objects with only non-string properties', () => {
+         const input = {
+            numberProp: 123,
+            booleanProp: false,
+            arrayProp: [1, 2, 3]
+         };
+
+         const result = trimStringProperties(input);
+         expect(result).toEqual(input);
+         expect(result).not.toBe(input); // Should still be a copy
       });
    });
 });
