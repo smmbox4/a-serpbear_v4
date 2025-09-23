@@ -193,6 +193,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 - Authenticate with a service account and SerpBear will enrich each keyword with impression, click, and CTR metrics.
 - Cached data refreshes automatically once per `CRON_MAIN_SCHEDULE` cycle (respecting `CRON_TIMEZONE`) and can be refreshed manually from the settings view.
 - Search Console data is optional; when credentials are missing the UI gracefully hides related panels.
+- When credentials are present, manual refreshes and scheduled digests now always run the Search Console pipeline instead of skipping requests when the domain payload is unexpectedly falsy.
 
 ### Google Ads keyword research
 
@@ -238,6 +239,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 ## Troubleshooting & tips
 
 - **Missing screenshots:** If dashboard thumbnails show the fallback favicon, confirm `SCREENSHOT_API` is set and `NEXT_PUBLIC_SCREENSHOTS=true`.
+- **Screenshot refresh skips:** Manual thumbnail updates now always hit the screenshot service with the stored host, so investigate provider logs if a toast reports a failure instead of assuming the button silently ignored the request.
 - **Empty domain slugs:** The dashboard now always requests `/api/domain`, even for blank slugs, so the API returns descriptive validation errors instead of the client throwing immediately.
 - **Domain scraping toggle not persisting:** The custom SQLite dialect now coerces boolean bindings to integers so `/api/domains` updates keep `scrape_enabled` and the legacy `notification` flag aligned.
 - **Scraper misconfiguration:** 500-series API responses often include descriptive JSON (with a `details` field) – surface these logs when opening support tickets.

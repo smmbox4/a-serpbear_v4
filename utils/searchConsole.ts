@@ -143,7 +143,7 @@ export const fetchDomainSCData = async (
    const apiCreds = (scDomainAPI?.client_email && scDomainAPI?.private_key)
       ? scDomainAPI
       : scGlobalAPI;
-   if (domain.domain && apiCreds?.client_email && apiCreds?.private_key) {
+   if (apiCreds?.client_email && apiCreds?.private_key) {
       const theDomain = domain;
       for (const day of days) {
          const items = await fetchSearchConsoleData(theDomain, day, undefined, apiCreds);
