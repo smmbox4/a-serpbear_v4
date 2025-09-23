@@ -39,7 +39,7 @@
     "react-chartjs-2": "^4.3.1",
     "react-dom": "18.3.1",
     "react-hot-toast": "^2.4.0",
-    "react-markdown": "^9.0.1",
+    "react-markdown": "^9.1.0",
     "react-query": "^3.39.2",
     "react-timeago": "^7.1.0",
     "react-transition-group": "^4.4.5",
