@@ -155,6 +155,75 @@ describe('/api/notify - authentication', () => {
     }));
   });
 
+  it('sanitizes SMTP hostnames and applies TLS overrides when provided', async () => {
+    (verifyUser as jest.Mock).mockReturnValue('authorized');
+
+    (getAppSettings as jest.Mock).mockResolvedValue({
+      smtp_server: '  smtp.test.com.  ',
+      smtp_port: ' 587 ',
+      smtp_username: '',
+      smtp_password: '',
+      smtp_tls_servername: ' override.test. ',
+      notification_email: ' notify@example.com ',
+      notification_email_from: ' ',
+      notification_email_from_name: ' SerpBear ',
+    });
+
+    const domainRecord = {
+      get: () => ({
+        domain: 'example.com',
+        notification: true,
+        notification_emails: ' custom@example.com ',
+      }),
+    };
+
+    const keywordRecord = {
+      get: () => ({
+        keyword: 'rank tracker',
+        history: '{}',
+        tags: '[]',
+        lastResult: '[]',
+        lastUpdateError: 'false',
+        position: 5,
+        country: 'US',
+        device: 'desktop',
+        location: 'US',
+        lastUpdated: new Date().toISOString(),
+      }),
+    };
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([domainRecord]);
+    (Keyword.findAll as jest.Mock).mockResolvedValue([keywordRecord]);
+    (parseKeywords as jest.Mock).mockReturnValue([
+      {
+        keyword: 'rank tracker',
+        history: {},
+        tags: [],
+        lastResult: [],
+        lastUpdateError: false,
+        position: 5,
+        country: 'US',
+        device: 'desktop',
+        location: 'US',
+        lastUpdated: new Date().toISOString(),
+      },
+    ]);
+
+    await handler(req as NextApiRequest, res as NextApiResponse);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
+    expect(nodeMailer.createTransport).toHaveBeenCalledWith(expect.objectContaining({
+      host: 'smtp.test.com',
+      port: 587,
+      tls: expect.objectContaining({ servername: 'override.test' }),
+    }));
+    expect(sendMailMock).toHaveBeenCalledWith(expect.objectContaining({
+      to: 'custom@example.com',
+      from: 'SerpBear <no-reply@serpbear.com>',
+    }));
+  });
+
   it('skips domains with notifications disabled', async () => {
     (verifyUser as jest.Mock).mockReturnValue('authorized');
 

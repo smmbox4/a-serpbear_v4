@@ -58,6 +58,14 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
                   </div>
                   <div className="settings__section__input mb-5">
                      <InputField
+                     label='SMTP TLS Certificate Hostname (optional)'
+                     value={settings?.smtp_tls_servername || ''}
+                     placeholder={'mail.example.com'}
+                     onChange={(value:string) => updateSettings('smtp_tls_servername', value)}
+                     />
+                  </div>
+                  <div className="settings__section__input mb-5">
+                     <InputField
                      label='SMTP Port'
                      hasError={settingsError?.type === 'no_smtp_port'}
                      value={settings?.smtp_port || ''}

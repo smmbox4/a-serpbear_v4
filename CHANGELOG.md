@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. Releases no
 ### Changed
 
 * Reworked the TopBar layout so mobile views drop the base `mx-auto`, extend the edge-to-edge helper through the 767px breakpoint, and include Jest coverage to prevent the right-side gutter from returning.
+* Added an optional SMTP TLS certificate hostname override, trimming saved settings and sanitising Nodemailer transports so whitespace and trailing dots no longer break certificate validation.
 * Normalised Google SERP extraction so redirect wrappers such as `/url` and `/interstitial` resolve to their destination URLs, hardened `getSerp` against hostless paths, and added Jest coverage for the regression.
 * Consolidated keyword location metadata into a single `location` column, migrated existing records, and introduced shared helpers so the API, UI, scrapers, and email exports consistently format and validate paired city/state input.
 * Removed the persisted `domain.keywordCount` column in favour of a computed `keywordsTracked` value returned by the domains API and rendered throughout the dashboard.

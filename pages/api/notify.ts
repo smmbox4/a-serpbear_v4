@@ -14,6 +14,13 @@ type NotifyResponse = {
    error?: string|null,
 }
 
+const trimString = (value?: string | null): string => (typeof value === 'string' ? value.trim() : '');
+
+const sanitizeHostname = (host?: string | null): string => {
+   const trimmed = trimString(host);
+   return trimmed.replace(/\.+$/, '');
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
    await db.sync();
    const authorized = verifyUser(req, res);
@@ -30,9 +37,24 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
    const reqDomain = req?.query?.domain as string || '';
    try {
       const settings = await getAppSettings();
-      const { smtp_server = '', smtp_port = '', notification_email = '' } = settings;
+      const normalizedSettings: SettingsType = { ...settings };
 
-      if (!smtp_server || !smtp_port || !notification_email) {
+      Object.entries(normalizedSettings).forEach(([key, value]) => {
+         if (typeof value === 'string') {
+            (normalizedSettings as Record<string, unknown>)[key] = value.trim();
+         }
+      });
+
+      const sanitizedHost = sanitizeHostname(normalizedSettings.smtp_server);
+      const sanitizedPort = trimString(normalizedSettings.smtp_port);
+      const sanitizedDefaultEmail = trimString(normalizedSettings.notification_email);
+
+      normalizedSettings.smtp_server = sanitizedHost;
+      normalizedSettings.smtp_port = sanitizedPort;
+      normalizedSettings.notification_email = sanitizedDefaultEmail;
+      normalizedSettings.smtp_tls_servername = sanitizeHostname(normalizedSettings.smtp_tls_servername);
+
+      if (!sanitizedHost || !sanitizedPort || !sanitizedDefaultEmail) {
          return res.status(401).json({ success: false, error: 'SMTP has not been setup properly!' });
       }
 
@@ -41,7 +63,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
          if (theDomain) {
             const domainPlain = theDomain.get({ plain: true }) as DomainType;
             if (domainPlain.scrape_enabled !== false && domainPlain.notification !== false) {
-               await sendNotificationEmail(domainPlain, settings);
+               await sendNotificationEmail(domainPlain, normalizedSettings);
             }
          }
       } else {
@@ -50,7 +72,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
             const domains = allDomains.map((el) => el.get({ plain: true }));
             for (const domain of domains) {
                if (domain.scrape_enabled !== false && domain.notification !== false) {
-                  await sendNotificationEmail(domain, settings);
+                  await sendNotificationEmail(domain, normalizedSettings);
                }
             }
          }
@@ -66,7 +88,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
 const sendNotificationEmail = async (domain: DomainType | Domain, settings: SettingsType) => {
    const domainObj: DomainType = (domain as any).get ? (domain as any).get({ plain: true }) : domain as DomainType;
    const domainName = domainObj.domain;
-   
+
    // Check email throttling
    const throttleCheck = await canSendEmail(domainName);
    if (!throttleCheck.canSend) {
@@ -82,16 +104,30 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
       notification_email = '',
       notification_email_from = '',
       notification_email_from_name = 'SerpBear',
+      smtp_tls_servername = '',
      } = settings;
 
-   const fromEmail = `${notification_email_from_name} <${notification_email_from || 'no-reply@serpbear.com'}>`;
-   const portNum = parseInt(smtp_port, 10);
+   const sanitizedHost = sanitizeHostname(smtp_server);
+   if (!sanitizedHost) {
+      throw new Error('Invalid SMTP host configured.');
+   }
+
+   const tlsServername = sanitizeHostname(smtp_tls_servername);
+   const fromAddress = trimString(notification_email_from) || 'no-reply@serpbear.com';
+   const fromName = trimString(notification_email_from_name) || 'SerpBear';
+   const fromEmail = `${fromName} <${fromAddress}>`;
+   const portNum = parseInt(trimString(smtp_port), 10);
    const validPort = isNaN(portNum) ? 587 : Math.max(1, Math.min(65535, portNum)); // Default to 587, validate range
-   const mailerSettings:any = { host: smtp_server, port: validPort };
-   if (smtp_username || smtp_password) {
+   const mailerSettings:any = { host: sanitizedHost, port: validPort };
+   if (tlsServername) {
+      mailerSettings.tls = { servername: tlsServername };
+   }
+   const sanitizedUser = trimString(smtp_username);
+   const sanitizedPass = trimString(smtp_password);
+   if (sanitizedUser || sanitizedPass) {
       mailerSettings.auth = {};
-      if (smtp_username) mailerSettings.auth.user = smtp_username;
-      if (smtp_password) mailerSettings.auth.pass = smtp_password;
+      if (sanitizedUser) mailerSettings.auth.user = sanitizedUser;
+      if (sanitizedPass) mailerSettings.auth.pass = sanitizedPass;
    }
 
    try {
@@ -101,10 +137,13 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
       const keywordsArray = domainKeywords.map((el) => el.get({ plain: true }));
       const keywords: KeywordType[] = parseKeywords(keywordsArray);
       const emailHTML = await generateEmail(domainObj, keywords, settings);
-      
+
+      const domainNotificationEmails = trimString(domain.notification_emails);
+      const fallbackNotification = trimString(notification_email);
+
       await transporter.sendMail({
          from: fromEmail,
-         to: domain.notification_emails || notification_email,
+         to: domainNotificationEmails || fallbackNotification,
          subject: `[${domainName}] Keyword Positions Update`,
          html: emailHTML,
       });

@@ -91,6 +91,7 @@ type SettingsType = {
    notification_email_from_name: string,
    smtp_server: string,
    smtp_port: string,
+   smtp_tls_servername?: string,
    smtp_username?: string,
    smtp_password?: string,
    available_scapers?: { label: string, value: string, allowsCity?: boolean }[],
