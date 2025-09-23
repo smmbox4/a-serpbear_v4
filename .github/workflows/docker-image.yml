@@ -67,7 +67,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Delete old caches for this repo
-        run: gh actions-cache delete --repo ${{ github.repository }} --all --confirm
+      - name: List and delete all caches
+        run: |
+          echo "Fetching cache keys..."
+          gh actions-cache list -R ${{ github.repository }} --limit 100 | cut -f 1 | while read key; do
+            if [ -n "$key" ]; then
+              echo "Deleting cache: $key"
+              gh actions-cache delete "$key" -R ${{ github.repository }} --confirm || true
+            fi
+          done
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
