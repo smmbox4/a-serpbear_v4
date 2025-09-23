@@ -8,6 +8,7 @@ import parseKeywords from '../../utils/parseKeywords';
 import verifyUser from '../../utils/verifyUser';
 import { canSendEmail, recordEmailSent } from '../../utils/emailThrottle';
 import { getAppSettings } from './settings';
+import { trimStringProperties } from '../../utils/security';
 
 type NotifyResponse = {
    success?: boolean
@@ -37,13 +38,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
    const reqDomain = req?.query?.domain as string || '';
    try {
       const settings = await getAppSettings();
-      const normalizedSettings: SettingsType = { ...settings };
-
-      Object.entries(normalizedSettings).forEach(([key, value]) => {
-         if (typeof value === 'string') {
-            (normalizedSettings as Record<string, unknown>)[key] = value.trim();
-         }
-      });
+      const normalizedSettings: SettingsType = trimStringProperties({ ...settings });
 
       const sanitizedHost = sanitizeHostname(normalizedSettings.smtp_server);
       const sanitizedPort = normalizedSettings.smtp_port;
@@ -107,8 +102,7 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
       smtp_tls_servername = '',
      } = settings;
 
-   const sanitizedHost = sanitizeHostname(smtp_server);
-   if (!sanitizedHost) {
+   if (!smtp_server) {
       throw new Error('Invalid SMTP host configured.');
    }
 
@@ -118,16 +112,16 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
    const fromEmail = `${fromName} <${fromAddress}>`;
    const portNum = parseInt(smtp_port, 10);
    const validPort = isNaN(portNum) ? 587 : Math.max(1, Math.min(65535, portNum)); // Default to 587, validate range
-   const mailerSettings:any = { host: sanitizedHost, port: validPort };
-   if (tlsServername) {
-      mailerSettings.tls = { servername: tlsServername };
+   const mailerSettings:any = { host: smtp_server, port: validPort };
+   if (smtp_tls_servername) {
+      mailerSettings.tls = { servername: smtp_tls_servername };
    }
    const sanitizedUser = smtp_username;
    const sanitizedPass = smtp_password;
    if (sanitizedUser || sanitizedPass) {
       mailerSettings.auth = {};
-      if (sanitizedUser) mailerSettings.auth.user = sanitizedUser;
-      if (sanitizedPass) mailerSettings.auth.pass = sanitizedPass;
+      if (smtp_username) mailerSettings.auth.user = smtp_username;
+      if (smtp_password) mailerSettings.auth.pass = smtp_password;
    }
 
    try {

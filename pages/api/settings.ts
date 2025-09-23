@@ -5,6 +5,7 @@ import getConfig from 'next/config';
 import verifyUser from '../../utils/verifyUser';
 import allScrapers from '../../scrapers/index';
 import { withApiLogging } from '../../utils/apiLogging';
+import { trimStringProperties } from '../../utils/security';
 
 const SETTINGS_DEFAULTS: SettingsType = {
    scraper_type: 'none',
@@ -98,13 +99,7 @@ const updateSettings = async (req: NextApiRequest, res: NextApiResponse<Settings
       return res.status(400).json({ error: 'Settings payload is required.' });
    }
    try {
-      const normalizedSettings: SettingsType = { ...settings };
-
-      Object.entries(normalizedSettings).forEach(([key, value]) => {
-         if (typeof value === 'string') {
-            (normalizedSettings as Record<string, unknown>)[key] = value.trim();
-         }
-      });
+      const normalizedSettings: SettingsType = trimStringProperties({ ...settings });
 
       const cryptr = new Cryptr(process.env.SECRET as string);
       const encrypt = (value?: string) => (value ? cryptr.encrypt(value) : '');
