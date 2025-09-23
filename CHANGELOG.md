@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Replaced the fixed 105 rem layout cap with a reusable `desktop-container` utility so the dashboard and research views expand to 90 % of the viewport on large screens.
 * Reworked the TopBar layout so mobile views drop the base `mx-auto`, extend the edge-to-edge helper through the 767px breakpoint, and include Jest coverage to prevent the right-side gutter from returning.
 * Added an optional SMTP TLS certificate hostname override, trimming saved settings and sanitising Nodemailer transports so whitespace and trailing dots no longer break certificate validation.
 * Normalised Google SERP extraction so redirect wrappers such as `/url` and `/interstitial` resolve to their destination URLs, hardened `getSerp` against hostless paths, and added Jest coverage for the regression.

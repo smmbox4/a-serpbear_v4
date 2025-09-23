@@ -63,7 +63,7 @@ describe('SingleDomain Page', () => {
 
    it('applies gutter spacing between the sidebar and content area', () => {
       const { container } = render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
-      const layoutWrapper = container.querySelector('.max-w-8xl');
+      const layoutWrapper = container.querySelector('.desktop-container.gap-6');
       expect(layoutWrapper).toBeInTheDocument();
       expect(layoutWrapper).toHaveClass('gap-6');
    });

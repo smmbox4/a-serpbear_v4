@@ -4,6 +4,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+   .desktop-container {
+      @apply w-full mx-auto lg:max-w-desktop;
+   }
+}
+
 :root {
    --layout-inline: clamp(1.5rem, 5vw, 10rem);
 }

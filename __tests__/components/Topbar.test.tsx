@@ -52,12 +52,12 @@ describe('TopBar Component', () => {
       expect(css).not.toMatch(mobileBodyOverride);
    });
 
-   it('keeps the mobile layout edge-to-edge without centering offsets', () => {
+   it('applies the shared desktop container utility', () => {
       const { container } = render(<TopBar showSettings={jest.fn} showAddModal={jest.fn} />);
       const topbarElement = container.querySelector('.topbar');
 
       expect(topbarElement).toBeInTheDocument();
-      expect(topbarElement?.classList.contains('md:mx-auto')).toBe(true);
-      expect(topbarElement?.classList.contains('mx-auto')).toBe(false);
+      expect(topbarElement?.classList.contains('desktop-container')).toBe(true);
+      expect(topbarElement?.className).not.toMatch(/max-w-\dxl?/);
    });
 });
