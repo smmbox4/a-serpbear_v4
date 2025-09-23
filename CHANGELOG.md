@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Removed the client-side guard that rejected blank domain slugs so `/api/domain` requests always hit the API and rely on server-side validation.
 * Replaced the fixed 105 rem layout cap with a reusable `desktop-container` utility so the dashboard and research views expand to 90 % of the viewport on large screens.
 * Reworked the TopBar layout so mobile views drop the base `mx-auto`, extend the edge-to-edge helper through the 767px breakpoint, and include Jest coverage to prevent the right-side gutter from returning.
 * Added an optional SMTP TLS certificate hostname override, trimming saved settings and sanitising Nodemailer transports so whitespace and trailing dots no longer break certificate validation.

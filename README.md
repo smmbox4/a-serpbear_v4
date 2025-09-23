@@ -238,6 +238,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 ## Troubleshooting & tips
 
 - **Missing screenshots:** If dashboard thumbnails show the fallback favicon, confirm `SCREENSHOT_API` is set and `NEXT_PUBLIC_SCREENSHOTS=true`.
+- **Empty domain slugs:** The dashboard now always requests `/api/domain`, even for blank slugs, so the API returns descriptive validation errors instead of the client throwing immediately.
 - **Domain scraping toggle not persisting:** The custom SQLite dialect now coerces boolean bindings to integers so `/api/domains` updates keep `scrape_enabled` and the legacy `notification` flag aligned.
 - **Scraper misconfiguration:** 500-series API responses often include descriptive JSON (with a `details` field) – surface these logs when opening support tickets.
 - **Redirected SERP links:** The scraper now normalises Google results that route through `/url`, `/interstitial`, or related wrappers, so stored ranks always point at the destination domain. If you capture new HTML fixtures, keep those redirect paths intact so tests continue exercising the normalisation logic.
