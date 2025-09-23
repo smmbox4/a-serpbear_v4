@@ -89,7 +89,7 @@ describe('Domains Page', () => {
               <Domains />
           </QueryClientProvider>,
       );
-      const layoutWrapper = container.querySelector('.max-w-8xl');
+      const layoutWrapper = container.querySelector('.desktop-container.py-6');
       expect(layoutWrapper).toBeInTheDocument();
       expect(layoutWrapper).toHaveClass('py-6');
    });
