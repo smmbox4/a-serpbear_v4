@@ -93,7 +93,6 @@ export async function fetchDomains(router: NextRouter, withStats:boolean): Promi
 }
 
 export async function fetchDomain(router: NextRouter, domainName: string): Promise<{domain: DomainType}> {
-   if (!domainName) { throw new Error('No Domain Name Provided!'); }
    const encodedDomain = encodeURIComponent(domainName);
    const res = await fetch(`${window.location.origin}/api/domain?domain=${encodedDomain}`, { method: 'GET' });
    if (res.status >= 400 && res.status < 600) {
