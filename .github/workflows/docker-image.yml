@@ -57,8 +57,10 @@ jobs:
   cleanup-caches:
     runs-on: ubuntu-latest
     steps:
+      - name: Install actions-cache extension
+        run: gh extension install actions/actions-cache
+
       - name: Delete old caches for this repo
-        run: |
-          gh actions-cache delete --repo ${{ github.repository }} --all --confirm
+        run: gh actions-cache delete --repo ${{ github.repository }} --all --confirm
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
