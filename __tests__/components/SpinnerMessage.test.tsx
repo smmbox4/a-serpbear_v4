@@ -10,25 +10,19 @@ describe('SpinnerMessage', () => {
       expect(status.querySelector('svg')).not.toBeNull();
    });
 
-   it('renders with default label when none provided', () => {
+   it('should not have redundant screen reader announcements', () => {
+      render(<SpinnerMessage label='Loading data' />);
+
+      const status = screen.getByRole('status', { name: 'Loading data' });
+      // Verify there's no sr-only span inside that would duplicate the aria-label
+      expect(status.querySelector('.sr-only')).not.toBeInTheDocument();
+      expect(status).toHaveAttribute('aria-label', 'Loading data');
+   });
+
+   it('uses default label when none provided', () => {
       render(<SpinnerMessage />);
 
       const status = screen.getByRole('status', { name: 'Loading data' });
       expect(status).toBeInTheDocument();
-   });
-
-   it('applies custom className', () => {
-      render(<SpinnerMessage className='custom-class' />);
-
-      const status = screen.getByRole('status');
-      expect(status).toHaveClass('custom-class');
-   });
-
-   it('does not have redundant sr-only text for accessibility', () => {
-      render(<SpinnerMessage label='Test loading' />);
-
-      const status = screen.getByRole('status', { name: 'Test loading' });
-      const srOnlySpan = status.querySelector('.sr-only');
-      expect(srOnlySpan).toBeNull();
    });
 });

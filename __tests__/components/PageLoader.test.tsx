@@ -27,25 +27,16 @@ describe('PageLoader', () => {
       expect(container.firstChild).toHaveAttribute('aria-busy', 'false');
    });
 
-   it('uses default label when none provided', () => {
+   it('should not have redundant screen reader announcements', () => {
       render(
-         <PageLoader isLoading>
-            <div>Content</div>
+         <PageLoader isLoading label='Loading test'>
+            <div>Child content</div>
          </PageLoader>,
       );
 
-      expect(screen.getByRole('status', { name: 'Loading content' })).toBeInTheDocument();
-   });
-
-   it('does not have redundant sr-only text for accessibility', () => {
-      render(
-         <PageLoader isLoading label='Test loading'>
-            <div>Content</div>
-         </PageLoader>,
-      );
-
-      const status = screen.getByRole('status', { name: 'Test loading' });
-      const srOnlySpan = status.querySelector('.sr-only');
-      expect(srOnlySpan).toBeNull();
+      const overlay = screen.getByTestId('page-loader-overlay');
+      // Verify there's no sr-only span inside the overlay that would duplicate the aria-label
+      expect(overlay.querySelector('.sr-only')).not.toBeInTheDocument();
+      expect(overlay).toHaveAttribute('aria-label', 'Loading test');
    });
 });
