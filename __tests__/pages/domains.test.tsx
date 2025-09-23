@@ -79,6 +79,7 @@ beforeAll(() => {
 
 afterAll(() => {
    global.fetch = originalFetch;
+   useQuerySpy.mockRestore();
 });
 
 beforeEach(() => {
