@@ -4,6 +4,7 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { useAddKeywords, useFetchKeywords } from '../../services/keywords';
 import { SCfilterKeywords, SCkeywordsByDevice, SCsortKeywords } from '../../utils/client/SCsortFilter';
 import Icon from '../common/Icon';
+import SpinnerMessage from '../common/SpinnerMessage';
 import KeywordFilters from './KeywordFilter';
 import SCKeyword from './SCKeyword';
 import useWindowResize from '../../hooks/useWindowResize';
@@ -214,7 +215,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
                         </p>
                      )}
                      {isConsoleIntegrated && isLoading && (
-                        <p className=' p-9 pt-[10%] text-center text-gray-500'>Loading Keywords...</p>
+                        <SpinnerMessage className='p-9 pt-[10%] text-center' label='Loading Search Console keywords' />
                      )}
                      {!isConsoleIntegrated && (
                         <p className=' p-9 pt-[10%] text-center text-gray-500'>

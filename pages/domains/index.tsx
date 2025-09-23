@@ -10,9 +10,9 @@ import Settings from '../../components/settings/Settings';
 import { useFetchSettings } from '../../services/settings';
 import { fetchDomainScreenshot, useFetchDomains, SCREENSHOTS_ENABLED } from '../../services/domains';
 import DomainItem from '../../components/domains/DomainItem';
-import Icon from '../../components/common/Icon';
 import Footer from '../../components/common/Footer';
 import { withAuth } from '../../hooks/useAuth';
+import PageLoader from '../../components/common/PageLoader';
 
 type thumbImages = { [domain:string] : string }
 
@@ -23,7 +23,7 @@ const Domains: NextPage = () => {
    const [showAddDomain, setShowAddDomain] = useState(false);
    const [domainThumbs, setDomainThumbs] = useState<thumbImages>({});
    const { data: appSettingsData, isLoading: isAppSettingsLoading } = useFetchSettings();
-   const { data: domainsData, isLoading } = useFetchDomains(router, true);
+   const { data: domainsData, isLoading: isDomainsLoading } = useFetchDomains(router, true);
 
    const appSettings:SettingsType = appSettingsData?.settings || {};
    const { scraper_type = '' } = appSettings;
@@ -92,8 +92,14 @@ const Domains: NextPage = () => {
       }
    };
 
+   const isPageLoading = isAppSettingsLoading || isDomainsLoading || !router.isReady;
+
    return (
-      <div data-testid="domains" className="Domain flex flex-col min-h-screen">
+      <PageLoader
+         isLoading={isPageLoading}
+         className="Domain flex flex-col min-h-screen"
+         data-testid="domains"
+      >
          {(!isAppSettingsLoading && scraper_type === 'none') && (
                <div className=' p-3 bg-red-600 text-white text-sm text-center'>
                   A Scrapper/Proxy has not been set up Yet. Open Settings to set it up and start using the app.
@@ -133,12 +139,7 @@ const Domains: NextPage = () => {
                            // isConsoleIntegrated={false}
                            />;
                })}
-               {isLoading && (
-                  <div className='noDomains mt-4 p-5 py-12 rounded border text-center bg-white text-sm'>
-                     <Icon type="loading" /> Loading Domains...
-                  </div>
-               )}
-               {!isLoading && domainsData && domainsData.domains && domainsData.domains.length === 0 && (
+               {!isDomainsLoading && domainsData && domainsData.domains && domainsData.domains.length === 0 && (
                   <div className='noDomains mt-4 p-5 py-12 rounded border text-center bg-white text-sm'>
                      No Domains Found. Add a Domain to get started!
                   </div>
@@ -153,7 +154,7 @@ const Domains: NextPage = () => {
              <Settings closeSettings={() => setShowSettings(false)} />
          </CSSTransition>
          <Footer currentVersion={appSettings?.version ? appSettings.version : ''} />
-      </div>
+      </PageLoader>
    );
 };
 
