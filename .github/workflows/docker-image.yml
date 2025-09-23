@@ -62,8 +62,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Install actions-cache extension
-        run: gh extension install actions/actions-cache
+      - name: Install gh-actions-cache extension
+        run: gh extension install actions/gh-actions-cache
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
