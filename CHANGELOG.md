@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Disabled duplicate selection of Search Console keywords in the Discover tab by greying out tracked rows and updating the bulk "select all" control to match the keyword ideas workflow.
 * Removed the sprite-sheet background from the map-pack badge so the green "MAP" label no longer shows the stray exclamation mark behind it.
 * Normalised keyword `updating` flags parsed from the database so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
 * Propagated map-pack membership from supported scrapers through persistence, emails, and keyword UIs, adding a stacked CSS badge that references `map-pack.png` whenever a tracked domain appears in the local pack top three.

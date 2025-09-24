@@ -1,7 +1,7 @@
 /// <reference path="../../types.d.ts" />
 
 import { useRouter } from 'next/router';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { useAddKeywords, useFetchKeywords } from '../../services/keywords';
 import { SCfilterKeywords, SCkeywordsByDevice, SCsortKeywords } from '../../utils/client/SCsortFilter';
@@ -35,18 +35,20 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
    const [sortBy, setSortBy] = useState<string>('imp_desc');
    const [SCListHeight, setSCListHeight] = useState(500);
    const { keywordsData } = useFetchKeywords(router, domain?.domain || '');
-   const trackedKeywordLookup = useMemo(() => {
-      const keywords = keywordsData?.keywords || [];
-      return keywords.reduce((lookup: Record<string, boolean>, trackedKeyword: KeywordType) => {
-         const { keyword: trackedKeywordValue, country: trackedCountry, device: trackedDevice, location: trackedLocation } = trackedKeyword;
-         if (trackedKeywordValue && trackedCountry && trackedDevice) {
-            // Ensure consistent location formatting - if no location is stored, use the country
-            const locationForLookup = trackedLocation || formatLocation({ country: trackedCountry });
-            lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}:${locationForLookup}`] = true;
-         }
-         return lookup;
-      }, {} as Record<string, boolean>);
+   const trackedKeywordsList: KeywordType[] = useMemo(() => {
+      if (Array.isArray(keywordsData)) {
+         return keywordsData as KeywordType[];
+      }
+      return (keywordsData?.keywords as KeywordType[]) || [];
    }, [keywordsData]);
+
+   const trackedKeywordLookup = useMemo(() => trackedKeywordsList.reduce((lookup: Record<string, boolean>, trackedKeyword: KeywordType) => {
+      const { keyword: trackedKeywordValue, country: trackedCountry, device: trackedDevice } = trackedKeyword;
+      if (trackedKeywordValue && trackedCountry && trackedDevice) {
+         lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}`] = true;
+      }
+      return lookup;
+   }, {}), [trackedKeywordsList]);
    const { mutate: addKeywords } = useAddKeywords(() => { if (domain && domain.slug) router.push(`/domain/${domain.slug}`); });
    const [isMobile] = useIsMobile();
    useWindowResize(() => setSCListHeight(window.innerHeight - (isMobile ? 200 : 400)));
@@ -119,7 +121,21 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
       setSelectedKeywords([]);
    };
 
-   const selectedAllItems = selectedKeywords.length === finalKeywords[device].length;
+   const selectableKeywordIds = useMemo(() => {
+      const keywordsForDevice = finalKeywords[device] || [];
+      return keywordsForDevice
+         .filter((keyword) => !trackedKeywordLookup[`${keyword.keyword}:${keyword.country}:${keyword.device}`])
+         .map((keyword) => keyword.uid);
+   }, [finalKeywords, device, trackedKeywordLookup]);
+
+   useEffect(() => {
+      setSelectedKeywords((currentSelected) => {
+         const filteredSelection = currentSelected.filter((id) => selectableKeywordIds.includes(id));
+         return filteredSelection.length === currentSelected.length ? currentSelected : filteredSelection;
+      });
+   }, [selectableKeywordIds]);
+
+   const selectedAllItems = selectableKeywordIds.length > 0 && selectedKeywords.length === selectableKeywordIds.length;
 
    const Row = ({ data, index, style }:ListChildComponentProps) => {
       const keyword = data[index];
@@ -130,7 +146,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
          selected={selectedKeywords.includes(keyword.uid)}
          selectKeyword={selectKeyword}
          keywordData={keyword}
-         isTracked={!!trackedKeywordLookup[`${keyword.keyword}:${keyword.country}:${keyword.device}:${formatLocation({ country: keyword.country })}`]}
+         isTracked={!!trackedKeywordLookup[`${keyword.keyword}:${keyword.country}:${keyword.device}`]}
          lastItem={index === (finalKeywords[device].length - 1)}
          />
    );
@@ -177,7 +193,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
                         <button
                            className={`p-0 mr-2 leading-[0px] inline-block rounded-sm pt-0 px-[1px] pb-[3px]  border border-slate-300 
                            ${selectedAllItems ? ' bg-blue-700 border-blue-700 text-white' : 'text-transparent'}`}
-                           onClick={() => setSelectedKeywords(selectedAllItems ? [] : finalKeywords[device].map((k: SearchAnalyticsItem) => k.uid))}
+                           onClick={() => setSelectedKeywords(selectedAllItems ? [] : selectableKeywordIds)}
                            >
                               <Icon type="check" size={10} />
                         </button>
