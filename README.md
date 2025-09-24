@@ -15,6 +15,7 @@
 - 📘 **Documentation:** <https://docs.serpbear.com/>
 - 📜 **Changelog:** [`CHANGELOG.md`](./CHANGELOG.md)
 - 🐳 **Docker Hub image:** <https://hub.docker.com/r/vontainment/v-serpbear>
+- 🆕 **Current version:** v3.0.0 by [Vontainment](https://vontainment.com)
 - 🛟 **Community support:** [GitHub Discussions](https://github.com/djav1985/v-serpbear/discussions)
 
 ---

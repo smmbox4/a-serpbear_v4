@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Updated the global footer to display SerpBear v3.0.0 and link to Vontainment's homepage for publisher attribution.
 * Treated empty Google Ads keyword idea responses as 404s and updated the client mutation to bubble the server error, warn the user, and redirect to login on 401s with expanded service coverage.
 * Reserved HTTP 401 for authentication failures on `/api/notify`, returning 400 for SMTP misconfiguration and 500 for delivery errors alongside new regression tests.
 * Shortened the email map-pack badge label from "MAP" to "MP" so the stacked flag fits within narrow mail client layouts.
