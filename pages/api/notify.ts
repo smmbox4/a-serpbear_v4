@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
    if (req.method === 'POST') {
       return notify(req, res);
    }
-   return res.status(401).json({ success: false, error: 'Invalid Method' });
+   return res.status(405).json({ success: false, error: 'Invalid Method' });
 }
 
 const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>) => {
@@ -52,7 +52,7 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
       normalizedSettings.smtp_tls_servername = sanitizeHostname(normalizedSettings.smtp_tls_servername);
 
       if (!sanitizedHost || !sanitizedPort || !sanitizedDefaultEmail) {
-         return res.status(401).json({ success: false, error: 'SMTP has not been setup properly!' });
+         return res.status(400).json({ success: false, error: 'SMTP has not been setup properly!' });
       }
 
       if (reqDomain) {
@@ -78,7 +78,9 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
       return res.status(200).json({ success: true, error: null });
    } catch (error) {
       console.log(error);
-      return res.status(401).json({ success: false, error: 'Error Sending Notification Email.' });
+      const message = error instanceof Error && error.message ? error.message : 'Error Sending Notification Email.';
+      const isConfigError = error instanceof Error && error.message === 'Invalid SMTP host configured.';
+      return res.status(isConfigError ? 400 : 500).json({ success: false, error: message });
    }
 };
 

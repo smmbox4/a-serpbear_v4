@@ -86,26 +86,39 @@ export function useMutateKeywordIdeas(router:NextRouter, onSuccess?: Function) {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ ...data }) };
       const res = await fetch(`${window.location.origin}/api/ideas`, fetchOpts);
-      if (res.status >= 400 && res.status < 600) {
-         let errorMessage = 'Bad response from server';
-         try {
-            const contentType = res.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-               const errorData = await res.json();
-               errorMessage = errorData?.error ? errorData.error : 'Bad response from server';
-            } else {
-               // Handle HTML error pages or other non-JSON responses
-               const textResponse = await res.text();
-               console.warn('Non-JSON error response received:', textResponse.substring(0, 200));
-               errorMessage = `Server error (${res.status}): Please try again later`;
-            }
-         } catch (parseError) {
-            console.warn('Failed to parse error response:', parseError);
-            errorMessage = `Server error (${res.status}): Please try again later`;
+      const isOk = typeof res.ok === 'boolean' ? res.ok : (res.status >= 200 && res.status < 300);
+
+      let responsePayload: any = null;
+      try {
+         responsePayload = await parseJsonResponse(res);
+      } catch (error) {
+         if (res.status === 401) {
+            console.log('Unauthorized!!');
+            router.push('/login');
          }
+         if (!isOk) {
+            throw new Error(`Server error (${res.status}): Please try again later`);
+         }
+         throw error instanceof Error ? error : new Error('Error Loading Keyword Ideas');
+      }
+
+      if (res.status === 401) {
+         console.log('Unauthorized!!');
+         router.push('/login');
+      }
+
+      if (!isOk) {
+         const errorMessage = typeof responsePayload === 'string'
+            ? responsePayload
+            : responsePayload?.error || responsePayload?.message || `Server error (${res.status}): Please try again later`;
          throw new Error(errorMessage);
       }
-      return res.json();
+
+      if (responsePayload?.error) {
+         throw new Error(responsePayload.error);
+      }
+
+      return responsePayload;
    }, {
       onSuccess: async (data) => {
          console.log('Ideas Added:', data);

@@ -3,6 +3,8 @@
  * This test verifies that HTML error responses are handled gracefully without JSON parsing errors
  */
 
+import toast from 'react-hot-toast';
+
 // Mock window.location.origin
 Object.defineProperty(window, 'location', {
    value: {
@@ -56,12 +58,14 @@ describe('Improved Error Handling in Services', () => {
       mockFetch.mockClear();
       mockPush.mockClear();
       mockInvalidateQueries.mockClear();
+      (toast as unknown as jest.Mock).mockClear();
    });
 
    it('should handle HTML error responses from /api/refresh gracefully', async () => {
       // Mock HTML error response (simulating Next.js error page)
       mockFetch.mockResolvedValueOnce({
          status: 400,
+         ok: false,
          headers: {
             get: jest.fn().mockReturnValue('text/html')
          },
@@ -87,6 +91,7 @@ describe('Improved Error Handling in Services', () => {
       // Mock HTML error response
       mockFetch.mockResolvedValueOnce({
          status: 500,
+         ok: false,
          headers: {
             get: jest.fn().mockReturnValue('text/html')
          },
@@ -113,9 +118,11 @@ describe('Improved Error Handling in Services', () => {
       // Mock valid JSON error response
       mockFetch.mockResolvedValueOnce({
          status: 400,
+         ok: false,
          headers: {
             get: jest.fn().mockReturnValue('application/json')
          },
+         text: jest.fn().mockResolvedValue(JSON.stringify({ error: 'Invalid domain provided' })),
          json: jest.fn().mockResolvedValue({ error: 'Invalid domain provided' })
       } as any);
 
@@ -135,6 +142,7 @@ describe('Improved Error Handling in Services', () => {
       // Mock response that throws error when trying to read JSON
       mockFetch.mockResolvedValueOnce({
          status: 400,
+         ok: false,
          headers: {
             get: jest.fn().mockReturnValue('application/json')
          },
@@ -151,5 +159,44 @@ describe('Improved Error Handling in Services', () => {
          expect(error).toBeInstanceOf(Error);
          expect((error as Error).message).toBe('Server error (400): Please try again later');
       }
+   });
+
+   it('surfaces not-found keyword idea responses as warnings', async () => {
+      mockFetch.mockResolvedValueOnce({
+         status: 404,
+         ok: false,
+         headers: {
+            get: jest.fn().mockReturnValue('application/json')
+         },
+         text: jest.fn().mockResolvedValue(JSON.stringify({ error: 'No keywords found over the search volume minimum.' }))
+      } as any);
+
+      const { useMutateKeywordIdeas } = require('../../services/adwords');
+      const mockRouter = { push: mockPush, pathname: '/test', query: { slug: 'test-domain' } };
+
+      const ideasMutation = useMutateKeywordIdeas(mockRouter as any, () => {});
+
+      await expect(ideasMutation.mutate({ keywords: ['test'] })).rejects.toThrow('No keywords found over the search volume minimum.');
+
+      expect((toast as unknown as jest.Mock)).toHaveBeenCalledWith('No keywords found over the search volume minimum.', { icon: '⚠️' });
+   });
+
+   it('redirects to login when keyword idea requests return 401', async () => {
+      mockFetch.mockResolvedValueOnce({
+         status: 401,
+         ok: false,
+         headers: {
+            get: jest.fn().mockReturnValue('application/json')
+         },
+         text: jest.fn().mockResolvedValue(JSON.stringify({ error: 'Session expired' }))
+      } as any);
+
+      const { useMutateKeywordIdeas } = require('../../services/adwords');
+      const mockRouter = { push: mockPush, pathname: '/test', query: { slug: 'test-domain' } };
+
+      const ideasMutation = useMutateKeywordIdeas(mockRouter as any, () => {});
+
+      await expect(ideasMutation.mutate({ keywords: ['test'] })).rejects.toThrow('Session expired');
+      expect(mockPush).toHaveBeenCalledWith('/login');
    });
 });

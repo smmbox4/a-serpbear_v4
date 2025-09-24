@@ -92,6 +92,17 @@ describe('/api/notify - authentication', () => {
     expect(sendMailMock).not.toHaveBeenCalled();
   });
 
+  it('returns 405 when using an unsupported HTTP method', async () => {
+    req.method = 'GET';
+    (verifyUser as jest.Mock).mockReturnValue('authorized');
+
+    await handler(req as NextApiRequest, res as NextApiResponse);
+
+    expect(res.status).toHaveBeenCalledWith(405);
+    expect(res.json).toHaveBeenCalledWith({ success: false, error: 'Invalid Method' });
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
   it('sends notifications when authorized via API key header', async () => {
     req.headers = {
       authorization: 'Bearer valid-key',
@@ -243,5 +254,77 @@ describe('/api/notify - authentication', () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
     expect(nodeMailer.createTransport).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when SMTP configuration is incomplete', async () => {
+    (verifyUser as jest.Mock).mockReturnValue('authorized');
+    (getAppSettings as jest.Mock).mockResolvedValueOnce({
+      smtp_server: '',
+      smtp_port: '',
+      smtp_username: '',
+      smtp_password: '',
+      notification_email: '',
+      notification_email_from: '',
+      notification_email_from_name: 'SerpBear',
+    });
+
+    await handler(req as NextApiRequest, res as NextApiResponse);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ success: false, error: 'SMTP has not been setup properly!' });
+    expect(nodeMailer.createTransport).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 when sending notifications fails unexpectedly', async () => {
+    (verifyUser as jest.Mock).mockReturnValue('authorized');
+
+    const domainRecord = {
+      get: () => ({
+        domain: 'example.com',
+        notification: true,
+        scrape_enabled: true,
+        notification_emails: 'custom@example.com',
+      }),
+    };
+
+    const keywordRecord = {
+      get: () => ({
+        keyword: 'rank tracker',
+        history: '{}',
+        tags: '[]',
+        lastResult: '[]',
+        lastUpdateError: 'false',
+        position: 5,
+        country: 'US',
+        device: 'desktop',
+        location: 'US',
+        lastUpdated: new Date().toISOString(),
+      }),
+    };
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([domainRecord]);
+    (Keyword.findAll as jest.Mock).mockResolvedValue([keywordRecord]);
+    (parseKeywords as jest.Mock).mockReturnValue([
+      {
+        keyword: 'rank tracker',
+        history: {},
+        tags: [],
+        lastResult: [],
+        lastUpdateError: false,
+        position: 5,
+        country: 'US',
+        device: 'desktop',
+        location: 'US',
+        lastUpdated: new Date().toISOString(),
+      },
+    ]);
+
+    sendMailMock.mockRejectedValueOnce(new Error('SMTP connect failed'));
+
+    await handler(req as NextApiRequest, res as NextApiResponse);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ success: false, error: 'SMTP connect failed' });
+    expect(sendMailMock).toHaveBeenCalled();
   });
 });
