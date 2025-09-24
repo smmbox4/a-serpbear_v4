@@ -87,7 +87,6 @@ describe('withApiLogging success verbosity toggle', () => {
     const wrapped = withApiLogging(handler);
 
     await wrapped(createRequest(), createResponse());
-
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining('API Request Started'),
       expect.any(Object)

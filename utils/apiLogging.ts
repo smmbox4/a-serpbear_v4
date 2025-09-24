@@ -8,7 +8,7 @@ import { logger } from './logger';
  */
 export function withApiLogging(
   handler: NextApiHandler,
-  options: { 
+  options: {
     logBody?: boolean;
     skipAuth?: boolean;
     name?: string;
@@ -39,7 +39,9 @@ export function withApiLogging(
       ...(logBody && req.body ? { body: req.body } : {}),
     };
 
-    logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
+    if (logSuccess) {
+      logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
+    }
 
     // Capture the original res.json and res.status functions to log responses
     const originalJson = res.json.bind(res);
@@ -107,14 +109,18 @@ export function withApiLogging(
  */
 export function withApiAuthAndLogging(
   handler: NextApiHandler,
-  options: { 
+  options: {
     logBody?: boolean;
     name?: string;
     allowedMethods?: string[];
     logSuccess?: boolean;
   } = {}
 ) {
-  const { allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'], name } = options;
+  const {
+    allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'],
+    name,
+    logSuccess = logger.isSuccessLoggingEnabled(),
+  } = options;
 
   return withApiLogging(async (req: NextApiRequest, res: NextApiResponse) => {
     // Method validation
@@ -141,7 +147,7 @@ export function withApiAuthAndLogging(
     }
 
     return handler(req, res);
-  }, { ...options, skipAuth: true }); // skipAuth since we handle it manually above
+  }, { ...options, skipAuth: true, logSuccess }); // skipAuth since we handle it manually above
 }
 
 export default withApiLogging;

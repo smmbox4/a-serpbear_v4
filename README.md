@@ -153,6 +153,7 @@ All cron expressions are normalised at runtime—quotes and stray whitespace are
 | `FORCE_HTTPS` | — | Optional | When `true`, HTTP requests are redirected to HTTPS. Useful behind TLS-terminating proxies. |
 | `SECURE_COOKIES` | — | Optional | Forces cookies to use the `Secure` flag. Enable in HTTPS environments. |
 | `LOG_LEVEL` | `info` | Optional | Controls server-side log verbosity (`error`, `warn`, `info`, `debug`). |
+| `LOG_SUCCESS_EVENTS` | `true` | Optional | When set to `false`, suppresses INFO-level success logs for authentication and API middleware while leaving warnings/errors untouched. |
 | `SENTRY_DSN` | — | Optional | Enable Sentry monitoring by supplying a DSN. |
 | `NEXT_REMOVE_CONSOLE` | — | Optional | Strip non-error `console.*` statements from the production client bundle when set to `true`. |
 
