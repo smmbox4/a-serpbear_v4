@@ -32,6 +32,17 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
       && hasSmtpPort
       && hasNotificationEmails;
 
+   const manualTriggerHelpId = 'manual-notification-help';
+   const manualTriggerStatusId = 'manual-notification-status';
+   const manualTriggerDescription = 'Send a notification email immediately to confirm your SMTP credentials '
+      + 'and recipient list.';
+   const manualTriggerStatus = sendingNotifications
+      ? 'Sending notifications…'
+      : canSendNotifications
+         ? 'Ready to send notifications immediately.'
+         : 'Update your SMTP and notification settings to enable manual sends.';
+   const manualTriggerAriaDescription = `${manualTriggerHelpId} ${manualTriggerStatusId}`;
+
    const handleSendNotifications = () => {
       triggerNotifications();
    };
@@ -134,8 +145,16 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
                         />
                   </div>
                   <div className="settings__section__input mb-5">
+                     <p id={manualTriggerHelpId} className='text-xs text-slate-600 mb-2'>
+                        {manualTriggerDescription}
+                     </p>
+                     <p id={manualTriggerStatusId} className='sr-only' aria-live='polite'>
+                        {manualTriggerStatus}
+                     </p>
                      <button
                         type='button'
+                        aria-describedby={manualTriggerAriaDescription}
+                        aria-busy={sendingNotifications}
                         onClick={handleSendNotifications}
                         disabled={!canSendNotifications || sendingNotifications}
                         className={sendNotificationsButtonClasses}
@@ -149,7 +168,12 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
 
             </div>
             {settingsError?.msg && (
-               <div className='absolute w-full bottom-16  text-center p-3 bg-red-100 text-red-600 text-sm font-semibold'>
+               <div
+                  className={[
+                     'absolute w-full bottom-16 text-center',
+                     'p-3 bg-red-100 text-red-600 text-sm font-semibold',
+                  ].join(' ')}
+               >
                   {settingsError.msg}
                </div>
             )}
