@@ -162,7 +162,7 @@ export const getAdwordsCredentials = async (): Promise<false | AdwordsCredential
             refresh_token,
          };
       } catch (error) {
-         console.log('Error Decrypting Settings API Keys!');
+         console.log('Error Decrypting Settings API Keys!', error);
       }
 
       return decryptedSettings;
@@ -312,7 +312,7 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
                try {
                   ideaData = JSON.parse(responseText);
                } catch (jsonParseError) {
-                  console.warn(`[ERROR] Failed to parse Google Ads JSON response (${resp.status}):`, responseText.substring(0, 200));
+                  console.warn(`[ERROR] Failed to parse Google Ads JSON response (${resp.status}):`, responseText.substring(0, 200), jsonParseError);
                   throw new Error(`Google Ads API error (${resp.status}): Invalid JSON response format`);
                }
             } else {
@@ -325,7 +325,7 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
                throw parseError;
             }
             const textResponse = responseText || 'Could not read response';
-            console.warn(`[ERROR] Failed to parse Google Ads response (${resp.status}):`, textResponse.substring(0, 200));
+            console.warn(`[ERROR] Failed to parse Google Ads response (${resp.status}):`, textResponse.substring(0, 200), parseError);
             throw new Error(`Google Ads API error (${resp.status}): Invalid response format`);
          }
 
@@ -472,7 +472,7 @@ export const getKeywordsVolume = async (keywords: KeywordType[]): Promise<{ erro
                      try {
                         ideaData = JSON.parse(responseText);
                      } catch (parseError) {
-                        console.warn(`[ERROR] Failed to parse Google Ads Volume response (${resp.status}):`, responseText.substring(0, 200));
+                        console.warn(`[ERROR] Failed to parse Google Ads Volume response (${resp.status}):`, responseText.substring(0, 200), parseError);
                         continue; // Skip this country and continue with next
                      }
                   } else {
@@ -569,7 +569,7 @@ export const getLocalKeywordIdeas = async (domain: string): Promise<false | Keyw
       }
       return false;
    } catch (error) {
-      // console.log('[ERROR] Getting Local Ideas. ', error);
+      console.warn('[ERROR] Getting Local Ideas. ', error);
       return false;
    }
 };

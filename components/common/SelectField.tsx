@@ -71,8 +71,9 @@ const SelectField = (props: SelectFieldProps) => {
       <div className={`select font-semibold text-gray-500 relative ${inline ? 'inline-block' : 'flex'} justify-between items-center`}>
          {label && <label className='mb-2 font-semibold inline-block text-sm text-gray-700 capitalize'>{label}</label>}
          <div
-         className={`selected flex border ${rounded} p-1.5 px-4 cursor-pointer select-none ${fullWidth ? 'w-full' : 'w-full sm:w-[210px]'} 
+         className={`selected flex border ${rounded} p-1.5 px-4 cursor-pointer select-none ${fullWidth ? 'w-full' : 'w-full sm:w-[210px]'}
          min-w-0 ${showOptions ? 'border-indigo-200' : ''}`}
+         style={fullWidth ? undefined : { minWidth }}
          onClick={() => setShowOptions(!showOptions)}>
             <span className={'w-full inline-block truncate mr-2 capitalize'}>
                {selected.length > 0 ? (selectedLabels.slice(0, 2).join(', ')) : defaultLabel}
@@ -84,7 +85,8 @@ const SelectField = (props: SelectFieldProps) => {
          {showOptions && (
             <div
             className={`select_list mt-1 border absolute min-w-0 top-[30px] right-0 ${fullWidth ? 'w-full' : 'w-full sm:w-[210px]'}
-            ${rounded === 'rounded-3xl' ? 'rounded-lg' : rounded} max-h-${maxHeight} bg-white z-50 overflow-y-auto styled-scrollbar`}>
+            ${rounded === 'rounded-3xl' ? 'rounded-lg' : rounded} max-h-${maxHeight} bg-white z-50 overflow-y-auto styled-scrollbar`}
+            style={fullWidth ? undefined : { minWidth }}>
                {options.length > 20 && (
                   <div className=''>
                      <input

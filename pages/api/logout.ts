@@ -54,7 +54,7 @@ const logout = async (req: NextApiRequest, res: NextApiResponse<logoutResponse>,
             username = decoded?.user || username;
          }
       } catch (error) {
-         // Ignore token parsing errors during logout
+         logger.debug('Failed to decode logout token during logout', error instanceof Error ? error : new Error(String(error)));
       }
 
       // Clear the token cookie

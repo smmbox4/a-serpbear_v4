@@ -44,6 +44,7 @@ export function useAuth(): AuthStatus {
         });
       }
     } catch (error) {
+      console.error('Failed to check authentication status', error);
       setAuthStatus({
         isAuthenticated: false,
         isLoading: false,

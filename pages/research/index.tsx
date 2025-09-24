@@ -22,7 +22,7 @@ const Research: NextPage = () => {
    const [country, setCountry] = useState('US');
    const [seedKeywords, setSeedKeywords] = useState('');
 
-   const { data: appSettings, isLoading: isSettingsLoading } = useFetchSettings();
+   const { data: appSettings } = useFetchSettings();
    const adwordsConnected = !!(appSettings && appSettings?.settings?.adwords_refresh_token
       && appSettings?.settings?.adwords_developer_token, appSettings?.settings?.adwords_account_id);
    const { data: keywordIdeasData, isLoading: isLoadingIdeas, isError: errorLoadingIdeas } = useFetchKeywordIdeas(router, adwordsConnected);

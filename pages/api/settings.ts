@@ -168,7 +168,7 @@ export const getAppSettings = async () : Promise<SettingsType> => {
             adwords_account_id,
          };
       } catch (error) {
-         console.log('Error Decrypting Settings API Keys!');
+         console.log('Error Decrypting Settings API Keys!', error);
       }
 
       return {

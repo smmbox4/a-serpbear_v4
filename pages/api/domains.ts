@@ -73,6 +73,7 @@ export const getDomains = async (req: NextApiRequest, res: NextApiResponse<Domai
       const theDomains: DomainType[] = withStats ? await getdomainStats(formattedDomains) : formattedDomains;
       return res.status(200).json({ domains: theDomains });
    } catch (error) {
+      console.error('[ERROR] Getting Domains.', error);
       return res.status(400).json({ domains: [], error: 'Error Getting Domains.' });
    }
 };

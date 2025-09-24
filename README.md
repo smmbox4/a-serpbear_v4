@@ -250,6 +250,8 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 - **Database scripts:** `npm run db:migrate` / `npm run db:revert`.
 - **Production build:** `npm run build` followed by `npm run start`.
 - **UI patterns:** Add new icons through the `ICON_RENDERERS` map in `components/common/Icon.tsx` and rely on the exported keyword filtering helpers when building new table views to keep predicates shared and complexity low.
+- **Side panels & dropdowns:** The `SidePanel` component now honours its `width` prop (`small`, `medium`, `large`) and `SelectField` respects `minWidth`, making it easier to tune layouts without hand-editing Tailwind classes.
+- **Settings callouts:** Google Ads and Search Console settings surface the latest `settingsError` message above the form so operators see integration failures immediately.
 
 ---
 

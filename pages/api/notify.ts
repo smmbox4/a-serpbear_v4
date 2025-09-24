@@ -117,8 +117,8 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
    const portNum = parseInt(smtp_port, 10);
    const validPort = isNaN(portNum) ? 587 : Math.max(1, Math.min(65535, portNum)); // Default to 587, validate range
    const mailerSettings:any = { host: smtp_server, port: validPort };
-   if (smtp_tls_servername) {
-      mailerSettings.tls = { servername: smtp_tls_servername };
+   if (tlsServername) {
+      mailerSettings.tls = { servername: tlsServername };
    }
    const sanitizedUser = smtp_username;
    const sanitizedPass = smtp_password;

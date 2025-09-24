@@ -496,7 +496,7 @@ describe('refreshAndUpdateKeywords', () => {
       error: false,
     } as RefreshResult;
 
-    let updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    await updateKeywordPosition(keywordModel, updatedKeyword, settings);
     expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(3);
 
     // Test case 2: string number position
@@ -509,7 +509,7 @@ describe('refreshAndUpdateKeywords', () => {
       error: false,
     } as RefreshResult;
 
-    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    await updateKeywordPosition(keywordModel, updatedKeyword, settings);
     expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(7);
 
     // Test case 3: undefined position (should use keyword fallback)
@@ -522,7 +522,7 @@ describe('refreshAndUpdateKeywords', () => {
       error: false,
     } as RefreshResult;
 
-    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    await updateKeywordPosition(keywordModel, updatedKeyword, settings);
     expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(5); // fallback to keyword.position
 
     // Test case 4: null position (should use keyword fallback)
@@ -535,7 +535,7 @@ describe('refreshAndUpdateKeywords', () => {
       error: false,
     } as RefreshResult;
 
-    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    await updateKeywordPosition(keywordModel, updatedKeyword, settings);
     expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(5); // fallback to keyword.position
 
     // Test case 5: invalid string position (should use final fallback of 0)
@@ -550,7 +550,7 @@ describe('refreshAndUpdateKeywords', () => {
       error: false,
     } as RefreshResult;
 
-    updated = await updateKeywordPosition(keywordModel, updatedKeyword, settings);
+    await updateKeywordPosition(keywordModel, updatedKeyword, settings);
     expect((keywordModel.update as jest.Mock).mock.calls[0][0].position).toBe(0); // final fallback
   });
 });

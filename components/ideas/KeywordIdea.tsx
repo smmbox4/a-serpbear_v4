@@ -28,7 +28,7 @@ const KeywordIdea = (props: KeywordIdeaProps) => {
       showKeywordDetails,
       isTracked = false,
    } = props;
-   const { keyword, uid, position, country, monthlySearchVolumes, avgMonthlySearches, competition, competitionIndex } = keywordData;
+   const { keyword, uid, country, monthlySearchVolumes, avgMonthlySearches, competition, competitionIndex } = keywordData;
 
    const chartData = useMemo(() => {
       const chartDataObj: { labels: string[], series: number[] } = { labels: [], series: [] };

@@ -29,6 +29,11 @@ const SearchConsoleSettings = ({ settings, settingsError, updateSettings }:Searc
    return (
       <div>
       <div>
+         {settingsError && settingsError.type === 'search_console' && (
+            <div className='mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700'>
+               {settingsError.msg}
+            </div>
+         )}
 
          {/* <div className="settings__section__input mb-5">
             <ToggleField

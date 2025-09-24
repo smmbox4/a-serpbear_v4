@@ -117,6 +117,11 @@ const AdWordsSettings = ({ settings, settingsError, updateSettings, performUpdat
    return (
       <div>
       <div>
+         {settingsError && settingsError.type === 'adwords' && (
+            <div className='mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700'>
+               {settingsError.msg}
+            </div>
+         )}
          <div className=' border-t border-gray-100 pt-4 pb-0'>
             <h4 className=' mb-3 font-semibold text-blue-700'>Step 1: Connect Google Cloud Project</h4>
             <div className="settings__section__input mb-4 flex justify-between items-center w-full">
