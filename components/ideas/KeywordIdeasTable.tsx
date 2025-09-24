@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from 'react-query';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
-import { useAddKeywords } from '../../services/keywords';
+import { useAddKeywords, useFetchKeywords } from '../../services/keywords';
 import { formatLocation } from '../../utils/location';
 import Icon from '../common/Icon';
 import SpinnerMessage from '../common/SpinnerMessage';
@@ -43,6 +43,38 @@ const IdeasKeywordsTable = ({
    const [isMobile] = useIsMobile();
    const isResearchPage = router.pathname === '/research';
 
+   const trackedDomain = isResearchPage ? addKeywordDomain : (domain?.domain || '');
+   const { keywordsData: trackedKeywordsData } = useFetchKeywords(router, trackedDomain);
+
+   const trackedKeywordsList: KeywordType[] = useMemo(() => {
+      if (Array.isArray(trackedKeywordsData)) {
+         return trackedKeywordsData as KeywordType[];
+      }
+      return (trackedKeywordsData?.keywords as KeywordType[]) || [];
+   }, [trackedKeywordsData]);
+
+   const trackedKeywordLookup = useMemo(() => {
+      const lookup:Record<string, boolean> = {};
+      trackedKeywordsList.forEach((trackedKeyword) => {
+         const { keyword: trackedKeywordValue, country: trackedCountry, device: trackedDevice } = trackedKeyword;
+         if (trackedKeywordValue && trackedCountry && trackedDevice) {
+            lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}`] = true;
+         }
+      });
+      return lookup;
+   }, [trackedKeywordsList]);
+
+   const trackedDevicesToCheck = useMemo(() => {
+      if (addKeywordDevice === 'desktop' || addKeywordDevice === 'mobile') {
+         return [addKeywordDevice];
+      }
+      return ['desktop', 'mobile'];
+   }, [addKeywordDevice]);
+
+   const isIdeaTracked = useCallback((idea: IdeaKeyword) => {
+      return trackedDevicesToCheck.some((device) => trackedKeywordLookup[`${idea.keyword}:${idea.country}:${device}`]);
+   }, [trackedDevicesToCheck, trackedKeywordLookup]);
+
    const { data: domainsData } = useQuery(
       ['domains', false],
       () => fetchDomains(router, false),
@@ -57,6 +89,10 @@ const IdeasKeywordsTable = ({
       const sortedKeywords = IdeasSortKeywords(filteredKeywords, sortBy);
       return sortedKeywords;
    }, [keywords, showFavorites, favorites, filterParams, sortBy]);
+
+   const selectableKeywordIds = useMemo(() => {
+      return finalKeywords.filter((keyword) => !isIdeaTracked(keyword)).map((keyword) => keyword.uid);
+   }, [finalKeywords, isIdeaTracked]);
 
    const favoriteIDs: string[] = useMemo(() => favorites.map((fav) => fav.uid), [favorites]);
 
@@ -82,7 +118,8 @@ const IdeasKeywordsTable = ({
       return finalWordTags;
    }, [keywords]);
 
-   const selectKeyword = (keywordID: string) => {
+   const selectKeyword = (keywordID: string, isTrackedKeyword = false) => {
+      if (isTrackedKeyword) { return; }
       let updatedSelected = [...selectedKeywords, keywordID];
       if (selectedKeywords.includes(keywordID)) {
          updatedSelected = selectedKeywords.filter((keyID) => keyID !== keywordID);
@@ -115,10 +152,11 @@ const IdeasKeywordsTable = ({
       setSelectedKeywords([]);
    };
 
-   const selectedAllItems = selectedKeywords.length === finalKeywords.length;
+   const selectedAllItems = selectableKeywordIds.length > 0 && selectedKeywords.length === selectableKeywordIds.length;
 
    const Row = ({ data, index, style }:ListChildComponentProps) => {
       const keyword: IdeaKeyword = data[index];
+      const tracked = isIdeaTracked(keyword);
       return (
          <KeywordIdea
          key={keyword.uid}
@@ -130,6 +168,7 @@ const IdeasKeywordsTable = ({
          isFavorite={favoriteIDs.includes(keyword.uid)}
          keywordData={keyword}
          lastItem={index === (finalKeywords.length - 1)}
+         isTracked={tracked}
          />
       );
    };
@@ -139,7 +178,9 @@ const IdeasKeywordsTable = ({
       if (isMobile) {
          keywordsContent = (
             <div className='block sm:hidden'>
-               {finalKeywords.map((keyword, index) => (
+               {finalKeywords.map((keyword, index) => {
+                  const tracked = isIdeaTracked(keyword);
+                  return (
                   <KeywordIdea
                      key={keyword.uid}
                      style={{}}
@@ -150,8 +191,10 @@ const IdeasKeywordsTable = ({
                      isFavorite={favoriteIDs.includes(keyword.uid)}
                      keywordData={keyword}
                      lastItem={index === (finalKeywords.length - 1)}
+                     isTracked={tracked}
                   />
-               ))}
+               );
+               })}
             </div>
          );
       } else {
@@ -255,10 +298,10 @@ const IdeasKeywordsTable = ({
                         <button
                            className={`p-0 mr-2 leading-[0px] inline-block rounded-sm pt-0 px-[1px] pb-[3px]  border border-slate-300 
                            ${selectedAllItems ? ' bg-blue-700 border-blue-700 text-white' : 'text-transparent'}`}
-                           onClick={() => setSelectedKeywords(selectedAllItems ? [] : finalKeywords.map((k: IdeaKeyword) => k.uid))}
+                           onClick={() => setSelectedKeywords(selectedAllItems ? [] : [...selectableKeywordIds])}
                            >
                               <Icon type="check" size={10} />
-                        </button>
+                       </button>
                      )}
                         Keyword
                      </span>
