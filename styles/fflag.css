@@ -9,6 +9,34 @@
    box-sizing: content-box;
 }
 
+.fflag-stack {
+   display: inline-flex;
+   flex-direction: column;
+   align-items: flex-start;
+   gap: 2px;
+}
+
+.fflag-map-pack {
+   background-image: url("../public/map-pack.png");
+   background-repeat: no-repeat;
+   background-size: cover;
+   background-color: #fde68a;
+   border: 1px solid rgb(251 191 36 / 75%);
+}
+
+.fflag-map-pack::after {
+   content: 'MAP';
+   position: absolute;
+   inset: 0;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   font-size: 8px;
+   font-weight: 700;
+   letter-spacing: 0.4px;
+   color: #0f172a;
+}
+
 .fflag-CH,
 .fflag-DZ { background-position: center 0.2287%; }
 

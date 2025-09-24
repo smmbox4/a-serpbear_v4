@@ -1,4 +1,5 @@
 import { resolveCountryCode } from '../../utils/scraperHelpers';
+import { computeMapPackTop3 } from '../../utils/mapPack';
 
 interface SerplyResult {
    title: string,
@@ -30,28 +31,33 @@ const serply:ScraperSettings = {
       return `https://api.serply.io/v1/search?${searchParams.toString()}`;
    },
    resultObjectKey: 'result',
-   serpExtractor: (content) => {
+   serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
-      let results: SerplyResult[];
-      if (typeof content === 'string') {
+      let results: SerplyResult[] = [];
+      if (typeof result === 'string') {
          try {
-            results = JSON.parse(content) as SerplyResult[];
+            results = JSON.parse(result) as SerplyResult[];
          } catch (error) {
             throw new Error(`Invalid JSON response for Serply: ${error instanceof Error ? error.message : error}`);
          }
-      } else {
-         results = content as SerplyResult[];
+      } else if (Array.isArray(result)) {
+         results = result as SerplyResult[];
+      } else if (Array.isArray(response?.result)) {
+         results = response.result as SerplyResult[];
       }
-      for (const result of results) {
-         if (result.title && result.link) {
+      for (const item of results) {
+         if (item?.title && item?.link) {
             extractedResult.push({
-               title: result.title,
-               url: result.link,
-               position: result.realPosition,
+               title: item.title,
+               url: item.link,
+               position: item.realPosition,
             });
          }
       }
-      return extractedResult;
+
+      const mapPackTop3 = computeMapPackTop3(keyword.domain, response);
+
+      return { organic: extractedResult, mapPackTop3 };
    },
 };
 

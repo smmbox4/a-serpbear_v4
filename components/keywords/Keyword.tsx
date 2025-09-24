@@ -59,6 +59,7 @@ const Keyword = (props: KeywordProps) => {
         lastUpdateError = false,
         volume,
         location,
+        mapPackTop3 = false,
      } = keywordData;
 
    const [showOptions, setShowOptions] = useState(false);
@@ -131,7 +132,12 @@ const Keyword = (props: KeywordProps) => {
             onClick={() => showKeywordDetails()}
             title={keyword}
             >
-               <span className={`fflag fflag-${country} w-[18px] h-[12px] mr-2 flex-shrink-0`} title={countries[country][0]} />
+               <span className="fflag-stack mr-2 flex-shrink-0">
+                  <span className={`fflag fflag-${country} w-[18px] h-[12px]`} title={countries[country][0]} />
+                  {mapPackTop3 && (
+                     <span className="fflag fflag-map-pack w-[18px] h-[12px]" role="img" aria-label="Map pack top three" />
+                  )}
+               </span>
                <span className="inline-block w-[calc(100%-50px)]">
                   <span className="block text-ellipsis overflow-hidden whitespace-nowrap">
                      {keyword}

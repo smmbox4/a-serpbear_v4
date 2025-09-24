@@ -21,6 +21,7 @@ const KeywordDetails = ({ keyword, closeDetails }:KeywordDetailsProps) => {
    const { data: keywordData } = useFetchSingleKeyword(keyword.ID);
    const keywordHistory: KeywordHistory = keywordData?.history || keyword.history;
    const keywordSearchResult: KeywordLastResult = keywordData?.searchResult || keyword.history;
+   const mapPackTop3 = (keywordData?.mapPackTop3 ?? keyword.mapPackTop3) === true;
    const dateOptions = [
       { label: 'Last 7 Days', value: '7' },
       { label: 'Last 30 Days', value: '30' },
@@ -53,9 +54,17 @@ const KeywordDetails = ({ keyword, closeDetails }:KeywordDetailsProps) => {
        <div className="keywordDetails fixed w-full h-dvh top-0 left-0 z-[99999]" onClick={closeOnBGClick} data-testid="keywordDetails">
             <div className="keywordDetails absolute w-full lg:w-5/12 bg-white customShadow top-0 right-0 h-dvh overflow-y-auto" >
                <div className='keywordDetails__header p-6 border-b border-b-slate-200 text-slate-600'>
-                  <h3 className=' text-lg font-bold'>
-                     <span title={countries[keyword.country][0]}
-                     className={`fflag fflag-${keyword.country} w-[18px] h-[12px] mr-2`} /> {keyword.keyword}
+                  <h3 className=' text-lg font-bold flex items-center'>
+                     <span className="fflag-stack mr-2">
+                        <span
+                           title={countries[keyword.country][0]}
+                           className={`fflag fflag-${keyword.country} w-[18px] h-[12px]`}
+                        />
+                        {mapPackTop3 && (
+                           <span className="fflag fflag-map-pack w-[18px] h-[12px]" role="img" aria-label="Map pack top three" />
+                        )}
+                     </span>
+                     <span>{keyword.keyword}</span>
                      <span
                      className={`py-1 px-2 ml-2 rounded bg-blue-50 ${keyword.position === 0 ? 'text-gray-500' : 'text-blue-700'}  text-xs font-bold`}>
                         {keyword.position === 0 ? 'Not in First 100' : keyword.position}

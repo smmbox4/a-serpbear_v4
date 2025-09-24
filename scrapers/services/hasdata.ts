@@ -1,6 +1,7 @@
 import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
+import { computeMapPackTop3 } from '../../utils/mapPack';
 
 interface HasDataResult {
    title: string,
@@ -26,17 +27,19 @@ const hasdata:ScraperSettings = {
       return `https://api.scrape-it.cloud/scrape/google/serp?q=${encodeURIComponent(keyword.keyword)}${location}&num=100&gl=${country.toLowerCase()}&deviceType=${keyword.device}`;
    },
    resultObjectKey: 'organicResults',
-   serpExtractor: (content) => {
+   serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
-      let results: HasDataResult[];
-      if (typeof content === 'string') {
+      let results: HasDataResult[] = [];
+      if (typeof result === 'string') {
          try {
-            results = JSON.parse(content) as HasDataResult[];
+            results = JSON.parse(result) as HasDataResult[];
          } catch (error) {
             throw new Error(`Invalid JSON response for HasData: ${error instanceof Error ? error.message : error}`);
          }
-      } else {
-         results = content as HasDataResult[];
+      } else if (Array.isArray(result)) {
+         results = result as HasDataResult[];
+      } else if (Array.isArray(response?.organicResults)) {
+         results = response.organicResults as HasDataResult[];
       }
 
       for (const { link, title, position } of results) {
@@ -48,7 +51,10 @@ const hasdata:ScraperSettings = {
             });
          }
       }
-      return extractedResult;
+
+      const mapPackTop3 = computeMapPackTop3(keyword.domain, response);
+
+      return { organic: extractedResult, mapPackTop3 };
    },
 };
 

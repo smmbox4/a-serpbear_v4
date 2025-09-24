@@ -43,6 +43,10 @@ describe('Keyword Component', () => {
       // Look for the URL link by its href attribute
       expect(screen.getByRole('link', { name: '/' })).toBeInTheDocument();
    });
+   it('shows the map pack flag when the keyword is in the map pack', async () => {
+      render(<Keyword {...keywordProps} />);
+      expect(screen.getByLabelText('Map pack top three')).toBeInTheDocument();
+   });
    it('Should Display the Keyword Options on dots Click', async () => {
       render(<Keyword {...keywordProps} />);
       // Get all buttons and find the options button by looking for the SVG with specific viewBox

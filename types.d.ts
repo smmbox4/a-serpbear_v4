@@ -45,6 +45,7 @@ type KeywordType = {
    location?: string,
    state?: string,
    city?: string,
+   mapPackTop3?: boolean,
 }
 
 type KeywordLastResult = {
@@ -233,6 +234,17 @@ type scraperExtractedItem = {
    url: string,
    position: number,
 }
+
+type ScraperExtractorInput = {
+   keyword: KeywordType,
+   response: any,
+   result?: unknown,
+}
+
+type ScraperExtractorResult = {
+   organic: scraperExtractedItem[],
+   mapPackTop3?: boolean,
+}
 interface ScraperSettings {
    /** A Unique ID for the Scraper. eg: myScraper */
    id:string,
@@ -251,6 +263,10 @@ interface ScraperSettings {
    headers?(keyword:KeywordType, settings: SettingsType): Object,
    /** Construct the API URL for scraping the data through your Scraper's API */
    scrapeURL?(keyword:KeywordType, settings:SettingsType, countries:countryData): string,
-   /** Custom function to extract the serp result from the scraped data. The extracted data should be @return {scraperExtractedItem[]} */
-   serpExtractor?(content:string): scraperExtractedItem[],
+   /**
+    * Custom function to extract SERP results from the provider payload.
+    * Should return the organic listings and, when available, whether the tracked
+    * domain appears in the top-three map-pack results.
+    */
+   serpExtractor?(content:ScraperExtractorInput): ScraperExtractorResult,
 }

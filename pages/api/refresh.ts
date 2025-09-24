@@ -156,6 +156,7 @@ const getKeywordSearchResults = async (req: NextApiRequest, res: NextApiResponse
          tags: [],
          updating: false,
          lastUpdateError: false,
+         mapPackTop3: false,
       };
       const scrapeResult = await scrapeKeywordFromGoogle(dummyKeyword, settings);
       if (scrapeResult && !scrapeResult.error) {

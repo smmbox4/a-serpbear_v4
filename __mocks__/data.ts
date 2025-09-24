@@ -38,6 +38,7 @@ export const dummyKeywords = [
        sticky: false,
        updating: false,
        lastUpdateError: false as false,
+       mapPackTop3: true,
    },
    {
        ID: 2,
@@ -63,6 +64,7 @@ export const dummyKeywords = [
        sticky: false,
        updating: false,
        lastUpdateError: false as false,
+       mapPackTop3: false,
    },
 ];
 
