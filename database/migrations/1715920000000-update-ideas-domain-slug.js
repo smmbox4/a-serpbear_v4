@@ -38,7 +38,7 @@ module.exports = {
                console.log('[Migration] Failed to update', file, err);
             }
          }
-      } catch (err) {
+      } catch (_err) {
          // ignore missing data directory
       }
    },

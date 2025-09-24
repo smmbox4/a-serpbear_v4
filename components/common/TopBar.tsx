@@ -25,6 +25,7 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
             router.push('/login');
          }
       } catch (fetchError) {
+         console.error('Failed to logout user', fetchError);
          toast('The server.', { icon: '⚠️' });
       }
    };

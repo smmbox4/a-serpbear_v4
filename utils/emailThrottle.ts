@@ -101,6 +101,7 @@ const getEmailCache = async (): Promise<EmailCache> => {
       const cacheData = await readFile(CACHE_FILE, 'utf-8');
       return JSON.parse(cacheData) || {};
    } catch (error) {
+      console.log('[EMAIL_THROTTLE] Error loading cache, returning empty map:', error);
       // File doesn't exist or is invalid, return empty cache
       return {};
    }

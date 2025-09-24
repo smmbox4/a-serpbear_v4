@@ -198,7 +198,7 @@ const ICON_RENDERERS: Record<string, IconRenderer> = {
    'desktop': ({ color, size, title, xmlnsProps }) => (
       <svg width={size} viewBox="0 0 24 24" {...xmlnsProps}>
                      {title && <title>{title}</title>}
-                     <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H9c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1h-1v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 14H4c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1h16c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1z" fill="currentColor"/>
+                     <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H9c-.55 0-1 .45-1 1s.45 1 1 1h6c.55 0 1-.45 1-1s-.45-1-1-1h-1v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 14H4c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1h16c.55 0 1 .45 1 1v10c0 .55-.45 1-1 1z" fill={color ?? 'currentColor'}/>
                   </svg>
    ),
    'mobile': ({ color, size, title, xmlnsProps }) => (
@@ -237,7 +237,7 @@ const ICON_RENDERERS: Record<string, IconRenderer> = {
                         <path fill={color} d="M21 7a.78.78 0 0 0 0-.21a.64.64 0 0 0-.05-.17a1.1 1.1 0 0 0-.09-.14a.75.75 0 0 0-.14-.17l-.12-.07a.69.69 0 0 0-.19-.1h-.2A.7.7 0 0 0 20 6h-5a1 1 0 0 0 0 2h2.83l-4 4.71l-4.32-2.57a1 1 0 0 0-1.28.22l-5 6a1 1 0 0 0 .13 1.41A1 1 0 0 0 4 18a1 1 0 0 0 .77-.36l4.45-5.34l4.27 2.56a1 1 0 0 0 1.27-.21L19 9.7V12a1 1 0 0 0 2 0V7z"/>
                      </svg>
    ),
-   'google': ({ color, size, title, xmlnsProps }) => (
+   'google': ({ size, title, xmlnsProps }) => (
       <svg {...xmlnsProps} width={size} viewBox="0 0 256 262">
                         {title && <title>{title}</title>}
                         <path d="M255.878 133.451c0-10.734-.871-18.567-2.756-26.69H130.55v48.448h71.947c-1.45 12.04-9.283 30.172-26.69 42.356l-.244 1.622l38.755 30.023l2.685.268c24.659-22.774 38.875-56.282 38.875-96.027" fill="#4285F4"/>
@@ -246,7 +246,7 @@ const ICON_RENDERERS: Record<string, IconRenderer> = {
                         <path d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251" fill="#EB4335" />
                      </svg>
    ),
-   'adwords': ({ color, size, title, xmlnsProps }) => (
+   'adwords': ({ size, title, xmlnsProps }) => (
       <svg {...xmlnsProps} width={size} viewBox="0 0 256 256">
                         {title && <title>{title}</title>}
                         <g>

@@ -19,8 +19,8 @@ export function withApiLogging(
     const startTime = Date.now();
     const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const { 
-      logBody = false, 
-      skipAuth = false, 
+      logBody = false,
+      skipAuth: _skipAuth = false,
       name,
       logSuccess = logger.isSuccessLoggingEnabled(),
     } = options;

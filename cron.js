@@ -58,14 +58,14 @@ const getAppSettings = async () => {
             const smtp_password = settings.smtp_password ? cryptr.decrypt(settings.smtp_password) : '';
             decryptedSettings = { ...settings, scraping_api, smtp_password };
          } catch (error) {
-            console.log('Error Decrypting Settings API Keys!');
+            console.log('Error Decrypting Settings API Keys!', error);
          }
       } else {
          throw Error('Settings file dont exist.');
       }
       return decryptedSettings;
    } catch (error) {
-      // console.log('CRON ERROR: Reading Settings File. ', error);
+      console.log('CRON ERROR: Reading Settings File.', error);
       await promises.writeFile(`${process.cwd()}/data/settings.json`, JSON.stringify(defaultSettings), { encoding: 'utf-8' });
       return defaultSettings;
    }

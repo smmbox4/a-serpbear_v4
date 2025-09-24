@@ -18,7 +18,7 @@ const hasdata:ScraperSettings = {
          'Content-Type': 'application/json',
          'x-api-key': settings.scraping_api,
       }),
-   scrapeURL: (keyword, settings) => {
+   scrapeURL: (keyword, _settings) => {
       const country = resolveCountryCode(keyword.country);
       const countryName = countries[country][0];
       const { city, state } = parseLocation(keyword.location, keyword.country);

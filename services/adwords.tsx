@@ -8,6 +8,7 @@ const parseJsonResponse = async (res: Response) => {
    try {
       return JSON.parse(text);
    } catch (error) {
+      console.warn('Failed to parse JSON response from Ads service:', error);
       const snippet = text.substring(0, 200) || `status ${res.status}`;
       throw new Error(res.ok ? `Unexpected response (${res.status}): ${snippet}` : snippet);
    }
@@ -120,7 +121,7 @@ export function useMutateKeywordIdeas(router:NextRouter, onSuccess?: Function) {
 
       return responsePayload;
    }, {
-      onSuccess: async (data) => {
+      onSuccess: async (_data) => {
          console.log('Ideas Added:', data);
          toast('Keyword Ideas Loaded Successfully!', { icon: '✔️' });
          if (onSuccess) {
@@ -205,14 +206,14 @@ export function useMutateKeywordsVolume(onSuccess?: Function) {
       }
       return res.json();
    }, {
-      onSuccess: async (data) => {
+      onSuccess: async (_data) => {
          toast('Keyword Volume Data Loaded Successfully! Reloading Page...', { icon: '✔️' });
          if (onSuccess) {
             onSuccess(false);
          }
-        setTimeout(() => {
-         window.location.reload();
-        }, 3000);
+         setTimeout(() => {
+            window.location.reload();
+         }, 3000);
       },
       onError: (error) => {
          console.log('Error Loading Keyword Volume Data!!!', error);

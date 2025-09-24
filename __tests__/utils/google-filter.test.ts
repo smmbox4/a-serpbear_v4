@@ -1,4 +1,3 @@
-import { extractScrapedResult } from '../../utils/scraper';
 import { GOOGLE_BASE_URL } from '../../utils/constants';
 
 describe('Google link filtering', () => {
@@ -8,7 +7,7 @@ describe('Google link filtering', () => {
       try {
         const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
         return parsedURL.origin === GOOGLE_BASE_URL;
-      } catch (error) {
+      } catch (_error) {
         return false;
       }
     };
@@ -33,7 +32,7 @@ describe('Google link filtering', () => {
       try {
         const parsedURL = new URL(url.startsWith('http') ? url : `https://${url}`);
         return parsedURL.origin === GOOGLE_BASE_URL;
-      } catch (error) {
+      } catch (_error) {
         // Should return false for malformed URLs (which causes them to be skipped)
         return false;
       }

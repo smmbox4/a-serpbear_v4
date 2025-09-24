@@ -89,7 +89,7 @@ describe('Adwords Seed Functions', () => {
           },
           true,
         );
-      } catch (error) {
+      } catch (_error) {
         // We expect it to potentially throw since we're mocking minimal responses
         // The important part is that findAll was called with the correct order
       }

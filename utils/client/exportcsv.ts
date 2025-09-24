@@ -65,7 +65,7 @@ export const exportKeywordIdeas = (keywords: IdeaKeyword[], domainName:string) =
    let csvBody = '';
    const fileName = `${domainName}-keyword_ideas.csv`;
    keywords.forEach((keywordData) => {
-      const { keyword, competition, country, domain, competitionIndex, avgMonthlySearches, added, updated, position } = keywordData;
+      const { keyword, competition, country, competitionIndex, avgMonthlySearches, added } = keywordData;
       const addedDate = new Intl.DateTimeFormat('en-US').format(new Date(added));
       csvBody += `${keyword}, ${avgMonthlySearches}, ${competition}, ${competitionIndex}, ${countries[country][0]}, ${addedDate}\r\n`;
    });

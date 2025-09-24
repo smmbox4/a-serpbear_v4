@@ -38,8 +38,8 @@ export const isValidUrl = (str: string) => {
 
    try {
      url = new URL(str);
-   } catch (e) {
+  } catch (_error) {
      return false;
-   }
+  }
    return url.protocol === 'http:' || url.protocol === 'https:';
  };

@@ -255,6 +255,7 @@ export const getSearchConsoleApiInfo = async (domain: DomainType): Promise<SCAPI
          scAPIData.client_email = settings.search_console_client_email ? cryptr.decrypt(settings.search_console_client_email) : '';
          scAPIData.private_key = settings.search_console_private_key ? cryptr.decrypt(settings.search_console_private_key) : '';
       } catch (error) {
+         console.warn('[SEARCH_CONSOLE] Unable to read app settings for credentials:', error);
          // Settings file doesn't exist or is invalid, continue with environment variables
       }
    }
@@ -294,6 +295,7 @@ export const readLocalSCData = async (domain:string): Promise<SCDomainDataType|f
       const domainSCData = JSON.parse(currentQueueRaw);
       return domainSCData;
    } catch (error) {
+      console.warn('[SEARCH_CONSOLE] Failed to read local data for domain', domain, error);
       return false;
    }
 };
@@ -314,6 +316,7 @@ export const updateLocalSCData = async (domain:string, scDomainData?:SCDomainDat
       await writeFile(filePath, JSON.stringify(dataToWrite), { encoding: 'utf-8' }).catch((err) => { console.log(err); });
       return dataToWrite;
    } catch (error) {
+      console.warn('[SEARCH_CONSOLE] Failed to write local data for domain', domain, error);
       return false;
    }
 };
@@ -331,6 +334,7 @@ export const removeLocalSCData = async (domain:string): Promise<boolean> => {
       await unlink(filePath);
       return true;
    } catch (error) {
+      console.warn('[SEARCH_CONSOLE] Failed to remove local data for domain', domain, error);
       return false;
    }
 };

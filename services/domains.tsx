@@ -165,9 +165,10 @@ export async function fetchDomainScreenshot(domain: string, forceFetch = false):
             return imageBase;
          }
          return false;
-      } catch (error) {
-         return false;
-      }
+        } catch (error) {
+           console.error('[DOMAINS] Failed to fetch domain screenshot.', error);
+           return false;
+        }
    } else if (domThumbs[domain]) {
       return domThumbs[domain];
    }

@@ -70,6 +70,7 @@ export const useSendNotifications = () => useMutation(async () => {
       try {
          data = await res.json();
       } catch (error) {
+         console.warn('Failed to parse notification response JSON', error);
          data = null;
       }
 

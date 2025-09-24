@@ -1,6 +1,5 @@
 import { canSendEmail, recordEmailSent } from '../../utils/emailThrottle';
 import { writeFile, readFile } from 'fs/promises';
-import path from 'path';
 
 // Mock fs/promises
 jest.mock('fs/promises');

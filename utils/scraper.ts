@@ -47,9 +47,9 @@ const getRetryDelay = (attempt: number, baseDelay: number = 1000): number => {
  * @returns {Promise}
  */
 export const getScraperClient = (
-   keyword:KeywordType, 
-   settings:SettingsType, 
-   scraper?: ScraperSettings, 
+   keyword:KeywordType,
+   settings:SettingsType,
+   scraper?: ScraperSettings,
    retryAttempt: number = 0
 ): Promise<AxiosResponse|Response> | false => {
    let apiURL = ''; let client: Promise<AxiosResponse|Response> | false = false;
@@ -88,7 +88,7 @@ export const getScraperClient = (
       axiosConfig.headers = headers;
       
       // Enhanced proxy configuration with timeout and error handling
-      axiosConfig.timeout = 30000; // 30 second timeout
+      axiosConfig.timeout = Math.min(30000, 15000 + retryAttempt * 5000); // Adjust timeout slightly on retries
       axiosConfig.maxRedirects = 3;
       
       const proxies = settings.proxy.split(/\r?\n|\r|\n/g).filter(proxy => proxy.trim());
@@ -107,10 +107,11 @@ export const getScraperClient = (
    } else {
       // Enhanced fetch configuration with timeout and better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeoutMs = Math.min(30000, 15000 + retryAttempt * 5000);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
-      client = fetch(apiURL, { 
-         method: 'GET', 
+      client = fetch(apiURL, {
+         method: 'GET',
          headers,
          signal: controller.signal
       }).finally(() => clearTimeout(timeoutId));
@@ -299,6 +300,13 @@ export const scrapeKeywordFromGoogle = async (keyword:KeywordType, settings:Sett
             continue;
          }
       }
+   }
+
+   if (lastError && (refreshedResults.error === true || refreshedResults.error === undefined)) {
+      refreshedResults = {
+         ...refreshedResults,
+         error: serializeError(lastError),
+      };
    }
 
    return refreshedResults;
@@ -510,7 +518,7 @@ const resolveResultURL = (value: string | undefined | null): URL | null => {
    if (!value) { return null; }
    try {
       return new URL(value);
-   } catch (err) {
+   } catch (_error) {
       try {
          return new URL(value, GOOGLE_BASE_URL);
       } catch (error) {

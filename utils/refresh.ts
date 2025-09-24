@@ -234,7 +234,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
             try {
                parsedError = JSON.parse(dbPayload.lastUpdateError ?? 'false');
             } catch (parseError) {
-               console.log('[WARNING] Failed to parse lastUpdateError:', dbPayload.lastUpdateError);
+               console.log('[WARNING] Failed to parse lastUpdateError:', dbPayload.lastUpdateError, parseError);
                parsedError = false;
             }
          }

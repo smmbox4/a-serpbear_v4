@@ -87,7 +87,7 @@ export const serializeError = (error: unknown): string => {
          if (serialized && serialized !== '{}') {
             return serialized;
          }
-      } catch (jsonError) {
+      } catch (_jsonError) {
          // Ignore JSON serialization errors and fall back to string conversion below
       }
 
