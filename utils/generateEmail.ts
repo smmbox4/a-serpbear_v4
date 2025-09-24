@@ -117,7 +117,8 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       const locationText = [locationParts.city, locationParts.state].filter(Boolean).join(', ');
 
       keywordsTable += `<tr class="keyword">
-                           <td>${flagStack} ${deviceIcon} ${keyword.keyword}</td>
+                           <td>${flagStack}</td>
+                           <td>${deviceIcon} ${keyword.keyword}</td>
                            <td>${locationText ? `(${locationText})` : ''}</td>
                            <td>${keyword.position}${posChangeIcon}</td>
                            <td>${getBestKeywordPosition(keyword.history)}</td>
