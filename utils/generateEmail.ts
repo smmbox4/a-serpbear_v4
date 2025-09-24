@@ -82,6 +82,21 @@ const getBestKeywordPosition = (history: KeywordHistory) => {
    return bestPos?.position || '-';
 };
 
+const resolveStatNumber = (value: number | undefined | null, fallback = 0): number => {
+   if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+   }
+   return fallback;
+};
+
+const formatAveragePosition = (value: number): string => {
+   if (!Number.isFinite(value)) {
+      return '0';
+   }
+   const fixed = value.toFixed(1);
+   return fixed.endsWith('.0') ? Math.round(value).toString() : fixed;
+};
+
 /**
  * Generate the Email HTML based on given domain name and its keywords
  * @param {string} domainName - Keywords to scrape
@@ -126,14 +141,61 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
                         </tr>`;
    });
 
-   const stat = `${improved > 0 ? `${improved} Improved` : ''} 
-                  ${improved > 0 && declined > 0 ? ', ' : ''} ${declined > 0 ? `${declined} Declined` : ''}`;
+   const improvedStat = improved > 0 ? `${improved} Improved` : '';
+   const declinedStat = declined > 0 ? `${declined} Declined` : '';
+   const stat = [improvedStat, declinedStat].filter(Boolean).join(', ');
+   const keywordsTrackedStat = resolveStatNumber(domain.keywordsTracked, keywordsCount);
+   const avgPositionStat = resolveStatNumber(domain.avgPosition, 0);
+   const mapPackKeywordsStat = resolveStatNumber(domain.mapPackKeywords, 0);
+   const availableScrapers = Array.isArray(settings.available_scapers) ? settings.available_scapers : [];
+   const activeScraper = availableScrapers.find((scraper) => scraper.value === settings.scraper_type);
+   const showMapPackStat = activeScraper?.supportsMapPack === true;
+   const trackerSummaryStats = [
+      {
+         label: 'Keywords',
+         value: keywordsTrackedStat.toLocaleString('en-US'),
+      },
+      {
+         label: 'Avg position',
+         value: formatAveragePosition(avgPositionStat),
+      },
+   ];
+
+   if (showMapPackStat) {
+      trackerSummaryStats.push({
+         label: 'Map Pack',
+         value: mapPackKeywordsStat.toLocaleString('en-US'),
+      });
+   }
+
+   const trackerSummaryCells = trackerSummaryStats.map((item) => `
+                                 <td class="mini_stats__cell">
+                                    <span class="mini_stats__label">${item.label}</span>
+                                    <span class="mini_stats__value">${item.value}</span>
+                                 </td>
+                              `).join('');
+
+   const domainStatsHTML = `<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="mini_stats">
+                              <tbody>
+                                 <tr>
+                                    <td class="mini_stats__header" colspan="${trackerSummaryStats.length}">
+                                       <span class="mini_stats__badge">Tracker</span>
+                                       <span class="mini_stats__title">Summary</span>
+                                    </td>
+                                 </tr>
+                                 <tr class="mini_stats__row">
+                                    ${trackerSummaryCells}
+                                 </tr>
+                              </tbody>
+                           </table>`;
+
    const updatedEmail = emailTemplate
          .replace('{{logo}}', `<img class="logo_img" src="${serpBearLogo}" alt="SerpBear" width="24" height="24" />`)
          .replace('{{currentDate}}', currentDate)
          .replace('{{domainName}}', domainName)
          .replace('{{keywordsCount}}', keywordsCount.toString())
          .replace('{{keywordsTable}}', keywordsTable)
+         .replace('{{domainStats}}', domainStatsHTML)
          .replace('{{appURL}}', process.env.NEXT_PUBLIC_APP_URL || '')
          .replace('{{stat}}', stat)
          .replace('{{preheader}}', stat);

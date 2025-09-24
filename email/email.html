@@ -279,6 +279,54 @@
          margin-top: 40px;
          margin-bottom: 20px;
       }
+      .mini_stats{
+         margin: 28px 0 36px;
+         background-color: #ffffff;
+         border: 1px solid #e7e9f5;
+         border-radius: 6px;
+         width: 100%;
+      }
+      .mini_stats__header{
+         padding: 14px 18px 12px;
+         border-bottom: 1px solid #e7e9f5;
+         text-align: left;
+      }
+      .mini_stats__badge{
+         display: inline-block;
+         padding: 4px 10px;
+         border-radius: 999px;
+         background-color: #eef2ff;
+         color: #364aff;
+         font-size: 11px;
+         font-weight: 600;
+         letter-spacing: 0.4px;
+         text-transform: uppercase;
+         margin-right: 8px;
+      }
+      .mini_stats__title{
+         font-size: 13px;
+         font-weight: 600;
+         color: #1e293b;
+      }
+      .mini_stats__row td{
+         padding: 18px 14px;
+         text-align: center;
+      }
+      .mini_stats__row td + td{
+         border-left: 1px solid #e7e9f5;
+      }
+      .mini_stats__label{
+         display: block;
+         font-size: 12px;
+         color: #64748b;
+         margin-bottom: 6px;
+      }
+      .mini_stats__value{
+         display: block;
+         font-size: 20px;
+         font-weight: 600;
+         color: #0f172a;
+      }
       .keyword_table td {
          padding: 10px 0;
       }
@@ -389,7 +437,19 @@
         table.body .img-responsive {
           height: auto !important;
           max-width: 100% !important;
-          width: auto !important; 
+          width: auto !important;
+        }
+        .mini_stats {
+           margin: 20px 0 28px !important;
+        }
+        .mini_stats__row td {
+           display: block;
+           width: 100% !important;
+           border-left: 0 !important;
+           border-top: 1px solid #e7e9f5;
+        }
+        .mini_stats__row td:first-child {
+           border-top: 0;
         }
         .stat{
             display: none;
@@ -492,6 +552,8 @@
 
             <!-- END MAIN CONTENT AREA -->
             </table>
+
+            {{domainStats}}
 
             {{SCStatsTable}}
 
