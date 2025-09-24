@@ -47,10 +47,10 @@ const IdeasKeywordsTable = ({
    const { keywordsData: trackedKeywordsData } = useFetchKeywords(router, trackedDomain);
 
    const trackedKeywordsList: KeywordType[] = useMemo(() => {
-      if (!trackedKeywordsData) { return []; }
-      if (Array.isArray(trackedKeywordsData)) { return trackedKeywordsData as KeywordType[]; }
-      if (Array.isArray(trackedKeywordsData.keywords)) { return trackedKeywordsData.keywords as KeywordType[]; }
-      return [];
+      if (Array.isArray(trackedKeywordsData)) {
+         return trackedKeywordsData as KeywordType[];
+      }
+      return (trackedKeywordsData?.keywords as KeywordType[]) || [];
    }, [trackedKeywordsData]);
 
    const trackedKeywordLookup = useMemo(() => {
