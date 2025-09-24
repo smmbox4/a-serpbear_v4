@@ -6,7 +6,7 @@
 
 @layer components {
    .desktop-container {
-      @apply w-full mx-auto lg:max-w-desktop;
+      @apply w-full lg:mx-auto lg:max-w-desktop;
    }
 }
 

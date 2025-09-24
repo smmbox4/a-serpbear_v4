@@ -18,6 +18,8 @@ All notable changes to this project will be documented in this file. Releases no
 * Normalised SQLite boolean bindings so `/api/domains` updates persist matching `scrape_enabled` and `notification` flags, and added API regression coverage for the domain toggle.
 * Removed the `/api/dbmigrate` endpoint, dashboard auto-migration banner, and related hooks so database upgrades run exclusively from the Docker `entrypoint.sh`.
 * Restored the global body gutter on mobile while offsetting the TopBar so its background still spans edge-to-edge on phones.
+* Let the single-domain and research pages rely on their table-level `isLoading` states instead of the global `<PageLoader>`, keeping modal transitions intact while limiting spinners to the content that is still fetching.
+* Limited the `.desktop-container` helper's centring to large screens so the TopBar and other mobile layouts reach the viewport edges without extra gutters.
 * Completely restructured `README.md` with a product-focused overview, expanded environment variable reference, and refreshed provider comparison to reflect the current codebase.
 * Replaced Jest's `jest-environment-jsdom` dependency with `@happy-dom/jest-environment` to eliminate deprecated transitive packages and speed up DOM-focused tests.
 * Added `npm run setup:git` to configure `init.defaultBranch` for the repository and avoid Git initialization warnings.
