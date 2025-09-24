@@ -39,7 +39,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
       if (Array.isArray(keywordsData)) {
          return keywordsData as KeywordType[];
       }
-      return (keywordsData?.keywords as KeywordType[]) || [];
+      return (keywordsData?.keywords || []) as KeywordType[];
    }, [keywordsData]);
 
    const trackedKeywordLookup = useMemo(() => trackedKeywordsList.reduce((lookup: Record<string, boolean>, trackedKeyword: KeywordType) => {
