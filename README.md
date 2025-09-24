@@ -236,6 +236,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 - **Code quality:**
   - `npm run lint` for ESLint (JavaScript/TypeScript).
   - `npm run lint:css` for Stylelint (global styles).
+  - Follow the repository's no-trailing-commas rule for object and array literals so configuration changes pass linting.
 - **Testing:**
   - `npm test` executes the Jest test suite using the `@happy-dom/jest-environment` adapter.
   - `npm run test:ci` mirrors the CI environment.
