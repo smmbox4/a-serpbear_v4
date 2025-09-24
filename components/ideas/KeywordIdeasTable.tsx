@@ -1,8 +1,8 @@
 import { useRouter } from 'next/router';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from 'react-query';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
-import { useAddKeywords } from '../../services/keywords';
+import { useAddKeywords, useFetchKeywords } from '../../services/keywords';
 import { formatLocation } from '../../utils/location';
 import Icon from '../common/Icon';
 import SpinnerMessage from '../common/SpinnerMessage';
@@ -15,6 +15,11 @@ import { useMutateFavKeywordIdeas } from '../../services/adwords';
 import IdeaDetails from './IdeaDetails';
 import { fetchDomains } from '../../services/domains';
 import SelectField from '../common/SelectField';
+
+// Extended IdeaKeyword type that includes precomputed tracking status
+type IdeaKeywordWithTracking = IdeaKeyword & {
+   isTracked: boolean;
+};
 
 type IdeasKeywordsTableProps = {
    domain: DomainType | null,
@@ -43,6 +48,31 @@ const IdeasKeywordsTable = ({
    const [isMobile] = useIsMobile();
    const isResearchPage = router.pathname === '/research';
 
+   // Get tracked keywords for the current domain to check for duplicates
+   const trackedDomain = isResearchPage ? addKeywordDomain : (domain?.domain || '');
+   const { keywordsData: trackedKeywordsData } = useFetchKeywords(router, trackedDomain);
+
+   // Create a lookup for tracked keywords to efficiently check if an idea is already tracked
+   const trackedKeywordLookup = useMemo(() => {
+      const lookup: Record<string, boolean> = {};
+      const trackedKeywords = (trackedKeywordsData?.keywords as KeywordType[]) || [];
+      
+      trackedKeywords.forEach((trackedKeyword) => {
+         const { keyword: trackedKeywordValue, country: trackedCountry, device: trackedDevice } = trackedKeyword;
+         if (trackedKeywordValue && trackedCountry && trackedDevice) {
+            lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}`] = true;
+         }
+      });
+      return lookup;
+   }, [trackedKeywordsData]);
+
+   // Function to check if an idea keyword is already tracked
+   const isIdeaTracked = useCallback((idea: IdeaKeyword) => {
+      // Check for both desktop and mobile devices based on current selection
+      const deviceToCheck = addKeywordDevice;
+      return trackedKeywordLookup[`${idea.keyword}:${idea.country}:${deviceToCheck}`] || false;
+   }, [trackedKeywordLookup, addKeywordDevice]);
+
    const { data: domainsData } = useQuery(
       ['domains', false],
       () => fetchDomains(router, false),
@@ -52,13 +82,22 @@ const IdeasKeywordsTable = ({
 
    useWindowResize(() => setListHeight(window.innerHeight - (isMobile ? 200 : 400)));
 
-   const finalKeywords: IdeaKeyword[] = useMemo(() => {
+   const finalKeywords: IdeaKeywordWithTracking[] = useMemo(() => {
       const filteredKeywords = IdeasfilterKeywords(showFavorites ? favorites : keywords, filterParams);
       const sortedKeywords = IdeasSortKeywords(filteredKeywords, sortBy);
-      return sortedKeywords;
-   }, [keywords, showFavorites, favorites, filterParams, sortBy]);
+      // Compute isTracked status once for each keyword to follow DRY principle
+      return sortedKeywords.map(keyword => ({
+         ...keyword,
+         isTracked: isIdeaTracked(keyword),
+      }));
+   }, [keywords, showFavorites, favorites, filterParams, sortBy, isIdeaTracked]);
 
    const favoriteIDs: string[] = useMemo(() => favorites.map((fav) => fav.uid), [favorites]);
+
+   // Create a list of selectable keyword IDs (non-tracked keywords only)
+   const selectableKeywordIds = useMemo(() => {
+      return finalKeywords.filter((keyword) => !keyword.isTracked).map((keyword) => keyword.uid);
+   }, [finalKeywords]);
 
    const allTags:string[] = useMemo(() => {
       const wordTags: Map<string, number> = new Map();
@@ -82,7 +121,12 @@ const IdeasKeywordsTable = ({
       return finalWordTags;
    }, [keywords]);
 
-   const selectKeyword = (keywordID: string) => {
+   const selectKeyword = (keywordID: string, isTrackedKeyword = false) => {
+      // Prevent selection of already tracked keywords
+      if (isTrackedKeyword) {
+         return;
+      }
+      
       let updatedSelected = [...selectedKeywords, keywordID];
       if (selectedKeywords.includes(keywordID)) {
          updatedSelected = selectedKeywords.filter((keyID) => keyID !== keywordID);
@@ -115,10 +159,10 @@ const IdeasKeywordsTable = ({
       setSelectedKeywords([]);
    };
 
-   const selectedAllItems = selectedKeywords.length === finalKeywords.length;
+   const selectedAllItems = selectableKeywordIds.length > 0 && selectedKeywords.length === selectableKeywordIds.length;
 
    const Row = ({ data, index, style }:ListChildComponentProps) => {
-      const keyword: IdeaKeyword = data[index];
+      const keyword: IdeaKeywordWithTracking = data[index];
       return (
          <KeywordIdea
          key={keyword.uid}
@@ -130,6 +174,7 @@ const IdeasKeywordsTable = ({
          isFavorite={favoriteIDs.includes(keyword.uid)}
          keywordData={keyword}
          lastItem={index === (finalKeywords.length - 1)}
+         isTracked={keyword.isTracked}
          />
       );
    };
@@ -150,6 +195,7 @@ const IdeasKeywordsTable = ({
                      isFavorite={favoriteIDs.includes(keyword.uid)}
                      keywordData={keyword}
                      lastItem={index === (finalKeywords.length - 1)}
+                     isTracked={keyword.isTracked}
                   />
                ))}
             </div>
@@ -255,7 +301,7 @@ const IdeasKeywordsTable = ({
                         <button
                            className={`p-0 mr-2 leading-[0px] inline-block rounded-sm pt-0 px-[1px] pb-[3px]  border border-slate-300 
                            ${selectedAllItems ? ' bg-blue-700 border-blue-700 text-white' : 'text-transparent'}`}
-                           onClick={() => setSelectedKeywords(selectedAllItems ? [] : finalKeywords.map((k: IdeaKeyword) => k.uid))}
+                           onClick={() => setSelectedKeywords(selectedAllItems ? [] : [...selectableKeywordIds])}
                            >
                               <Icon type="check" size={10} />
                         </button>
