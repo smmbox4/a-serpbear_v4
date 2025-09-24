@@ -6,8 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
-* Removed the sprite-sheet background from the map-pack badge so the green "MAP" label no longer shows the stray exclamation mark behind it.
-* Normalised keyword `updating` flags parsed from the database so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
+* Normalised keyword `updating` flags parsed from the database and coerced API responses on the client so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
 * Propagated map-pack membership from supported scrapers through persistence, emails, and keyword UIs, adding a stacked CSS badge that references `map-pack.png` whenever a tracked domain appears in the local pack top three.
 * Raised ESLint's `max-len` threshold to 200 characters, relaxed the complexity limit to a warning at 60, and delegated unused-variable checks to `@typescript-eslint` so linting no longer fails on long SVG paths or intentionally ignored caught errors.
 * Added inline guidance and ARIA status messaging to the Notification settings "Send Notifications Now" control so manual email runs advertise readiness and progress to assistive tech.
