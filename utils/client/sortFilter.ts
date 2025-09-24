@@ -94,24 +94,31 @@ export const keywordsByDevice = (sortedKeywords: KeywordType[], device: string):
    return deviceKeywords;
 };
 
+export const matchesCountry = (keywordCountry: string, countries: string[]): boolean => (
+   countries.length === 0 || countries.includes(keywordCountry)
+);
+
+export const matchesSearch = (keyword: string, search: string): boolean => {
+   if (!search) { return true; }
+   const normalizedKeyword = keyword.toLowerCase();
+   const normalizedSearch = search.toLowerCase();
+   return normalizedKeyword.includes(normalizedSearch);
+};
+
+export const matchesTags = (keywordTags: string[], tags: string[]): boolean => (
+   tags.length === 0 || tags.some((tag) => keywordTags.includes(tag))
+);
+
 /**
  * Filters the keywords by country, search string or tags.
  * @param {KeywordType[]} keywords - The keywords.
  * @param {KeywordFilters} filterParams - The user Selected filter object.
  * @returns {KeywordType[]}
  */
-export const filterKeywords = (keywords: KeywordType[], filterParams: KeywordFilters):KeywordType[] => {
-   const filteredItems:KeywordType[] = [];
-   keywords.forEach((keywrd) => {
-       const countryMatch = filterParams.countries.length === 0 ? true : filterParams.countries && filterParams.countries.includes(keywrd.country);
-       const searchMatch = !filterParams.search ? true : filterParams.search
-       && keywrd.keyword.toLowerCase().includes(filterParams.search.toLowerCase());
-       const tagsMatch = filterParams.tags.length === 0 ? true : filterParams.tags && keywrd.tags.find((x) => filterParams.tags.includes(x));
-
-       if (countryMatch && searchMatch && tagsMatch) {
-          filteredItems.push(keywrd);
-       }
-   });
-
-   return filteredItems;
-};
+export const filterKeywords = (keywords: KeywordType[], filterParams: KeywordFilters):KeywordType[] => (
+   keywords.filter((keyword) => (
+      matchesCountry(keyword.country, filterParams.countries)
+      && matchesSearch(keyword.keyword, filterParams.search)
+      && matchesTags(keyword.tags, filterParams.tags)
+   ))
+);

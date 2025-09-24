@@ -34,22 +34,36 @@ export const IdeasSortKeywords = (theKeywords:IdeaKeyword[], sortBy:string) : Id
  * @returns {IdeaKeyword[]}
  */
 
-export const IdeasfilterKeywords = (keywords: IdeaKeyword[], filterParams: KeywordFilters):IdeaKeyword[] => {
-   const filteredItems:IdeaKeyword[] = [];
-   keywords.forEach((keywrd) => {
-      const { keyword, country } = keywrd;
-      const countryMatch = filterParams.countries.length === 0 ? true : filterParams.countries && filterParams.countries.includes(country);
-      const searchMatch = !filterParams.search ? true : filterParams.search && keyword.includes(filterParams.search);
-      const tagsMatch = filterParams.tags.length === 0 ? true : filterParams.tags.find((tag) => {
-         const theTag = tag.replace(/\s*\(\d+\)/, '');
-         const reversedTag = theTag.split(' ').reverse().join(' ');
-         return keyword.includes(theTag) || keyword.includes(reversedTag);
-      });
+export const matchesIdeaCountry = (country: string, countries: string[]): boolean => (
+   countries.length === 0 || countries.includes(country)
+);
 
-      if (countryMatch && searchMatch && tagsMatch) {
-          filteredItems.push(keywrd);
-      }
-   });
-
-   return filteredItems;
+export const matchesIdeaSearch = (keyword: string, search: string): boolean => {
+   if (!search) { return true; }
+   const normalizedKeyword = keyword.toLowerCase();
+   const normalizedSearch = search.toLowerCase();
+   return normalizedKeyword.includes(normalizedSearch);
 };
+
+export const normalizeIdeaTag = (tag: string): string => tag.replace(/\s*\(\d+\)/, '').trim();
+
+const reversePhrase = (value: string): string => value.split(' ').reverse().join(' ');
+
+export const matchesIdeaTags = (keyword: string, tags: string[]): boolean => {
+   if (tags.length === 0) { return true; }
+   const normalizedKeyword = keyword.toLowerCase();
+   return tags.some((tag) => {
+      const normalizedTag = normalizeIdeaTag(tag).toLowerCase();
+      if (!normalizedTag) { return false; }
+      const reversedTag = reversePhrase(normalizedTag);
+      return normalizedKeyword.includes(normalizedTag) || normalizedKeyword.includes(reversedTag);
+   });
+};
+
+export const IdeasfilterKeywords = (keywords: IdeaKeyword[], filterParams: KeywordFilters):IdeaKeyword[] => (
+   keywords.filter((keywrd) => (
+      matchesIdeaCountry(keywrd.country, filterParams.countries)
+      && matchesIdeaSearch(keywrd.keyword, filterParams.search)
+      && matchesIdeaTags(keywrd.keyword, filterParams.tags)
+   ))
+);

@@ -242,6 +242,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
   - `npm run test:cv -- --runInBand` generates serialised coverage when debugging.
 - **Database scripts:** `npm run db:migrate` / `npm run db:revert`.
 - **Production build:** `npm run build` followed by `npm run start`.
+- **UI patterns:** Add new icons through the `ICON_RENDERERS` map in `components/common/Icon.tsx` and rely on the exported keyword filtering helpers when building new table views to keep predicates shared and complexity low.
 
 ---
 
