@@ -59,7 +59,7 @@ const KeywordIdea = (props: KeywordIdeaProps) => {
                aria-label={selectionLabel}
                aria-disabled={isTracked}
                disabled={isTracked}
-               onClick={() => { if (!isTracked) { selectKeyword(uid, isTracked); } }}
+               onClick={() => selectKeyword(uid, isTracked)}
                >
                   <Icon type="check" size={10} title={isTracked ? 'Already in Tracker' : ''} />
             </button>
