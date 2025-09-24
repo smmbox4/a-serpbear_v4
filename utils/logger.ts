@@ -48,11 +48,7 @@ class Logger {
     }
 
     const envSuccessLogging = process.env.LOG_SUCCESS_EVENTS?.toLowerCase();
-    this.logSuccessEvents = !(
-      envSuccessLogging === 'false'
-      || envSuccessLogging === '0'
-      || envSuccessLogging === 'off'
-    );
+    this.logSuccessEvents = !['false', '0', 'off'].includes(envSuccessLogging ?? '');
   }
 
   private static formatLogEntry(level: string, message: string, meta?: Record<string, any>, error?: Error): string {
@@ -135,10 +131,9 @@ class Logger {
     };
 
     if (success) {
-      if (!this.logSuccessEvents) {
-        return;
+      if (this.logSuccessEvents) {
+        this.info(`Auth Event: ${event}`, logMeta);
       }
-      this.info(`Auth Event: ${event}`, logMeta);
     } else {
       this.warn(`Auth Event Failed: ${event}`, logMeta);
     }

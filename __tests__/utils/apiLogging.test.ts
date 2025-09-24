@@ -64,7 +64,15 @@ describe('withApiLogging success verbosity toggle', () => {
 
     await wrapped(createRequest(), createResponse());
 
-    expect(logger.info).not.toHaveBeenCalled();
+    // Should log request start but not completion for successful requests
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('API Request Started'),
+      expect.any(Object)
+    );
+    expect(logger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining('API Request Completed'),
+      expect.any(Object)
+    );
     expect(handler).toHaveBeenCalled();
   });
 
@@ -79,8 +87,14 @@ describe('withApiLogging success verbosity toggle', () => {
     const wrapped = withApiLogging(handler);
 
     await wrapped(createRequest(), createResponse());
-
-    expect(logger.info).toHaveBeenCalledTimes(2);
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('API Request Started'),
+      expect.any(Object)
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('API Request Completed'),
+      expect.any(Object)
+    );
 
     logger.info.mockClear();
     logger.isSuccessLoggingEnabled.mockReturnValue(false);
@@ -88,7 +102,14 @@ describe('withApiLogging success verbosity toggle', () => {
     const wrappedWithOverride = withApiLogging(handler, { logSuccess: true });
     await wrappedWithOverride(createRequest(), createResponse());
 
-    expect(logger.info).toHaveBeenCalledTimes(2);
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('API Request Started'),
+      expect.any(Object)
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('API Request Completed'),
+      expect.any(Object)
+    );
   });
 
   it('continues to emit warnings for error responses when success logging is disabled', async () => {
@@ -104,6 +125,36 @@ describe('withApiLogging success verbosity toggle', () => {
     await wrapped(createRequest(), createResponse());
 
     expect(logger.warn).toHaveBeenCalledTimes(1);
-    expect(logger.info).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('API Request Started'),
+      expect.any(Object)
+    );
+    expect(logger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining('API Request Completed'),
+      expect.any(Object)
+    );
+  });
+
+  it('continues to emit errors for server errors when success logging is disabled', async () => {
+    logger.isSuccessLoggingEnabled.mockReturnValue(false);
+    const { withApiLogging } = await import('../../utils/apiLogging');
+
+    const handler = jest.fn(async (_req: NextApiRequest, res: NextApiResponse) => {
+      res.status(500).json({ error: 'internal server error' });
+    });
+
+    const wrapped = withApiLogging(handler);
+
+    await wrapped(createRequest(), createResponse());
+
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('API Request Started'),
+      expect.any(Object)
+    );
+    expect(logger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining('API Request Completed'),
+      expect.any(Object)
+    );
   });
 });
