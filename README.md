@@ -210,6 +210,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 
 - Email digests summarise rank gains/losses, highlight top movers, and include Search Console traffic data when available.
 - Notification cadence is fully configurable through `CRON_EMAIL_SCHEDULE`. Disable SMTP variables to skip sending emails entirely.
+- Trigger a manual run from the **Send Notifications Now** button in the Notification settings modal to confirm SMTP credentials and email recipients immediately.
 
 ---
 

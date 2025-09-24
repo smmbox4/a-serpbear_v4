@@ -2,6 +2,8 @@ import React from 'react';
 import SelectField from '../common/SelectField';
 import SecretField from '../common/SecretField';
 import InputField from '../common/InputField';
+import Icon from '../common/Icon';
+import { useSendNotifications } from '../../services/settings';
 
 type NotificationSettingsProps = {
    settings: SettingsType,
@@ -13,7 +15,33 @@ type NotificationSettingsProps = {
 }
 
 const NotificationSettings = ({ settings, settingsError, updateSettings }:NotificationSettingsProps) => {
-   const labelStyle = 'mb-2 font-semibold inline-block text-sm text-gray-700 capitalize';
+   const { mutate: triggerNotifications, isLoading: sendingNotifications } = useSendNotifications();
+
+   const sanitizedNotificationEmails = (settings.notification_email || '')
+      .split(',')
+      .map((email) => email.trim())
+      .filter((email) => email.length > 0);
+   const hasNotificationEmails = sanitizedNotificationEmails.length > 0;
+   const hasSmtpServer = typeof settings.smtp_server === 'string'
+      ? settings.smtp_server.trim().length > 0
+      : !!settings.smtp_server;
+   const hasSmtpPort = typeof settings.smtp_port === 'string'
+      ? settings.smtp_port.trim().length > 0
+      : settings.smtp_port !== null && settings.smtp_port !== undefined && String(settings.smtp_port).trim().length > 0;
+   const canSendNotifications = settings.notification_interval !== 'never'
+      && hasSmtpServer
+      && hasSmtpPort
+      && hasNotificationEmails;
+
+   const handleSendNotifications = () => {
+      triggerNotifications();
+   };
+
+   const sendNotificationsButtonClasses = [
+      'py-3 px-5 w-full rounded cursor-pointer bg-blue-600 text-white font-semibold text-sm transition-colors',
+      'flex items-center justify-center gap-2 hover:bg-blue-700',
+      'disabled:cursor-not-allowed disabled:bg-blue-300',
+   ].join(' ');
 
    return (
       <div>
@@ -105,6 +133,17 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
                         placeholder="Serpbear"
                         onChange={(value:string) => updateSettings('notification_email_from_name', value)}
                         />
+                  </div>
+                  <div className="settings__section__input mb-5">
+                     <button
+                        type='button'
+                        onClick={handleSendNotifications}
+                        disabled={!canSendNotifications || sendingNotifications}
+                        className={sendNotificationsButtonClasses}
+                     >
+                        {sendingNotifications && <Icon type="loading" size={14} />}
+                        Send Notifications Now
+                     </button>
                   </div>
                </>
             )}

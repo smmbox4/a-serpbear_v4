@@ -61,5 +61,41 @@ export function useClearFailedQueue(onSuccess:Function) {
    });
 }
 
+export const useSendNotifications = () => {
+   return useMutation(async () => {
+      const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
+      const fetchOpts = { method: 'POST', headers };
+      const res = await fetch(`${window.location.origin}/api/notify`, fetchOpts);
+      let data: unknown = null;
+
+      try {
+         data = await res.json();
+      } catch (error) {
+         data = null;
+      }
+
+      if (!res.ok) {
+         const errorMessage = typeof data === 'object' && data !== null
+            ? (data as { message?: string; error?: string }).message
+               || (data as { message?: string; error?: string }).error
+               || 'Error Sending Notifications.'
+            : 'Error Sending Notifications.';
+         throw new Error(errorMessage);
+      }
+
+      return data;
+   }, {
+      onSuccess: (response) => {
+         const successMessage = typeof response === 'object' && response !== null
+            ? (response as { message?: string }).message || 'Notifications Sent!'
+            : 'Notifications Sent!';
+         toast(successMessage, { icon: '✔️' });
+      },
+      onError: (error: Error) => {
+         toast(error.message || 'Error Sending Notifications.', { icon: '⚠️' });
+      },
+   });
+};
+
 // Migration helpers were removed when the database API endpoint was retired. The
 // Docker entrypoint now owns running migrations during container startup.
