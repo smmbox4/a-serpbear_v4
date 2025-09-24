@@ -37,7 +37,7 @@ body {
    }
 
    .topbar__back {
-      right: var(--layout-inline);
+      right: 100px;
       left: auto;
    }
 }
