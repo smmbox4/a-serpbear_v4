@@ -33,9 +33,16 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
    const [sortBy, setSortBy] = useState<string>('imp_desc');
    const [SCListHeight, setSCListHeight] = useState(500);
    const { keywordsData } = useFetchKeywords(router, domain?.domain || '');
-   const addedkeywords: string[] = keywordsData?.keywords?.map(
-      (key: KeywordType) => `${key.keyword}:${key.country}:${key.device}:${key.location || ''}`
-   ) || [];
+   const trackedKeywordLookup = useMemo(() => {
+      const keywords = keywordsData?.keywords || [];
+      return keywords.reduce((lookup: Record<string, boolean>, trackedKeyword: KeywordType) => {
+         const { keyword: trackedKeywordValue, country: trackedCountry, device: trackedDevice, location: trackedLocation } = trackedKeyword;
+         if (trackedKeywordValue && trackedCountry && trackedDevice) {
+            lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}:${trackedLocation || ''}`] = true;
+         }
+         return lookup;
+      }, {} as Record<string, boolean>);
+   }, [keywordsData]);
    const { mutate: addKeywords } = useAddKeywords(() => { if (domain && domain.slug) router.push(`/domain/${domain.slug}`); });
    const [isMobile] = useIsMobile();
    useWindowResize(() => setSCListHeight(window.innerHeight - (isMobile ? 200 : 400)));
@@ -118,7 +125,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
          selected={selectedKeywords.includes(keyword.uid)}
          selectKeyword={selectKeyword}
          keywordData={keyword}
-         isTracked={addedkeywords.includes(`${keyword.keyword}:${keyword.country}:${keyword.device}:${formatLocation({ country: keyword.country })}`)}
+         isTracked={!!trackedKeywordLookup[`${keyword.keyword}:${keyword.country}:${keyword.device}:${formatLocation({ country: keyword.country })}`]}
          lastItem={index === (finalKeywords[device].length - 1)}
          />
    );
