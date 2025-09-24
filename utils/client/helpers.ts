@@ -20,7 +20,7 @@ export const normaliseBooleanFlag = (value: unknown): boolean => {
          return true;
       }
 
-      return Boolean(trimmed);
+      return false;
    }
 
    return Boolean(value);
