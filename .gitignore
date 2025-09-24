@@ -41,6 +41,7 @@ next-env.d.ts
 TODO
 
 #database
+data/database.sqlite
 data/verify-fix.js
 SARIF test files
 *.sarif

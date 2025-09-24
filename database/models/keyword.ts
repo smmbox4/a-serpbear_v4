@@ -65,7 +65,7 @@ class Keyword extends Model {
    @Column({ type: DataType.STRING, allowNull: true, defaultValue: 'false' })
    lastUpdateError!: string;
 
-   @Column({ type: DataType.BOOLEAN, allowNull: true, defaultValue: false })
+   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
    map_pack_top3!: boolean;
 }
 
