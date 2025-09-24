@@ -434,8 +434,7 @@ const detectMapPackFromHtml = (
       while ((match = websiteRegex.exec(rawHtml)) !== null && candidates.length < 6) {
          const value = match[1]
             .replace(/\\u002F/g, '/')
-            .replace(/\\u003A/g, ':')
-            .replace(/\u002F/g, '/');
+            .replace(/\\u003A/g, ':');
          if (value) {
             candidates.push(value);
          }
