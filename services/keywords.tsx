@@ -265,7 +265,11 @@ export function useFetchSingleKeyword(keywordID:number) {
             throw new Error(errorMessage);
          }
          const result = await res.json();
-         return { history: result.keyword?.history || [], searchResult: result.keyword?.lastResult || [] };
+         return { 
+            history: result.keyword?.history || [], 
+            searchResult: result.keyword?.lastResult || [], 
+            mapPackTop3: result.keyword?.mapPackTop3 
+         };
       } catch (error) {
          if (error instanceof Error && error.message !== 'Error Loading Keyword Details') {
             throw error;
