@@ -1,3 +1,5 @@
+/// <reference path="../types.d.ts" />
+
 import { performance } from 'perf_hooks';
 import { setTimeout as sleep } from 'timers/promises';
 import { Op } from 'sequelize';

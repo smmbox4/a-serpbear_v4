@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import { writeFile, readFile } from 'fs/promises';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Cryptr from 'cryptr';

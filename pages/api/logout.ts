@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Cookies from 'cookies';
 import verifyUser from '../../utils/verifyUser';
