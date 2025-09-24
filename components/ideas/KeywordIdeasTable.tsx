@@ -48,30 +48,37 @@ const IdeasKeywordsTable = ({
    const [isMobile] = useIsMobile();
    const isResearchPage = router.pathname === '/research';
 
-   // Get tracked keywords for the current domain to check for duplicates
    const trackedDomain = isResearchPage ? addKeywordDomain : (domain?.domain || '');
    const { keywordsData: trackedKeywordsData } = useFetchKeywords(router, trackedDomain);
 
-   // Create a lookup for tracked keywords to efficiently check if an idea is already tracked
+   const trackedKeywordsList: KeywordType[] = useMemo(() => {
+      if (Array.isArray(trackedKeywordsData)) {
+         return trackedKeywordsData as KeywordType[];
+      }
+      return (trackedKeywordsData?.keywords as KeywordType[]) || [];
+   }, [trackedKeywordsData]);
+
    const trackedKeywordLookup = useMemo(() => {
-      const lookup: Record<string, boolean> = {};
-      const trackedKeywords = (trackedKeywordsData?.keywords as KeywordType[]) || [];
-      
-      trackedKeywords.forEach((trackedKeyword) => {
+      const lookup:Record<string, boolean> = {};
+      trackedKeywordsList.forEach((trackedKeyword) => {
          const { keyword: trackedKeywordValue, country: trackedCountry, device: trackedDevice } = trackedKeyword;
          if (trackedKeywordValue && trackedCountry && trackedDevice) {
             lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}`] = true;
          }
       });
       return lookup;
-   }, [trackedKeywordsData]);
+   }, [trackedKeywordsList]);
 
-   // Function to check if an idea keyword is already tracked
+   const trackedDevicesToCheck = useMemo(() => {
+      if (addKeywordDevice === 'desktop' || addKeywordDevice === 'mobile') {
+         return [addKeywordDevice];
+      }
+      return ['desktop', 'mobile'];
+   }, [addKeywordDevice]);
+
    const isIdeaTracked = useCallback((idea: IdeaKeyword) => {
-      // Check for both desktop and mobile devices based on current selection
-      const deviceToCheck = addKeywordDevice;
-      return trackedKeywordLookup[`${idea.keyword}:${idea.country}:${deviceToCheck}`] || false;
-   }, [trackedKeywordLookup, addKeywordDevice]);
+      return trackedDevicesToCheck.some((device) => trackedKeywordLookup[`${idea.keyword}:${idea.country}:${device}`]);
+   }, [trackedDevicesToCheck, trackedKeywordLookup]);
 
    const { data: domainsData } = useQuery(
       ['domains', false],
@@ -92,12 +99,11 @@ const IdeasKeywordsTable = ({
       }));
    }, [keywords, showFavorites, favorites, filterParams, sortBy, isIdeaTracked]);
 
-   const favoriteIDs: string[] = useMemo(() => favorites.map((fav) => fav.uid), [favorites]);
-
-   // Create a list of selectable keyword IDs (non-tracked keywords only)
    const selectableKeywordIds = useMemo(() => {
       return finalKeywords.filter((keyword) => !keyword.isTracked).map((keyword) => keyword.uid);
    }, [finalKeywords]);
+
+   const favoriteIDs: string[] = useMemo(() => favorites.map((fav) => fav.uid), [favorites]);
 
    const allTags:string[] = useMemo(() => {
       const wordTags: Map<string, number> = new Map();
@@ -122,11 +128,7 @@ const IdeasKeywordsTable = ({
    }, [keywords]);
 
    const selectKeyword = (keywordID: string, isTrackedKeyword = false) => {
-      // Prevent selection of already tracked keywords
-      if (isTrackedKeyword) {
-         return;
-      }
-      
+      if (isTrackedKeyword) { return; }
       let updatedSelected = [...selectedKeywords, keywordID];
       if (selectedKeywords.includes(keywordID)) {
          updatedSelected = selectedKeywords.filter((keyID) => keyID !== keywordID);
@@ -304,7 +306,7 @@ const IdeasKeywordsTable = ({
                            onClick={() => setSelectedKeywords(selectedAllItems ? [] : [...selectableKeywordIds])}
                            >
                               <Icon type="check" size={10} />
-                        </button>
+                       </button>
                      )}
                         Keyword
                      </span>

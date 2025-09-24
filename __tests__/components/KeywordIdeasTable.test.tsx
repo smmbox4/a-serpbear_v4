@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import KeywordIdeasTable from '../../components/ideas/KeywordIdeasTable';
 import { useFetchKeywords } from '../../services/keywords';
@@ -12,7 +12,7 @@ jest.mock('next/router', () => ({
    }),
 }));
 
-jest.mock('../../hooks/useIsMobile', () => jest.fn(() => [false]));
+jest.mock('../../hooks/useIsMobile', () => jest.fn(() => [true]));
 jest.mock('../../hooks/useWindowResize', () => jest.fn());
 
 jest.mock('../../services/keywords', () => ({
@@ -28,12 +28,16 @@ jest.mock('../../services/domains', () => ({
    fetchDomains: jest.fn().mockResolvedValue({ domains: [] }),
 }));
 
+jest.mock('react-chartjs-2', () => ({
+   Line: () => null,
+}));
+
 const useFetchKeywordsMock = useFetchKeywords as jest.MockedFunction<typeof useFetchKeywords>;
 
 describe('KeywordIdeasTable DRY Principle Implementation', () => {
    let queryClient: QueryClient;
 
-   const mockDomain: DomainType = {
+   const domain: DomainType = {
       ID: 1,
       domain: 'example.com',
       slug: 'example-com',
@@ -44,46 +48,46 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
       added: '2024-01-01T00:00:00.000Z',
    };
 
-   const mockIdeaKeywords: IdeaKeyword[] = [
+   const ideaKeywords: IdeaKeyword[] = [
       {
-         uid: 'tracked-keyword-id',
-         keyword: 'tracked keyword',
+         uid: 'tracked-idea',
+         keyword: 'tracked term',
          competition: 'MEDIUM',
          country: 'US',
          domain: 'example.com',
-         competitionIndex: 50,
-         monthlySearchVolumes: { '2024-01': '1000' },
-         avgMonthlySearches: 1000,
+         competitionIndex: 42,
+         monthlySearchVolumes: { '2024-01': '100' },
+         avgMonthlySearches: 100,
          added: Date.now(),
          updated: Date.now(),
          position: 0,
       },
       {
-         uid: 'new-keyword-id',
-         keyword: 'new keyword',
+         uid: 'new-idea',
+         keyword: 'new term',
          competition: 'LOW',
          country: 'US',
          domain: 'example.com',
-         competitionIndex: 25,
-         monthlySearchVolumes: { '2024-01': '500' },
-         avgMonthlySearches: 500,
+         competitionIndex: 21,
+         monthlySearchVolumes: { '2024-01': '50' },
+         avgMonthlySearches: 50,
          added: Date.now(),
          updated: Date.now(),
          position: 0,
       },
    ];
 
-   const mockTrackedKeywords: KeywordType[] = [
+   const trackedKeywords: KeywordType[] = [
       {
-         ID: 1,
-         keyword: 'tracked keyword',
+         ID: 10,
+         keyword: 'tracked term',
          device: 'desktop',
          country: 'US',
          domain: 'example.com',
          lastUpdated: '2024-01-01T00:00:00.000Z',
          added: '2024-01-01T00:00:00.000Z',
          position: 5,
-         volume: 1000,
+         volume: 100,
          sticky: false,
          history: {},
          lastResult: [],
@@ -94,6 +98,23 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
       },
    ];
 
+   const renderTable = () => {
+      return render(
+         <QueryClientProvider client={queryClient}>
+            <KeywordIdeasTable
+               domain={domain}
+               keywords={ideaKeywords}
+               favorites={[]}
+               isLoading={false}
+               noIdeasDatabase={false}
+               isAdwordsIntegrated={true}
+               showFavorites={false}
+               setShowFavorites={jest.fn()}
+            />
+         </QueryClientProvider>,
+      );
+   };
+
    beforeEach(() => {
       queryClient = new QueryClient({
          defaultOptions: {
@@ -102,10 +123,7 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
          },
       });
 
-      useFetchKeywordsMock.mockReturnValue({
-         keywordsData: { keywords: mockTrackedKeywords },
-         keywordsLoading: false,
-      } as any);
+      useFetchKeywordsMock.mockReturnValue({ keywordsData: { keywords: trackedKeywords }, keywordsLoading: false } as any);
    });
 
    afterEach(() => {
@@ -113,61 +131,32 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
       jest.clearAllMocks();
    });
 
-   it('should implement DRY principle by computing isTracked once in finalKeywords', () => {
-      render(
-         <QueryClientProvider client={queryClient}>
-            <KeywordIdeasTable
-               domain={mockDomain}
-               keywords={mockIdeaKeywords}
-               favorites={[]}
-               isLoading={false}
-               noIdeasDatabase={false}
-               isAdwordsIntegrated={true}
-               showFavorites={false}
-               setShowFavorites={jest.fn()}
-            />
-         </QueryClientProvider>,
-      );
+   it('marks tracked keyword ideas as disabled and prevents selection', async () => {
+      renderTable();
 
-      // Check that tracked keyword is rendered with disabled button
-      const trackedKeywordButton = screen.getByLabelText(/keyword already tracked/i);
-      expect(trackedKeywordButton).toBeDisabled();
-      expect(trackedKeywordButton).toHaveAttribute('aria-disabled', 'true');
+      const trackedRow = screen.getByText('tracked term').closest('div.keyword');
+      expect(trackedRow).toBeInTheDocument();
 
-      // Check that new keyword is rendered with enabled button
-      const newKeywordButton = screen.getByLabelText(/select keyword idea/i);
-      expect(newKeywordButton).toBeEnabled();
-      expect(newKeywordButton).not.toHaveAttribute('aria-disabled', 'true');
-   });
+      const trackedButton = within(trackedRow as HTMLElement).getByRole('button', { name: /already tracked/i });
+      expect(trackedButton).toBeDisabled();
+      expect(trackedButton).toHaveAttribute('aria-disabled', 'true');
 
-   it('should prevent selection of tracked keywords', () => {
-      render(
-         <QueryClientProvider client={queryClient}>
-            <KeywordIdeasTable
-               domain={mockDomain}
-               keywords={mockIdeaKeywords}
-               favorites={[]}
-               isLoading={false}
-               noIdeasDatabase={false}
-               isAdwordsIntegrated={true}
-               showFavorites={false}
-               setShowFavorites={jest.fn()}
-            />
-         </QueryClientProvider>,
-      );
+      fireEvent.click(trackedButton);
+      await waitFor(() => {
+         expect(screen.queryByText('Add Keywords to Tracker')).not.toBeInTheDocument();
+      });
+      expect(trackedRow).not.toHaveClass('keyword--selected');
 
-      // Try to click the tracked keyword button
-      const trackedKeywordButton = screen.getByLabelText(/keyword already tracked/i);
-      fireEvent.click(trackedKeywordButton);
+      const untrackedRow = screen.getByText('new term').closest('div.keyword');
+      expect(untrackedRow).toBeInTheDocument();
 
-      // Should not show the "Add Keywords to Tracker" section
-      expect(screen.queryByText('Add Keywords to Tracker')).not.toBeInTheDocument();
+      const untrackedButton = within(untrackedRow as HTMLElement).getByRole('button', { name: /select keyword idea/i });
+      expect(untrackedButton).toBeEnabled();
 
-      // Click the new keyword button
-      const newKeywordButton = screen.getByLabelText(/select keyword idea/i);
-      fireEvent.click(newKeywordButton);
-
-      // Should show the "Add Keywords to Tracker" section
-      expect(screen.getByText('Add Keywords to Tracker')).toBeInTheDocument();
+      fireEvent.click(untrackedButton);
+      await waitFor(() => {
+         expect(untrackedRow).toHaveClass('keyword--selected');
+      });
+      expect(await screen.findByText('Add Keywords to Tracker')).toBeInTheDocument();
    });
 });

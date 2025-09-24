@@ -39,9 +39,8 @@ export function withApiLogging(
       ...(logBody && req.body ? { body: req.body } : {}),
     };
 
-    if (logSuccess) {
-      logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
-    }
+    // Always log the request start
+    logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
 
     // Capture the original res.json and res.status functions to log responses
     const originalJson = res.json.bind(res);
@@ -116,16 +115,12 @@ export function withApiAuthAndLogging(
     logSuccess?: boolean;
   } = {}
 ) {
-  const {
-    allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'],
-    name,
-    logSuccess = logger.isSuccessLoggingEnabled(),
-  } = options;
+  const { allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'] } = options;
 
   return withApiLogging(async (req: NextApiRequest, res: NextApiResponse) => {
     // Method validation
     if (!allowedMethods.includes(req.method || '')) {
-      logger.warn(`Method not allowed${name ? ` [${name}]` : ''}`, {
+      logger.warn(`Method not allowed${options.name ? ` [${options.name}]` : ''}`, {
         method: req.method,
         url: req.url,
         allowedMethods,
@@ -138,7 +133,7 @@ export function withApiAuthAndLogging(
     
     const authorized = verifyUser(req, res);
     if (authorized !== 'authorized') {
-      logger.warn(`Authentication failed${name ? ` [${name}]` : ''}`, {
+      logger.warn(`Authentication failed${options.name ? ` [${options.name}]` : ''}`, {
         method: req.method,
         url: req.url,
         reason: authorized,
@@ -147,7 +142,7 @@ export function withApiAuthAndLogging(
     }
 
     return handler(req, res);
-  }, { ...options, skipAuth: true, logSuccess }); // skipAuth since we handle it manually above
+  }, { ...options, skipAuth: true }); // skipAuth since we handle it manually above
 }
 
 export default withApiLogging;
