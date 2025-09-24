@@ -19,8 +19,7 @@ export const normaliseBooleanFlag = (value: unknown): boolean => {
       if (trimmed === '1' || trimmed === 'true' || trimmed === 'yes' || trimmed === 'on') {
          return true;
       }
-
-      return Boolean(trimmed);
+      return false;
    }
 
    return Boolean(value);
