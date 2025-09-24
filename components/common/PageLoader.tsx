@@ -7,8 +7,7 @@ type PageLoaderProps = {
    children: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
 
-const PageLoader = ({ isLoading, label = 'Loading content', children, className = '', ...rest }: PageLoaderProps) => {
-   return (
+const PageLoader = ({ isLoading, label = 'Loading content', children, className = '', ...rest }: PageLoaderProps) => (
       <div className={className} {...rest} aria-busy={isLoading}>
          {children}
          {isLoading && (
@@ -24,6 +23,5 @@ const PageLoader = ({ isLoading, label = 'Loading content', children, className 
          )}
       </div>
    );
-};
 
 export default PageLoader;

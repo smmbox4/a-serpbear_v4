@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import { useRouter } from 'next/router';
 import React, { useState, useMemo } from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';

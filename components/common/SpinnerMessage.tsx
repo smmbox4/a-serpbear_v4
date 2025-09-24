@@ -6,8 +6,7 @@ type SpinnerMessageProps = {
    className?: string;
 };
 
-const SpinnerMessage = ({ label = 'Loading data', className = '' }: SpinnerMessageProps) => {
-   return (
+const SpinnerMessage = ({ label = 'Loading data', className = '' }: SpinnerMessageProps) => (
       <div
          className={`flex flex-col items-center justify-center text-gray-500 ${className}`.trim()}
          role='status'
@@ -17,6 +16,5 @@ const SpinnerMessage = ({ label = 'Loading data', className = '' }: SpinnerMessa
          <Icon type='loading' size={24} />
       </div>
    );
-};
 
 export default SpinnerMessage;

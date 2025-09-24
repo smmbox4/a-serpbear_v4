@@ -6,7 +6,7 @@ import handler from '../../pages/api/adwords';
 import verifyUser from '../../utils/verifyUser';
 import { getAdwordsCredentials, getAdwordsKeywordIdeas } from '../../utils/adwords';
 
-type MutableEnv = NodeJS.ProcessEnv & {
+type MutableEnv = typeof process.env & {
    SECRET?: string;
 };
 
@@ -57,7 +57,9 @@ describe('GET /api/adwords - refresh token retrieval', () => {
       (process.env as MutableEnv) = { ...originalEnv, SECRET: 'secret' };
       (db.sync as jest.Mock).mockResolvedValue(undefined);
       (verifyUser as jest.Mock).mockReturnValue('authorized');
-      (readFile as jest.Mock).mockResolvedValue('{"adwords_client_id":"encrypted-client-id","adwords_client_secret":"encrypted-client-secret"}');
+      (readFile as jest.Mock).mockResolvedValue(
+         '{"adwords_client_id":"encrypted-client-id","adwords_client_secret":"encrypted-client-secret"}',
+      );
       decryptMock.mockImplementationOnce(() => 'client-id').mockImplementationOnce(() => 'client-secret');
       encryptMock.mockImplementation((value: string) => value);
       getTokenMock.mockRejectedValue({ response: { data: {} } });
@@ -97,7 +99,10 @@ describe('GET /api/adwords - refresh token retrieval', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/html; charset=utf-8');
       expect(res.send).toHaveBeenCalledWith(expect.stringContaining('adwordsIntegrated'));
-      expect(logSpy).toHaveBeenCalledWith('[Error] Getting Google Ads Refresh Token! Reason: ', 'Unknown error retrieving Google Ads refresh token.');
+      expect(logSpy).toHaveBeenCalledWith(
+         '[Error] Getting Google Ads Refresh Token! Reason: ',
+         'Unknown error retrieving Google Ads refresh token.',
+      );
 
       logSpy.mockRestore();
    });

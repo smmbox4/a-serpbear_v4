@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import React, { useEffect, useState } from 'react';
 import { useFetchSettings, useUpdateSettings } from '../../services/settings';
 import Icon from '../common/Icon';

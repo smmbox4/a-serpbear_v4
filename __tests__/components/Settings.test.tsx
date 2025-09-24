@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -13,13 +15,11 @@ const useClearFailedQueueMock = useClearFailedQueue as jest.Mock;
 describe('Settings scraper reload behaviour', () => {
    const closeSettings = jest.fn();
    let queryClient: QueryClient;
-   const renderComponent = () => {
-      return render(
+   const renderComponent = () => render(
          <QueryClientProvider client={queryClient}>
             <Settings closeSettings={closeSettings} />
          </QueryClientProvider>,
       );
-   };
 
    beforeEach(() => {
       queryClient = new QueryClient();

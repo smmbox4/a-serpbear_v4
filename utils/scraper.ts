@@ -121,13 +121,11 @@ export const getScraperClient = (
 /**
  * Checks if the scraper response indicates an error condition
  */
-const hasScraperError = (res: any): boolean => {
-   return res && (
+const hasScraperError = (res: any): boolean => res && (
       (res.status && (res.status < 200 || res.status >= 300))
       || (res.ok === false)
       || (res.request_info?.success === false)
    );
-};
 
 /**
  * Builds a comprehensive error object from the scraper response

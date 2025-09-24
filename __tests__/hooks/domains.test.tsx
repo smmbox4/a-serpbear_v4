@@ -51,8 +51,6 @@ describe('DomainHooks', () => {
    it('useFetchDomains should fetch the Domains', async () => {
       const { result } = renderHook(() => useFetchDomains(mockRouter, false), { wrapper: createWrapper() });
       // const result = { current: { isSuccess: false, data: '' } };
-      await waitFor(() => {
-         return expect(result.current.isLoading).toBe(false);
-      });
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
    });
 });

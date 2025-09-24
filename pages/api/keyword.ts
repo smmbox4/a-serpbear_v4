@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import db from '../../database/database';
 import Keyword from '../../database/models/keyword';

@@ -1,3 +1,5 @@
+/// <reference path="../types.d.ts" />
+
 import { auth, searchconsole_v1 } from '@googleapis/searchconsole';
 import Cryptr from 'cryptr';
 import dayjs from 'dayjs';

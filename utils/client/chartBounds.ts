@@ -3,16 +3,12 @@ type ChartBoundsOptions = {
    noMaxLimit?: boolean;
 };
 
-const isValidPoint = (value: unknown): value is number => {
-   return typeof value === 'number'
+const isValidPoint = (value: unknown): value is number => typeof value === 'number'
       && Number.isFinite(value)
       && value !== 0
       && value !== 111;
-};
 
-const clamp = (value: number, min: number, max: number) => {
-   return Math.min(Math.max(value, min), max);
-};
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
 export const calculateChartBounds = (series: number[], options: ChartBoundsOptions = {}) => {
    const { reverse = true, noMaxLimit = false } = options;

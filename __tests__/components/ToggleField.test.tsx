@@ -57,7 +57,7 @@ describe('ToggleField Component', () => {
       const mockOnChange = jest.fn();
       const mockParentHandler = jest.fn();
       
-      const { container } = render(
+      render(
          <div onClick={mockParentHandler}>
             <ToggleField 
                label="Test Toggle" 
@@ -80,7 +80,7 @@ describe('ToggleField Component', () => {
       const mockOnChange = jest.fn();
       const mockParentHandler = jest.fn();
       
-      const { container } = render(
+      render(
          <div onClick={mockParentHandler}>
             <ToggleField 
                label="Test Toggle" 

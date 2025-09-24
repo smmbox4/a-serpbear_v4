@@ -44,11 +44,9 @@ const Research: NextPage = () => {
       updateKeywordIdeas({ seedType: 'custom', language, domainSlug: 'research', domainUrl: '', keywords: keywordPaylod, country });
    };
 
-   const countryOptions = useMemo(() => {
-      return Object.keys(allCountries)
+   const countryOptions = useMemo(() => Object.keys(allCountries)
       .filter((countryISO) => allCountries[countryISO][3] !== 0)
-      .map((countryISO) => ({ label: allCountries[countryISO][0], value: countryISO }));
-   }, []);
+      .map((countryISO) => ({ label: allCountries[countryISO][0], value: countryISO })), []);
 
    const languageOptions = useMemo(() => Object.entries(adwordsLanguages).map(([value, label]) => ({ label, value })), []);
 

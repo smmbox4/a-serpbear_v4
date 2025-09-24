@@ -76,9 +76,7 @@ const IdeasKeywordsTable = ({
       return ['desktop', 'mobile'];
    }, [addKeywordDevice]);
 
-   const isIdeaTracked = useCallback((idea: IdeaKeyword) => {
-      return trackedDevicesToCheck.some((device) => trackedKeywordLookup[`${idea.keyword}:${idea.country}:${device}`]);
-   }, [trackedDevicesToCheck, trackedKeywordLookup]);
+   const isIdeaTracked = useCallback((idea: IdeaKeyword) => trackedDevicesToCheck.some((device) => trackedKeywordLookup[`${idea.keyword}:${idea.country}:${device}`]), [trackedDevicesToCheck, trackedKeywordLookup]);
 
    const { data: domainsData } = useQuery(
       ['domains', false],
@@ -99,9 +97,7 @@ const IdeasKeywordsTable = ({
       }));
    }, [keywords, showFavorites, favorites, filterParams, sortBy, isIdeaTracked]);
 
-   const selectableKeywordIds = useMemo(() => {
-      return finalKeywords.filter((keyword) => !keyword.isTracked).map((keyword) => keyword.uid);
-   }, [finalKeywords]);
+   const selectableKeywordIds = useMemo(() => finalKeywords.filter((keyword) => !keyword.isTracked).map((keyword) => keyword.uid), [finalKeywords]);
 
    const favoriteIDs: string[] = useMemo(() => favorites.map((fav) => fav.uid), [favorites]);
 

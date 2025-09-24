@@ -175,14 +175,12 @@ export const generateGoogleConsoleStats = async (domain:DomainType): Promise<str
       const SCStats = localSCData.stats.slice(-7).reverse();
       const keywords = getKeywordsInsight(localSCData, 'clicks', 'sevenDays');
       const pages = getPagesInsight(localSCData, 'clicks', 'sevenDays');
-      const genColumn = (item:SCInsightItem, firstColumKey:string):string => {
-         return `<tr class="keyword">
+      const genColumn = (item:SCInsightItem, firstColumKey:string):string => `<tr class="keyword">
                   <td>${item[firstColumKey as keyof SCInsightItem]}</td>
                   <td>${item.clicks}</td>
                   <td>${item.impressions}</td>
                   <td>${Math.round(item.position)}</td>
                </tr>`;
-      };
       if (SCStats.length > 0) {
          scData.stats.html = SCStats.reduce((acc, item) => acc + genColumn(item, 'date'), '');
       }

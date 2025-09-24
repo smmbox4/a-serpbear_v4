@@ -1,3 +1,5 @@
+/// <reference path="../types.d.ts" />
+
 import { performance } from 'perf_hooks';
 import { setTimeout as sleep } from 'timers/promises';
 import { Op } from 'sequelize';
@@ -264,9 +266,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
  * @returns {Promise}
  */
 const refreshParallel = async (keywords:KeywordType[], settings:SettingsType) : Promise<RefreshResult[]> => {
-   const promises: Promise<RefreshResult>[] = keywords.map((keyword) => {
-      return scrapeKeywordFromGoogle(keyword, settings);
-   });
+   const promises: Promise<RefreshResult>[] = keywords.map((keyword) => scrapeKeywordFromGoogle(keyword, settings));
 
    return Promise.all(promises).then((promiseData) => {
       console.log('ALL DONE!!!');

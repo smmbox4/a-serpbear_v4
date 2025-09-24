@@ -1,4 +1,4 @@
-/* eslint-disable no-new */
+ 
 const Cryptr = require('cryptr');
 const { promises } = require('fs');
 const { readFile } = require('fs');

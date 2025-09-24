@@ -25,16 +25,14 @@ const KeywordTagManager = ({ keyword, allTags = [], closeModal }: keywordTagMana
          <div className="text-sm my-8 ">
             {keyword && keyword.tags.length > 0 && (
                <ul>
-                  {keyword.tags.map((tag:string) => {
-                     return <li key={tag} className={'inline-block bg-slate-50 py-1 px-3 border rounded mr-4 mb-3 text-slate-500'}>
+                  {keyword.tags.map((tag:string) => <li key={tag} className={'inline-block bg-slate-50 py-1 px-3 border rounded mr-4 mb-3 text-slate-500'}>
                                  <Icon type="tags" size={14} classes="mr-2" />{tag}
                                  <button
                                  className="ml-1 cursor-pointer rounded px-1 hover:bg-red-200 hover:text-red-700"
                                  onClick={() => removeTag(tag)}>
                                     <Icon type="close" size={14} />
                                  </button>
-                           </li>;
-                  })}
+                           </li>)}
                   <li className='inline-block py-1 px-1'>
                      <button
                      title='Add New Tag'

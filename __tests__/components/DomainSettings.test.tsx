@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -82,13 +84,11 @@ describe('DomainSettings Component', () => {
       jest.clearAllMocks();
    });
 
-   const renderWithQueryClient = (component: React.ReactElement) => {
-      return render(
+   const renderWithQueryClient = (component: React.ReactElement) => render(
          <QueryClientProvider client={queryClient}>
             {component}
          </QueryClientProvider>,
       );
-   };
 
    it('renders without crashing', () => {
       mockUseFetchDomain.mockImplementation(() => {});
@@ -139,7 +139,7 @@ describe('DomainSettings Component', () => {
    });
 
    it('preserves user changes to other settings when async fetch completes (functional state update fix)', async () => {
-      let capturedCallback: ((domainObj: DomainType) => void) | null = null;
+      let capturedCallback: ((_domainObj: DomainType) => void) | null = null;
 
       // Capture the callback passed to useFetchDomain
       mockUseFetchDomain.mockImplementation((_router, _domain, onSuccess) => {
@@ -205,7 +205,7 @@ describe('DomainSettings Component', () => {
       // This test validates that the fix prevents the stale closure issue
       // by ensuring we use the functional form of setState
 
-      let capturedCallback: ((domainObj: DomainType) => void) | null = null;
+      let capturedCallback: ((_domainObj: DomainType) => void) | null = null;
 
       mockUseFetchDomain.mockImplementation((_router, _domain, onSuccess) => {
          capturedCallback = onSuccess;

@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import React, { useState } from 'react';
 import InputField from '../common/InputField';
 import Icon from '../common/Icon';
