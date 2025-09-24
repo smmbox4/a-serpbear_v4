@@ -62,16 +62,16 @@ describe('SingleDomain Page', () => {
       expect(screen.getByTestId('domain-header')).toBeInTheDocument();
    });
 
-   it('renders the page loader while queries resolve', () => {
+   it('shows the keyword table spinner while queries resolve', () => {
       useFetchSettingsFunc.mockImplementation(() => ({ data: undefined, isLoading: true }));
       useFetchDomainsFunc.mockImplementation(() => ({ data: undefined, isLoading: true }));
       useFetchKeywordsFunc.mockImplementation(() => ({ keywordsData: undefined, keywordsLoading: true }));
 
       render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
 
-      const overlay = screen.getByTestId('page-loader-overlay');
-      expect(overlay).toBeInTheDocument();
-      expect(overlay).toHaveClass('fixed');
+      expect(screen.queryByTestId('page-loader-overlay')).not.toBeInTheDocument();
+      const spinner = screen.getByRole('status', { name: /loading keywords/i });
+      expect(spinner).toBeInTheDocument();
    });
 
    it('applies gutter spacing between the sidebar and content area', () => {

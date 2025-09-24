@@ -16,7 +16,6 @@ import { useFetchKeywords } from '../../../services/keywords';
 import { useFetchSettings } from '../../../services/settings';
 import AddKeywords from '../../../components/keywords/AddKeywords';
 import Footer from '../../../components/common/Footer';
-import PageLoader from '../../../components/common/PageLoader';
 
 const SingleDomain: NextPage = () => {
    const router = useRouter();
@@ -26,7 +25,7 @@ const SingleDomain: NextPage = () => {
    const [showSettings, setShowSettings] = useState(false);
    const [keywordSPollInterval, setKeywordSPollInterval] = useState<undefined|number>(undefined);
    const { data: appSettingsData, isLoading: isAppSettingsLoading } = useFetchSettings();
-   const { data: domainsData, isLoading: isDomainsLoading } = useFetchDomains(router, false);
+   const { data: domainsData } = useFetchDomains(router, false);
    const appSettings: SettingsType = appSettingsData?.settings || {};
    const { scraper_type = '', available_scapers = [] } = appSettings;
    const activeScraper = useMemo(() => available_scapers.find((scraper) => scraper.value === scraper_type), [scraper_type, available_scapers]);
@@ -48,10 +47,8 @@ const SingleDomain: NextPage = () => {
    const theDomains: DomainType[] = (domainsData && domainsData.domains) || [];
    const theKeywords: KeywordType[] = keywordsData && keywordsData.keywords;
 
-   const isPageLoading = isAppSettingsLoading || isDomainsLoading || keywordsLoading || !router.isReady;
-
    return (
-      <PageLoader isLoading={isPageLoading} className="Domain">
+      <div className="Domain">
          {(!isAppSettingsLoading && scraper_type === 'none') && (
                <div className=' p-3 bg-red-600 text-white text-sm text-center'>
                   A Scrapper/Proxy has not been set up Yet. Open Settings to set it up and start using the app.
@@ -111,7 +108,7 @@ const SingleDomain: NextPage = () => {
                />
          </CSSTransition>
          <Footer currentVersion={appSettings?.version ? appSettings.version : ''} />
-      </PageLoader>
+      </div>
    );
 };
 

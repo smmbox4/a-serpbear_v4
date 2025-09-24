@@ -13,7 +13,6 @@ import Settings from '../../components/settings/Settings';
 import SelectField from '../../components/common/SelectField';
 import allCountries, { adwordsLanguages } from '../../utils/countries';
 import Footer from '../../components/common/Footer';
-import PageLoader from '../../components/common/PageLoader';
 
 const Research: NextPage = () => {
    const router = useRouter();
@@ -57,10 +56,8 @@ const Research: NextPage = () => {
    const buttonLabelStyle = 'ml-2 text-sm not-italic lg:invisible lg:opacity-0';
    const labelStyle = 'mb-2 font-semibold inline-block text-sm text-gray-700 capitalize w-full';
 
-   const isPageLoading = !router.isReady || isSettingsLoading || isLoadingIdeas;
-
    return (
-      <PageLoader isLoading={isPageLoading} className='Login'>
+      <div className='Login'>
          <Head>
             <title>Research Keywords - SerpBear</title>
          </Head>
@@ -146,7 +143,7 @@ const Research: NextPage = () => {
              <Settings closeSettings={() => setShowSettings(false)} />
          </CSSTransition>
          <Footer currentVersion={appSettings?.settings?.version ? appSettings.settings.version : ''} />
-      </PageLoader>
+      </div>
    );
 };
 
