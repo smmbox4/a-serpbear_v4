@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Op } from 'sequelize';
 import db from '../../database/database';

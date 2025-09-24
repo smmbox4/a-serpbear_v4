@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Cryptr from 'cryptr';
 import db from '../../database/database';
@@ -35,7 +37,7 @@ const getDomain = async (req: NextApiRequest, res: NextApiResponse<DomainGetResp
             scData.client_email = scData.client_email ? cryptr.decrypt(scData.client_email) : '';
             scData.private_key = scData.private_key ? cryptr.decrypt(scData.private_key) : '';
             parsedDomain.search_console = JSON.stringify(scData);
-         } catch (error) {
+         } catch {
             console.log('[Error] Parsing Search Console Keys.');
          }
       }

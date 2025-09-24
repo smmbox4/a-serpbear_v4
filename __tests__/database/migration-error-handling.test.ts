@@ -38,7 +38,7 @@ describe('Migration Error Handling', () => {
     try {
       // This should throw an error after logging it
       await migration.up({ context: mockQueryInterface });
-      fail('Expected migration to throw error but it did not');
+      throw new Error('Expected migration to throw error but it did not');
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect(error.message).toBe('Test database error');
@@ -64,7 +64,7 @@ describe('Migration Error Handling', () => {
     
     try {
       await migration.down({ context: mockQueryInterface });
-      fail('Expected migration to throw error but it did not');
+      throw new Error('Expected migration to throw error but it did not');
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
       expect(error.message).toBe('Index removal failed');
