@@ -1,11 +1,30 @@
 import toast from 'react-hot-toast';
 import { NextRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { normaliseBooleanFlag } from '../utils/client/helpers';
+
+type KeywordsResponse = {
+   keywords?: KeywordType[]
+   [key: string]: any,
+};
+
+const normaliseKeywordFlags = (keyword: KeywordType): KeywordType => ({
+   ...keyword,
+   updating: normaliseBooleanFlag(keyword?.updating),
+   sticky: normaliseBooleanFlag(keyword?.sticky),
+   mapPackTop3: normaliseBooleanFlag((keyword as any)?.mapPackTop3),
+});
 
 export const fetchKeywords = async (router: NextRouter, domain: string) => {
    if (!domain) { return []; }
    const res = await fetch(`${window.location.origin}/api/keywords?domain=${domain}`, { method: 'GET' });
-   return res.json();
+   const data: KeywordsResponse = await res.json();
+   if (!data || typeof data !== 'object') { return data; }
+   if (!Array.isArray(data.keywords)) { return data; }
+   return {
+      ...data,
+      keywords: data.keywords.map((keyword) => normaliseKeywordFlags(keyword)),
+   };
 };
 
 export function useFetchKeywords(

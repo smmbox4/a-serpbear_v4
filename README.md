@@ -252,7 +252,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 
 ## Troubleshooting & tips
 
-- **Keyword rows stuck on the loading spinner:** Upgrading to this release normalises legacy `'0'`/`'false'` boolean flags returned by SQLite/MySQL so refreshed keywords flip their `updating` state back to `false`. Trigger another keyword refresh after deploying to clear any previously stuck rows.
+- **Keyword rows stuck on the loading spinner:** The API and dashboard now normalise legacy `'0'`/`'false'` flags returned by SQLite/MySQL responses, so refreshed keywords flip their `updating` state back to `false` and the position column stops rendering spinners once scraping finishes. Trigger another keyword refresh after deploying to clear any previously stuck rows.
 - **Missing screenshots:** If dashboard thumbnails show the fallback favicon, confirm `SCREENSHOT_API` is set and `NEXT_PUBLIC_SCREENSHOTS=true`.
 - **Screenshot refresh skips:** Manual thumbnail updates now always hit the screenshot service with the stored host, so investigate provider logs if a toast reports a failure instead of assuming the button silently ignored the request.
 - **Empty domain slugs:** The dashboard now always requests `/api/domain`, even for blank slugs, so the API returns descriptive validation errors instead of the client throwing immediately.
