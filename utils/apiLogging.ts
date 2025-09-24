@@ -39,9 +39,8 @@ export function withApiLogging(
       ...(logBody && req.body ? { body: req.body } : {}),
     };
 
-    if (logSuccess) {
-      logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
-    }
+    // Always log the request start
+    logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
 
     // Capture the original res.json and res.status functions to log responses
     const originalJson = res.json.bind(res);
