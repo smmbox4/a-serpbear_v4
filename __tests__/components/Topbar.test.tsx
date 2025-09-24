@@ -43,8 +43,11 @@ describe('TopBar Component', () => {
          expect(mobileSection).toMatch(/\.topbar\s*\{/);
          
          // Validate specific CSS properties with flexible whitespace handling
-         expect(mobileSection).toMatch(/margin-inline:\s*calc\(\s*-1\s*\*\s*var\(\s*--layout-inline\s*\)\s*\)\s*;/);
-         expect(mobileSection).toMatch(/padding-inline:\s*var\(\s*--layout-inline\s*\)\s*;/);
+         expect(mobileSection).toMatch(/margin-left:\s*calc\(\s*-1\s*\*\s*var\(\s*--layout-inline\s*\)\s*\)\s*;/);
+         expect(mobileSection).toMatch(/margin-right:\s*calc\(\s*-1\s*\*\s*var\(\s*--layout-inline\s*\)\s*\)\s*;/);
+         expect(mobileSection).toMatch(/padding-left:\s*var\(\s*--layout-inline\s*\)\s*;/);
+         expect(mobileSection).toMatch(/padding-right:\s*var\(\s*--layout-inline\s*\)\s*;/);
+         expect(mobileSection).toMatch(/width:\s*calc\(\s*100%\s*\+\s*\(\s*var\(\s*--layout-inline\s*\)\s*\*\s*2\s*\)\s*\)\s*;/);
       }
       
       // Ensure no body overrides in mobile media queries (maintains body gutters)
