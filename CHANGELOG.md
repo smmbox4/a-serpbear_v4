@@ -2,182 +2,107 @@
 
 All notable changes to this project will be documented in this file. Releases now follow the conventional commits format but are managed with lightweight project scripts instead of `standard-version`.
 
-### Unreleased
-
-### Changed
-
-* Treated empty Google Ads keyword idea responses as 404s and updated the client mutation to bubble the server error, warn the user, and redirect to login on 401s with expanded service coverage.
-* Reserved HTTP 401 for authentication failures on `/api/notify`, returning 400 for SMTP misconfiguration and 500 for delivery errors alongside new regression tests.
-* Shortened the email map-pack badge label from "MAP" to "MP" so the stacked flag fits within narrow mail client layouts.
-* Surfaced a domains-dashboard "Map Pack" tracker counter that aggregates keywords detected in the local pack when the active scraper exposes that signal.
-* Hardened domain screenshot caching by tolerating corrupted `domainThumbs` entries, clearing the bad data, and retrying the thumbnail fetch instead of throwing in the browser.
-* Normalised keyword `updating` flags parsed from the database and coerced API responses on the client so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
-* Propagated map-pack membership from supported scrapers through persistence, emails, and keyword UIs, adding a stacked CSS badge that references `map-pack.png` whenever a tracked domain appears in the local pack top three.
-* Raised ESLint's `max-len` threshold to 200 characters, relaxed the complexity limit to a warning at 60, and delegated unused-variable checks to `@typescript-eslint` so linting no longer fails on long SVG paths or intentionally ignored caught errors.
-* Added inline guidance and ARIA status messaging to the Notification settings "Send Notifications Now" control so manual email runs advertise readiness and progress to assistive tech.
-* Removed trailing commas from configuration and migration files to align with the project's linting rules.
-* Replaced the Icon component's 50-branch conditional with a renderer map, exported reusable keyword filter predicates for both tracked and idea keywords, and added targeted Jest coverage to keep the new helpers and fallbacks correct.
-* Marked Google Ads keyword ideas that already exist in the tracker as disabled for the active device, preventing duplicate selections and covering the behaviour with component tests.
-* Added a shared `LOG_SUCCESS_EVENTS` toggle so successful authentication and middleware INFO logs can be muted without touching warnings/errors, updated API callers to surface the option, and introduced Jest coverage for the quiet mode.
-* Added a manual "Send Notifications Now" action to the Notification settings modal, surfacing success or error toasts when `/api/notify` completes so teams can validate SMTP credentials instantly.
-* Added a reusable page loader overlay and spinner placeholders so the domains dashboard, single-domain view, and research workspace stay blocked until router state and React Query data settle, while keeping loading labels accessible.
-* Removed redundant domain guards so dashboard headers, screenshots, and Search Console refreshes operate directly on the stored host names.
-* Removed the client-side guard that rejected blank domain slugs so `/api/domain` requests always hit the API and rely on server-side validation.
-* Replaced the fixed 105 rem layout cap with a reusable `desktop-container` utility so the dashboard and research views expand to 90 % of the viewport on large screens.
-* Reworked the TopBar layout so mobile views drop the base `mx-auto`, extend the edge-to-edge helper through the 767px breakpoint, and include Jest coverage to prevent the right-side gutter from returning.
-* Added an optional SMTP TLS certificate hostname override, trimming saved settings and sanitising Nodemailer transports so whitespace and trailing dots no longer break certificate validation.
-* Normalised Google SERP extraction so redirect wrappers such as `/url` and `/interstitial` resolve to their destination URLs, hardened `getSerp` against hostless paths, and added Jest coverage for the regression.
-* Consolidated keyword location metadata into a single `location` column, migrated existing records, and introduced shared helpers so the API, UI, scrapers, and email exports consistently format and validate paired city/state input.
-* Removed the persisted `domain.keywordCount` column in favour of a computed `keywordsTracked` value returned by the domains API and rendered throughout the dashboard.
-* Normalised SQLite boolean bindings so `/api/domains` updates persist matching `scrape_enabled` and `notification` flags, and added API regression coverage for the domain toggle.
-* Removed the `/api/dbmigrate` endpoint, dashboard auto-migration banner, and related hooks so database upgrades run exclusively from the Docker `entrypoint.sh`.
-* Restored the global body gutter on mobile while offsetting the TopBar so its background still spans edge-to-edge on phones.
-* Let the single-domain and research pages rely on their table-level `isLoading` states instead of the global `<PageLoader>`, keeping modal transitions intact while limiting spinners to the content that is still fetching.
-* Limited the `.desktop-container` helper's centring to large screens so the TopBar and other mobile layouts reach the viewport edges without extra gutters.
-* Completely restructured `README.md` with a product-focused overview, expanded environment variable reference, and refreshed provider comparison to reflect the current codebase.
-* Replaced Jest's `jest-environment-jsdom` dependency with `@happy-dom/jest-environment` to eliminate deprecated transitive packages and speed up DOM-focused tests.
-* Added `npm run setup:git` to configure `init.defaultBranch` for the repository and avoid Git initialization warnings.
-* Dropped the `standard-version` release script in favour of the new git setup helper and manual changelog updates to remove the deprecated `stringify-package` dependency.
-* Fixed the mistyped `RefreshResult` import in `utils/refresh.ts` so the TypeScript parser can load the refresh utility during linting and tests.
-* Replaced the separate per-domain `scrape_enabled`/`notify_enabled` toggles with a unified Active/Deactive control that keeps both flags in sync across cached UI state, API payloads, and cron guards so paused domains skip scraping and email runs together.
-* Updated the Serply scraper to build `/v1/search` URLs with query-string parameters so the keyword travels via `?q=` alongside locale and pagination options.
-* Updated the ValueSerp scraper to drop the hard-coded `num=100` query parameter while continuing to pass device, language, and optional location filters for each keyword.
-* Introduced dynamic chart bounds and a shared client helper so SERP line charts and sparklines zoom to the observed rank range instead of hard-coding 1–100.
-* Honoured the `NEXT_PUBLIC_SCREENSHOTS` environment flag in services and the dashboard so deployments can opt out of screenshot fetches and rely on favicons without UI clutter.
-* Returned an HTML OAuth callback from `/api/adwords` that posts an `adwordsIntegrated` message, accepted empty keyword-idea validation responses, and surfaced upstream errors in the settings toast listener.
-* Hardened `/api/refresh` error handling by rejecting empty ID lists with HTTP 400, serialising scraper failures, and short-circuiting toggled-off domains.
-* Documented the new screenshot and console logging environment flags in `.env.example`, the README, and integration tests.
-* Encoded the nested Google Search request passed to ScrapingRobot so locale parameters stay bundled within the delegated `url` query parameter.
-* Retained server-side logging in the production bundle by gating Next.js `compiler.removeConsole` behind the `NEXT_REMOVE_CONSOLE` environment flag.
-* Normalised keyword history updates so refresh jobs coerce legacy `'[]'` payloads into objects, serialise SQLite-safe fields, and ship a migration that defaults `keyword.history` to `'{}'` (still auto-run via `entrypoint.sh`).
-* Centralised the Google Ads REST API version behind a `GOOGLE_ADS_API_VERSION` constant, updated documentation, and refreshed tests to ensure both keyword ideas and historical metrics use `v21`.
-* Settings now reload the window only when enabling a scraper from the previous `'none'` state, and the scraper modal has Jest coverage to verify the behaviour.
-* Search Console hooks key their queries by the active domain slug, skip fetches without a slug, and include tests that confirm refetching when switching domains.
-* Domain settings accept `null` domains, short-circuit the lookup fetch when closed, and continue guarding destructive actions behind a non-null domain selection.
-* Domain validation no longer reuses global regex instances and has dedicated tests for multi-label inputs alongside common invalid examples.
-* GitHub Actions workflows run inside concurrency groups with `cancel-in-progress: true` so superseded CI or Docker builds automatically stop when newer commits arrive.
-* Domain settings now request `/api/domain` with the canonical host so decrypted Search Console credentials hydrate the modal fields as soon as it opens.
-* Consolidated scraper and refresh error serialization into a shared helper used across utilities and covered it with dedicated Jest tests.
-* Normalised keyword creation and refresh updates so `lastResult` is always persisted as a JSON string, even when the scraper returns `undefined`.
-* Added a global clamp-based body gutter, widened the `max-w-*` wrappers to a shared 105rem layout, and refreshed the TopBar/domains views to consume the new spacing helpers.
-* Removed the in-app changelog panel and related GitHub release polling; the footer now only displays the installed version label.
-* Updated migration error handling tests to require Umzug migration modules without explicit `.js` extensions so Node's resolver stays compatible with both ESM-aware loaders and Jest.
-* Hardened the settings API to tolerate absent Next.js runtime config while still returning version metadata when available.
-* Ensured decrypted settings merge with default values so missing persisted keys fall back to safe notification and scraper defaults.
-* Added a least-privilege GitHub Actions CodeQL workflow that scans pushes, pull requests, and a weekly schedule for JavaScript/TypeScript vulnerabilities.
-* Updated API settings tests to strip `SCREENSHOT_API` when exercising missing-configuration flows so CI secrets can no longer mask the expected failures.
-* Aligned keyword and settings API response typings with their JSON payloads by adding the optional `details` error field so TypeScript stays consistent with runtime responses.
-* Taught ESLint and Git attributes to ignore generated `.next` chunks so build artifacts no longer trigger enormous lint failures after running the production build.
-* Added a root `.editorconfig` so editors consistently write UTF-8, LF line endings, and two-space indentation (with overrides for structured data).
-* Preserved explicit SQLite `null` bindings so prepared statements receive them during execution instead of stripping them alongside optional callbacks.
-* Downgraded ESLint to `^8.57.1` to keep the flat config workflow compatible with `eslint-config-airbnb-base@15` while preserving existing lint rules.
-* Updated `stylelint-config-standard` to `^34.0.0` so `npm install` succeeds without relying on `--legacy-peer-deps`.
-* Enhanced the mocked `better-sqlite3` driver to support positional parameter bindings used by the sqlite dialect tests.
-* Added regression coverage to confirm single positional placeholders keep their bound values when exercised through the sqlite dialect wrapper.
-* Ensured AdWords keyword volume updates await database writes and bubble up failures instead of silently ignoring errors.
-* Updated keyword and settings API handlers to return HTTP error statuses with diagnostic payloads and added Jest coverage for the new behaviours.
-* Required the `SCREENSHOT_API` environment variable during startup so configuration issues return descriptive errors instead of silently falling back.
-* Removed the unused `winston` dependency, pinned `stylelint` so CSS linting is available locally, and stubbed `window.location` in tests to keep Jest stable on modern Node.js.
-* Replaced the legacy `sqlite3` dependency with a `better-sqlite3`-powered dialect wrapper so builds no longer rely on deprecated `node-gyp` tooling and prebuilt binaries are downloaded during installation.
-* Trim trailing `undefined`/`null` arguments in the SQLite shim so optional callbacks are ignored instead of being treated as extra positional bindings.
-* Upgraded ESLint and related tooling to v9 flat config (`eslint.config.mjs`) and refreshed linting instructions.
-* Pruned Docker runtime image to copy production `node_modules` so cron jobs and migrations keep their dependencies at runtime.
-* Bundled `sequelize-cli` as a production dependency so database migration scripts work without manual CLI installs.
-* Migrated legacy Sequelize migrations to Umzug v3’s object signature while keeping `sequelize-cli` compatibility by normalising the received parameters.
-* Updated the custom SQLite dialect to call `run()` for non-reader statements invoked through `.all()`, allowing Umzug’s Sequelize storage to create metadata tables with `better-sqlite3`.
-* Added configurable cron timezone and schedule environment variables for scraping, retries, and notification jobs.
-* Google Search Console email summaries reuse cached data for the active cron day to avoid redundant refreshes.
-* Hardened `/api/notify` to require authentication before sending notification emails.
-* Search Console email generation now tolerates missing or invalid cached data, preventing Docker builds from failing during type checks.
-* Scraping Robot requests now pass the `gl` country code along with `hl` when constructing Google query URLs for localized SERP data.
-* Reordered AdWords API test imports to comply with lint-enforced grouping rules.
-* Normalised cron schedule environment variables so surrounding quotes and whitespace no longer break Croner parsing.
-* Refreshed the Docker Compose example to run the published image with updated defaults and cron configuration guidance.
-* Rebuilt the multi-stage Dockerfile to preserve `/app/data`, reuse build caches, and move cron start-up logic into the entrypoint.
-* Enabled GitHub Actions build cache exports for Docker image publishing.
-* Upgraded `google-auth-library` to `^10.3.0`, pulling in `gaxios@7`/`node-fetch@3` to silence Node.js 22 `fetch()` deprecation warnings and keep Google Ads integrations working on current LTS releases.
-* Removed package manifests from the runtime container layer, relying on the standalone server bundle and production dependencies that ship with the image.
-* Removed the Docker health probe so the runtime image no longer shells out to Node for HTTP checks, leaving availability monitoring to the orchestrator.
-- Raised ESLint to `^9.15.0`, replaced the Airbnb preset with native flat-config presets, and wired the Next.js 15 core web vitals runner directly into `eslint.config.mjs`.
-- Preserved explicit SQLite `null` bindings so prepared statements receive them during execution instead of stripping them alongside optional callbacks.
-- Downgraded ESLint to `^8.57.1` to keep the flat config workflow compatible with `eslint-config-airbnb-base@15` while preserving existing lint rules.
-- Updated `stylelint-config-standard` to `^34.0.0` so `npm install` succeeds without relying on `--legacy-peer-deps`.
-- Enhanced the mocked `better-sqlite3` driver to support positional parameter bindings used by the sqlite dialect tests.
-- Ensured AdWords keyword volume updates await database writes and bubble up failures instead of silently ignoring errors.
-- Updated keyword and settings API handlers to return HTTP error statuses with diagnostic payloads and added Jest coverage for the new behaviours.
-- Required the `SCREENSHOT_API` environment variable during startup so configuration issues return descriptive errors instead of silently falling back.
-- Removed the unused `winston` dependency, pinned `stylelint` so CSS linting is available locally, and stubbed `window.location` in tests to keep Jest stable on modern Node.js.
-- Replaced the legacy `sqlite3` dependency with a `better-sqlite3`-powered dialect wrapper so builds no longer rely on deprecated `node-gyp` tooling and prebuilt binaries are downloaded during installation.
-- Trim trailing `undefined`/`null` arguments in the SQLite shim so optional callbacks are ignored instead of being treated as extra positional bindings.
-- Upgraded ESLint and related tooling to v9 flat config (`eslint.config.mjs`) and refreshed linting instructions.
-- Pruned Docker runtime image to copy production `node_modules` so cron jobs and migrations keep their dependencies at runtime.
-- Bundled `sequelize-cli` as a production dependency so database migration scripts work without manual CLI installs.
-- Added configurable cron timezone and schedule environment variables for scraping, retries, and notification jobs.
-- Google Search Console email summaries reuse cached data for the active cron day to avoid redundant refreshes.
-- Hardened `/api/notify` to require authentication before sending notification emails.
-- Search Console email generation now tolerates missing or invalid cached data, preventing Docker builds from failing during type checks.
-- Scraping Robot requests now pass the `gl` country code along with `hl` when constructing Google query URLs for localized SERP data.
-- Reordered AdWords API test imports to comply with lint-enforced grouping rules.
-- Normalised cron schedule environment variables so surrounding quotes and whitespace no longer break Croner parsing.
-- Refreshed the Docker Compose example to run the published image with updated defaults and cron configuration guidance.
-- Rebuilt the multi-stage Dockerfile to preserve `/app/data`, reuse build caches, and move cron start-up logic into the entrypoint.
-- Enabled GitHub Actions build cache exports for Docker image publishing.
-- Upgraded `google-auth-library` to `^10.3.0`, pulling in `gaxios@7`/`node-fetch@3` to silence Node.js 22 `fetch()` deprecation warnings and keep Google Ads integrations working on current LTS releases.
-- Removed package manifests from the runtime container layer, relying on the standalone server bundle and production dependencies that ship with the image.
-
-### [2.0.9](https://github.com/djav1985/v-serpbear/compare/v2.0.8...v2.0.9) (2025-09-12)
+# [3.0.0](https://github.com/djav1985/v-serpbear/compare/v2.0.7...v3.0.0) (2025-09-24)
 
 ### Features
-
-- Automatically refreshes Search Console data and falls back to global credentials when domain-specific credentials are unavailable.
-- Added manual refresh button for Search Console data.
+- Domains dashboard “Map Pack” tracker counter showing keywords in the local pack.  
+- Map-pack membership propagation through API, UI, and emails with stacked CSS badge (`map-pack.png`).  
+- Shortened map-pack email badge label from "MAP" → "MP".  
+- Manual “Send Notifications Now” action in Notification settings, with success/error toasts and ARIA support.  
+- Reusable page loader overlay and spinner placeholders across dashboard, domain, and research views.  
+- Optional SMTP TLS certificate hostname override to fix validation issues.  
+- SERP charts now auto-zoom with dynamic chart bounds.  
+- Configurable cron timezone and schedule environment variables.  
+- Unified Active/Deactive toggle replacing separate scrape/notify switches.  
+- Refreshed TopBar layout for mobile edge-to-edge.  
+- Replaced fixed 105 rem layout cap with responsive desktop-container utility.  
+- Returned HTML OAuth callback from `/api/adwords` that posts `adwordsIntegrated`.  
+- Centralised Google Ads API version behind `GOOGLE_ADS_API_VERSION`.  
+- Rebuilt multi-stage Dockerfile to preserve `/app/data` and simplify cron startup.  
+- Refreshed Docker Compose example with new defaults.  
+- Automatically refreshes Search Console data and fall back to global credentials when domain-specific credentials are unavailable.  
+- Added manual refresh button for Search Console data.  
+- Centralized `react-hot-toast` provider for consistent toast handling across the app.  
+- Added state-based location targeting feature.  
+- Added debugging logs to `getAdwordsKeywordIdeas` for improved keyword processing insight.  
 
 ### Bug Fixes
-
-- Fixed session cookie expiry handling so configured durations are respected and logout immediately clears authentication cookies.
-- Hardened Google Ads refresh-token retrieval when error payloads omit an `error` string.
-- Prevented Search Console cache filenames for hyphenated domains from colliding with dotted domains.
-- Hardened API ID validation and corrected domain responses.
-- Added default empty strings for domain-related model fields.
-- Wrapped scraper and keyword JSON parsing with error handling.
-- Removed stray console logs and simplified Jest polyfills.
-
-### [2.0.8](https://github.com/djav1985/v-serpbear/compare/v2.0.7...v2.0.8) (2025-08-12)
-
-### Features
-
-- Centralized `react-hot-toast` provider for consistent toast handling across the app.
-- Added state-based location targeting feature.
-- Added debugging logs to `getAdwordsKeywordIdeas` for improved keyword processing insight.
-
-### Bug Fixes
-
-- Fixed multiple React errors (#418, #423) by updating `Next.js` Link components and resolving SSR/hydration mismatches.
-- Fixed TopBar back button vertical alignment issue.
-- Fixed `[object Object]` error in Docker logs by improving error handling in cron and scraping functionality.
-- Fixed domain slug conversion logic to ensure correct usage in database and Search Console queries.
-- Fixed keyword loading bug causing Google Ads API requests to fail due to domain query mismatches.
-- Fixed typo in `keywordPayload` and API logic for keyword ideas generation.
-- Fixed keyword ideas API "invalid value" errors and improved handling of unused parameters.
-- Fixed domain name handling in keyword ideas for Search Console and tracked keywords.
-- Improved keyword idea error handling to prevent API failures.
-- Fixed mobile menu behavior issues.
-- Fixed anchor domain header dropdown positioning above selector.
-- Refactored keyword location display for better readability.
-- Fixed GitHub workflow permissions and patched XSS vulnerability in Adwords API.
-- Multiple minor UI and accessibility fixes for domain header, menus, and forms.
+- Treated empty Google Ads keyword-idea responses as 404s; bubbled errors and redirected on 401s.  
+- `/api/notify` now reserves 401 for auth failures, 400 for SMTP misconfig, 500 for delivery errors.  
+- Fixed keyword flag coercion so `'0'/'false'` values no longer lock spinners.  
+- Hardened domain screenshot caching against corrupted `domainThumbs`.  
+- Hardened `/api/refresh` error handling for empty IDs, scraper failures, and disabled domains.  
+- Normalised SQLite boolean bindings for domain toggles.  
+- Normalised keyword creation and history persistence (always JSON).  
+- Normalised Google SERP extraction (resolves `/url` and `/interstitial`).  
+- Hardened settings API for missing runtime config and default fallbacks.  
+- Domain validation regex fixes and extra test coverage.  
+- Domain settings now hydrate from canonical host; tolerate null domains.  
+- Removed redundant domain guards and client-side blank slug rejection.  
+- Fixed mistyped `RefreshResult` import.  
+- Search Console now caches daily summaries, tolerates missing/invalid data, and refetches on slug change.  
+- Updated Serply scraper to use query-string params.  
+- Updated ValueSerp scraper to drop hard-coded `num=100`.  
+- Encoded ScrapingRobot locale params.  
+- Ensured AdWords volume updates await DB writes and bubble errors.  
+- Updated API handlers to return proper HTTP error payloads.  
+- Fixed session cookie expiry handling so configured durations are respected and logout immediately clears authentication cookies.  
+- Hardened Google Ads refresh-token retrieval when error payloads omit an `error` string.  
+- Prevented Search Console cache filenames for hyphenated domains from colliding with dotted domains.  
+- Hardened API ID validation and corrected domain responses.  
+- Added default empty strings for domain-related model fields.  
+- Wrapped scraper and keyword JSON parsing with error handling.  
+- Removed stray console logs and simplified Jest polyfills.  
+- Fixed multiple React errors (#418, #423) by updating `Next.js` Link components and resolving SSR/hydration mismatches.  
+- Fixed TopBar back button vertical alignment issue.  
+- Fixed `[object Object]` error in Docker logs by improving error handling in cron and scraping functionality.  
+- Fixed domain slug conversion logic to ensure correct usage in database and Search Console queries.  
+- Fixed keyword loading bug causing Google Ads API requests to fail due to domain query mismatches.  
+- Fixed typo in `keywordPayload` and API logic for keyword ideas generation.  
+- Fixed keyword ideas API "invalid value" errors and improved handling of unused parameters.  
+- Fixed domain name handling in keyword ideas for Search Console and tracked keywords.  
+- Improved keyword idea error handling to prevent API failures.  
+- Fixed mobile menu behavior issues.  
+- Fixed anchor domain header dropdown positioning above selector.  
+- Refactored keyword location display for better readability.  
+- Fixed GitHub workflow permissions and patched XSS vulnerability in Adwords API.  
+- Multiple minor UI and accessibility fixes for domain header, menus, and forms.  
 
 ### Code Quality & Maintenance
-
-- Resolved all ESLint linting errors across the codebase.
-- Enhanced code quality with comprehensive linting rules and security checks.
-- Removed nested ternaries and improved code readability in keyword tables.
-- Fixed trailing commas, stray quotes, typos, and minor formatting inconsistencies.
-- Increased z-index for domain header action menu.
-- Adjusted mobile responsiveness across components.
-- Displayed keyword location in emailed reports.
-- Adjusted daily email cron to run at 1 PM.
-- Multiple dependency updates and security patches.
+- Raised ESLint `max-len` to 200, relaxed complexity to warning at 60.  
+- Delegated unused-var checks to `@typescript-eslint`.  
+- Replaced Icon component’s 50-branch conditional with renderer map.  
+- Exported keyword filter predicates with Jest coverage.  
+- Removed trailing commas from configs/migrations.  
+- Removed unused `winston` dependency.  
+- Pinned stylelint and upgraded `stylelint-config-standard` to ^34.0.0.  
+- ESLint version shuffle: downgraded to ^8.57.1 for Airbnb base, later upgraded to v9 flat config.  
+- ESLint/Git attributes now ignore `.next` build artifacts.  
+- Removed deprecated `sqlite3`, added better-sqlite3 dialect wrapper.  
+- Enhanced mocked better-sqlite3 driver for positional params.  
+- Trimmed undefined/null args in SQLite shim.  
+- Updated custom SQLite dialect to call `run()` for non-reader statements.  
+- Consolidated scraper/refresh error serialization helper.  
+- Documented new env flags in `.env.example` and README.  
+- Restructured `README.md` with product overview, env refs, and provider comparison.  
+- Removed in-app changelog panel; footer now shows version only.  
+- Enabled GitHub Actions concurrency groups and Docker build cache exports.  
+- Removed package manifests and Docker health probe from runtime container.  
+- Added root `.editorconfig` for consistency.  
+- Added least-privilege CodeQL workflow for JS/TS.  
+- Added `npm run setup:git` helper for branch setup.  
+- Bundled `sequelize-cli` as prod dep; migrated Sequelize → Umzug v3.  
+- Preserved explicit SQLite null bindings.  
+- Jest stubs for `window.location`.  
+- Resolved all ESLint linting errors across the codebase.  
+- Enhanced code quality with comprehensive linting rules and security checks.  
+- Removed nested ternaries and improved code readability in keyword tables.  
+- Fixed trailing commas, stray quotes, typos, and minor formatting inconsistencies.  
+- Increased z-index for domain header action menu.  
+- Adjusted mobile responsiveness across components.  
+- Displayed keyword location in emailed reports.  
+- Adjusted daily email cron to run at 1 PM.  
+- Multiple dependency updates and security patches.  
 
 ### [2.0.7](https://github.com/towfiqi/serpbear/compare/v2.0.6...v2.0.7) (2025-02-23)
 
