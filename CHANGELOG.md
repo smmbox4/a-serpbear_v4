@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Added inline guidance and ARIA status messaging to the Notification settings "Send Notifications Now" control so manual email runs advertise readiness and progress to assistive tech.
 * Removed trailing commas from configuration and migration files to align with the project's linting rules.
 
 * Replaced the Icon component's 50-branch conditional with a renderer map, exported reusable keyword filter predicates for both tracked and idea keywords, and added targeted Jest coverage to keep the new helpers and fallbacks correct.

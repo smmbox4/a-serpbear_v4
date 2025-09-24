@@ -44,6 +44,9 @@ describe('NotificationSettings manual trigger', () => {
 
       const triggerButton = screen.getByRole('button', { name: /send notifications now/i });
       expect(triggerButton).toBeEnabled();
+      expect(triggerButton).toHaveAttribute('aria-busy', 'false');
+      expect(screen.getByText(/Send a notification email immediately/i)).toBeInTheDocument();
+      expect(screen.getByText(/Ready to send notifications immediately\./i)).toBeInTheDocument();
 
       fireEvent.click(triggerButton);
 
@@ -65,6 +68,24 @@ describe('NotificationSettings manual trigger', () => {
       const triggerButton = screen.getByRole('button', { name: /send notifications now/i });
 
       expect(triggerButton).toBeDisabled();
+   });
+
+   it('announces progress updates for assistive technology when sending notifications', () => {
+      const mutate = jest.fn();
+      useSendNotificationsMock.mockReturnValue({ mutate, isLoading: true });
+
+      render(
+         <NotificationSettings
+            settings={buildSettings()}
+            settingsError={null}
+            updateSettings={jest.fn()}
+         />,
+      );
+
+      const triggerButton = screen.getByRole('button', { name: /send notifications now/i });
+
+      expect(triggerButton).toHaveAttribute('aria-busy', 'true');
+      expect(screen.getByText(/Sending notifications/i)).toBeInTheDocument();
    });
 
    it('handles numeric SMTP values without throwing TypeError', () => {
@@ -104,9 +125,8 @@ describe('NotificationSettings manual trigger', () => {
          smtp_password: 'password123',
       });
 
-      let component: any;
       expect(() => {
-         component = render(
+         render(
             <NotificationSettings
                settings={mixedSettings}
                settingsError={null}
