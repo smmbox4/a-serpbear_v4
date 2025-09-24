@@ -17,9 +17,6 @@
 }
 
 .fflag-map-pack {
-   background-image: url("../public/map-pack.png");
-   background-repeat: no-repeat;
-   background-size: cover;
    background-color: #fde68a;
    border: 1px solid rgb(251 191 36 / 75%);
 }

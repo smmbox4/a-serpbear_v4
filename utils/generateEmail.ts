@@ -97,9 +97,6 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
 
    let keywordsTable = '';
 
-   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
-   const mapPackImage = appUrl ? `${appUrl}/map-pack.png` : '/map-pack.png';
-
    keywords.forEach((keyword) => {
       let positionChangeIcon = '';
 
@@ -108,7 +105,7 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       const countryFlag = `<img class="flag" src="https://flagcdn.com/w20/${keyword.country.toLowerCase()}.png" alt="${keyword.country}" title="${keyword.country}" />`;
       const deviceIcon = `<img class="device" src="${deviceIconImg}" alt="${keyword.device}" title="${keyword.device}" width="18" height="18" />`;
       const mapPackFlag = keyword.mapPackTop3
-         ? `<span class="map-pack-flag" role="img" aria-label="Map pack top three" style="background-image:url('${mapPackImage}')">MAP</span>`
+         ? `<span class="map-pack-flag" role="img" aria-label="Map pack top three">MAP</span>`
          : '';
       const flagStack = `<span class="flag-stack">${countryFlag}${mapPackFlag}</span>`;
 
