@@ -5,6 +5,7 @@ import getConfig from 'next/config';
 import verifyUser from '../../utils/verifyUser';
 import allScrapers from '../../scrapers/index';
 import { withApiLogging } from '../../utils/apiLogging';
+import { logger } from '../../utils/logger';
 import { trimStringProperties } from '../../utils/security';
 
 const SETTINGS_DEFAULTS: SettingsType = {
@@ -198,7 +199,9 @@ export const getAppSettings = async () : Promise<SettingsType> => {
    }
 };
 
-export default withApiLogging(handler, { 
+export default withApiLogging(handler, {
    name: 'settings',
-   logBody: false 
+   logBody: false,
+   // Advertise the shared LOG_SUCCESS_EVENTS toggle to downstream users
+   logSuccess: logger.isSuccessLoggingEnabled()
 });

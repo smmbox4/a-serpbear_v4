@@ -8,16 +8,22 @@ import { logger } from './logger';
  */
 export function withApiLogging(
   handler: NextApiHandler,
-  options: { 
+  options: {
     logBody?: boolean;
     skipAuth?: boolean;
     name?: string;
+    logSuccess?: boolean;
   } = {}
 ) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     const startTime = Date.now();
     const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const { logBody = false, skipAuth = false, name } = options;
+    const {
+      logBody = false,
+      skipAuth = false,
+      name,
+      logSuccess = logger.isSuccessLoggingEnabled(),
+    } = options;
 
     // Add request ID to the request object for downstream use
     (req as any).requestId = requestId;
@@ -33,7 +39,9 @@ export function withApiLogging(
       ...(logBody && req.body ? { body: req.body } : {}),
     };
 
-    logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
+    if (logSuccess) {
+      logger.info(`API Request Started${name ? ` [${name}]` : ''}`, requestMeta);
+    }
 
     // Capture the original res.json and res.status functions to log responses
     const originalJson = res.json.bind(res);
@@ -71,7 +79,7 @@ export function withApiLogging(
         logger.error(`API Request Failed${name ? ` [${name}]` : ''}`, undefined, responseMeta);
       } else if (statusCode >= 400) {
         logger.warn(`API Request Error${name ? ` [${name}]` : ''}`, responseMeta);
-      } else {
+      } else if (logSuccess) {
         logger.info(`API Request Completed${name ? ` [${name}]` : ''}`, responseMeta);
       }
 
@@ -101,13 +109,18 @@ export function withApiLogging(
  */
 export function withApiAuthAndLogging(
   handler: NextApiHandler,
-  options: { 
+  options: {
     logBody?: boolean;
     name?: string;
     allowedMethods?: string[];
+    logSuccess?: boolean;
   } = {}
 ) {
-  const { allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'], name } = options;
+  const {
+    allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'],
+    name,
+    logSuccess = logger.isSuccessLoggingEnabled(),
+  } = options;
 
   return withApiLogging(async (req: NextApiRequest, res: NextApiResponse) => {
     // Method validation
@@ -134,7 +147,7 @@ export function withApiAuthAndLogging(
     }
 
     return handler(req, res);
-  }, { ...options, skipAuth: true }); // skipAuth since we handle it manually above
+  }, { ...options, skipAuth: true, logSuccess }); // skipAuth since we handle it manually above
 }
 
 export default withApiLogging;
