@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Added a shared `LOG_SUCCESS_EVENTS` toggle so successful authentication and middleware INFO logs can be muted without touching warnings/errors, updated API callers to surface the option, and introduced Jest coverage for the quiet mode.
 * Added a manual "Send Notifications Now" action to the Notification settings modal, surfacing success or error toasts when `/api/notify` completes so teams can validate SMTP credentials instantly.
 * Added a reusable page loader overlay and spinner placeholders so the domains dashboard, single-domain view, and research workspace stay blocked until router state and React Query data settle, while keeping loading labels accessible.
 * Removed redundant domain guards so dashboard headers, screenshots, and Search Console refreshes operate directly on the stored host names.
