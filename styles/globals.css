@@ -35,6 +35,11 @@ body {
       padding-right: var(--layout-inline);
       width: calc(100% + (var(--layout-inline) * 2));
    }
+
+   .topbar__back {
+      right: var(--layout-inline);
+      left: auto;
+   }
 }
 
 @media (min-width: 1024px) {

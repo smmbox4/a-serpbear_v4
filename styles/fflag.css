@@ -17,8 +17,8 @@
 }
 
 .fflag-map-pack {
-   background-color: #fde68a;
-   border: 1px solid rgb(251 191 36 / 75%);
+   background-color: #fff;
+   border: 1px solid #22c55e;
 }
 
 .fflag-map-pack::after {
@@ -31,7 +31,7 @@
    font-size: 8px;
    font-weight: 700;
    letter-spacing: 0.4px;
-   color: #0f172a;
+   color: #22c55e;
 }
 
 .fflag-CH,
