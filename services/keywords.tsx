@@ -8,11 +8,11 @@ type KeywordsResponse = {
    [key: string]: any,
 };
 
-const normaliseKeywordFlags = (keyword: KeywordType): KeywordType => ({
+const normaliseKeywordFlags = (keyword: any): KeywordType => ({
    ...keyword,
-   updating: normaliseBooleanFlag(keyword?.updating),
-   sticky: normaliseBooleanFlag(keyword?.sticky),
-   mapPackTop3: normaliseBooleanFlag((keyword as any)?.mapPackTop3),
+   updating: normaliseBooleanFlag(keyword.updating),
+   sticky: normaliseBooleanFlag(keyword.sticky),
+   mapPackTop3: normaliseBooleanFlag(keyword.mapPackTop3),
 });
 
 export const fetchKeywords = async (router: NextRouter, domain: string) => {
