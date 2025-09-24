@@ -21,7 +21,7 @@ jest.mock('../../services/keywords', () => ({
                keyword: 'tracked keyword',
                device: 'desktop',
                country: 'US',
-               location: '', // Empty location - this is likely the issue!
+               location: 'United States',
                domain: 'example.com',
                lastUpdated: '2024-01-01',
                added: '2024-01-01',
@@ -51,6 +51,7 @@ jest.mock('../../components/common/Icon', () => {
    MockIcon.displayName = 'MockIcon';
    return MockIcon;
 });
+
 
 // Mock KeywordFilters component
 jest.mock('../../components/keywords/KeywordFilter', () => {
@@ -157,5 +158,26 @@ describe('SCKeywordsTable', () => {
       await waitFor(() => {
          expect(screen.getByText('Add Keywords to Tracker')).toBeInTheDocument();
       });
+   });
+
+   it('selects only untracked keywords when using the header checkbox', async () => {
+      const { container } = renderComponent();
+
+      const headerButton = container.querySelector('.domKeywords_head button');
+      expect(headerButton).toBeInTheDocument();
+
+      fireEvent.click(headerButton as Element);
+
+      await waitFor(() => {
+         expect(screen.getByText('Add Keywords to Tracker')).toBeInTheDocument();
+      });
+
+      const trackedButton = screen.getByText('tracked keyword').closest('.keyword')?.querySelector('button');
+      expect(trackedButton).toBeDisabled();
+      expect(trackedButton).not.toHaveClass('bg-blue-700');
+
+      const untrackedButton = screen.getByText('untracked keyword').closest('.keyword')?.querySelector('button');
+      expect(untrackedButton).toBeEnabled();
+      expect(untrackedButton).toHaveClass('bg-blue-700', 'border-blue-700', 'text-white');
    });
 });

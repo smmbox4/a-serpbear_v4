@@ -6,12 +6,13 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
-* Normalised keyword `updating` flags parsed from the database and coerced API responses on the client so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
+* Disabled duplicate selection of Search Console keywords in the Discover tab by greying out tracked rows and updating the bulk "select all" control to match the keyword ideas workflow.
+* Removed the sprite-sheet background from the map-pack badge so the green "MAP" label no longer shows the stray exclamation mark behind it.
+* Normalised keyword `updating` flags parsed from the database so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
 * Propagated map-pack membership from supported scrapers through persistence, emails, and keyword UIs, adding a stacked CSS badge that references `map-pack.png` whenever a tracked domain appears in the local pack top three.
 * Raised ESLint's `max-len` threshold to 200 characters, relaxed the complexity limit to a warning at 60, and delegated unused-variable checks to `@typescript-eslint` so linting no longer fails on long SVG paths or intentionally ignored caught errors.
 * Added inline guidance and ARIA status messaging to the Notification settings "Send Notifications Now" control so manual email runs advertise readiness and progress to assistive tech.
 * Removed trailing commas from configuration and migration files to align with the project's linting rules.
-
 * Replaced the Icon component's 50-branch conditional with a renderer map, exported reusable keyword filter predicates for both tracked and idea keywords, and added targeted Jest coverage to keep the new helpers and fallbacks correct.
 * Marked Google Ads keyword ideas that already exist in the tracker as disabled for the active device, preventing duplicate selections and covering the behaviour with component tests.
 * Added a shared `LOG_SUCCESS_EVENTS` toggle so successful authentication and middleware INFO logs can be muted without touching warnings/errors, updated API callers to surface the option, and introduced Jest coverage for the quiet mode.

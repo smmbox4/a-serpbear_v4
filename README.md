@@ -195,6 +195,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 
 - Authenticate with a service account and SerpBear will enrich each keyword with impression, click, and CTR metrics.
 - Cached data refreshes automatically once per `CRON_MAIN_SCHEDULE` cycle (respecting `CRON_TIMEZONE`) and can be refreshed manually from the settings view.
+- The Discover tab now disables Search Console keywords that are already tracked and its "select all" checkbox ignores those rows, mirroring the Google Ads ideas workflow to prevent duplicate tracking.
 - Search Console data is optional; when credentials are missing the UI gracefully hides related panels.
 - When credentials are present, manual refreshes and scheduled digests now always run the Search Console pipeline instead of skipping requests when the domain payload is unexpectedly falsy.
 
