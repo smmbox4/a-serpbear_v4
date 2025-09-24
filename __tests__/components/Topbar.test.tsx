@@ -31,7 +31,7 @@ describe('TopBar Component', () => {
 
       // More robust CSS validation with better error reporting and maintainability
       // Extract the mobile media query section for targeted testing
-      const mobileMediaQueryRegex = /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{((?:[^{}]*\{[^{}]*\}[^{}]*)*)\}/;
+      const mobileMediaQueryRegex = /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{([\s\S]*?)\}/;
       const mobileMediaMatch = css.match(mobileMediaQueryRegex);
       
       expect(mobileMediaMatch).toBeTruthy();
