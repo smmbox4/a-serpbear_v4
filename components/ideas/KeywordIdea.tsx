@@ -54,8 +54,13 @@ const KeywordIdea = (props: KeywordIdeaProps) => {
             <button
                type="button"
                className={`p-0 mr-2 leading-[0px] inline-block rounded-sm pt-0 px-[1px] pb-[3px] border
-               ${isTracked || selected ? ' bg-blue-700 border-blue-700 text-white' : 'text-transparent'}
-               ${isTracked ? 'bg-gray-400 border-gray-400 cursor-not-allowed opacity-80' : ''}`}
+               ${
+                 isTracked
+                   ? 'bg-gray-400 border-gray-400 text-white cursor-not-allowed opacity-80'
+                   : selected
+                     ? 'bg-blue-700 border-blue-700 text-white'
+                     : 'text-transparent'
+               }`}
                aria-label={selectionLabel}
                aria-disabled={isTracked}
                disabled={isTracked}
