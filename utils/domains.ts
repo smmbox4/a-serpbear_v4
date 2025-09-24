@@ -30,14 +30,12 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
       if (localSCData && localSCData.stats && Array.isArray(localSCData.stats) && localSCData.stats.length > 0) {
          const lastSevenStats = localSCData.stats.slice(-days);
          if (lastSevenStats.length > 0) {
-            const totalStats = lastSevenStats.reduce((acc, item) => {
-            return {
+            const totalStats = lastSevenStats.reduce((acc, item) => ({
                impressions: item.impressions + acc.impressions,
                clicks: item.clicks + acc.clicks,
                ctr: item.ctr + acc.ctr,
                position: item.position + acc.position,
-            };
-         }, { impressions: 0, clicks: 0, ctr: 0, position: 0 });
+            }), { impressions: 0, clicks: 0, ctr: 0, position: 0 });
             domainWithStat.scVisits = totalStats.clicks;
             domainWithStat.scImpressions = totalStats.impressions;
             domainWithStat.scPosition = lastSevenStats.length > 0 ? Math.round(totalStats.position / lastSevenStats.length) : 0;

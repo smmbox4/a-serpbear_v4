@@ -13,12 +13,10 @@ const serpapi:ScraperSettings = {
    name: 'SerpApi.com',
    website: 'serpapi.com',
    allowsCity: true,
-   headers: (keyword: KeywordType, settings: SettingsType) => {
-      return {
+   headers: (keyword: KeywordType, settings: SettingsType) => ({
          'Content-Type': 'application/json',
          'X-API-Key': settings.scraping_api,
-      };
-   },
+      }),
    scrapeURL: (keyword, settings) => {
       const country = resolveCountryCode(keyword.country);
       const countryName = countries[country][0];

@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -98,8 +100,7 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
       },
    ];
 
-   const renderTable = () => {
-      return render(
+   const renderTable = () => render(
          <QueryClientProvider client={queryClient}>
             <KeywordIdeasTable
                domain={domain}
@@ -113,7 +114,6 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
             />
          </QueryClientProvider>,
       );
-   };
 
    beforeEach(() => {
       queryClient = new QueryClient({
@@ -123,7 +123,10 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
          },
       });
 
-      useFetchKeywordsMock.mockReturnValue({ keywordsData: { keywords: trackedKeywords }, keywordsLoading: false } as any);
+      useFetchKeywordsMock.mockReturnValue({
+         keywordsData: { keywords: trackedKeywords },
+         keywordsLoading: false,
+      } as any);
    });
 
    afterEach(() => {

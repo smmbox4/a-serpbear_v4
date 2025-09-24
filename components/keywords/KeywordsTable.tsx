@@ -97,9 +97,7 @@ const KeywordsTable = (props: KeywordsTableProps) => {
       updateMutate({ ...defaultSettings, ...settings, keywordsColumns: newColumns });
    };
 
-   const shouldHideColumn = useCallback((col:string) => {
-      return settings?.keywordsColumns && !settings?.keywordsColumns.includes(col) ? 'lg:hidden' : '';
-   }, [settings?.keywordsColumns]);
+   const shouldHideColumn = useCallback((col:string) => settings?.keywordsColumns && !settings?.keywordsColumns.includes(col) ? 'lg:hidden' : '', [settings?.keywordsColumns]);
 
    const Row = ({ data, index, style }:ListChildComponentProps) => {
       const keyword = data[index];
@@ -268,15 +266,13 @@ const KeywordsTable = (props: KeywordsTableProps) => {
                               </div>
                               {showScDataTypes && (
                                  <div className='absolute bg-white border border-gray-200 z-50 w-44 rounded mt-2 ml-5 text-gray-500'>
-                                    {Object.keys(scDataObject).map((itemKey) => {
-                                       return <span
+                                    {Object.keys(scDataObject).map((itemKey) => <span
                                                 className={`block p-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-600
                                                  ${scDataType === itemKey ? 'bg-indigo-100 text-indigo-600' : ''}`}
                                                 key={itemKey}
                                                 onClick={() => { setScDataType(itemKey); setShowScDataTypes(false); }}>
                                                    {scDataObject[itemKey]}
-                                                </span>;
-                                    })}
+                                                </span>)}
                                  </div>
                               )}
                            </div>

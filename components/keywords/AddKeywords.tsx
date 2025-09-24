@@ -136,7 +136,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                   <SelectField
                      multiple={false}
                      selected={[newKeywordsData.country]}
-                     options={Object.keys(countries).map((countryISO:string) => { return { label: countries[countryISO][0], value: countryISO }; })}
+                     options={Object.keys(countries).map((countryISO:string) => ({ label: countries[countryISO][0], value: countryISO }))}
                      defaultLabel='All Countries'
                      updateField={(updated:string[]) => {
                         setNewKeywordsData({ ...newKeywordsData, country: updated[0] });
@@ -176,8 +176,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                   {showTagSuggestions && (
                      <ul className={`absolute z-50
                      bg-white border border-t-0 border-gray-200 rounded rounded-t-none w-full`}>
-                        {existingTags.length > 0 && existingTags.map((tag, index) => {
-                           return (
+                        {existingTags.length > 0 && existingTags.map((tag, index) => (
                               newKeywordsData.tags
                                  .split(',')
                                  .map((t) => t.trim())
@@ -187,7 +186,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                                        key={index}
                                        onClick={() => {
                                           const tagInput = newKeywordsData.tags;
-                                          // eslint-disable-next-line no-nested-ternary
+                                           
                                           const tagToInsert = tagInput + (tagInput.trim().slice(-1) === ',' ? '' : tagInput.trim() ? ', ' : '') + tag;
                                           setNewKeywordsData({ ...newKeywordsData, tags: tagToInsert });
                                           setShowTagSuggestions(false);
@@ -196,8 +195,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                                        <Icon type='tags' size={14} color='#bbb' /> {tag}
                                     </li>
                                  )
-                           );
-                        })}
+                           ))}
                {existingTags.length === 0 && <p>No Existing Tags Found... </p>}
                     </ul>
                  )}

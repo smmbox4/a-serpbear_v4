@@ -114,9 +114,7 @@ const KeywordFilters = (props: KeywordFilterProps) => {
       sortOptionChoices.push({ value: 'ctr_asc', label: 'Highest CTR' });
       sortOptionChoices.push({ value: 'ctr_desc', label: 'Lowest CTR' });
    }
-   const sortItemStyle = (sortType:string) => {
-      return `cursor-pointer py-2 px-3 hover:bg-[#FCFCFF] ${sortBy === sortType ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-50' : ''}`;
-   };
+   const sortItemStyle = (sortType:string) => `cursor-pointer py-2 px-3 hover:bg-[#FCFCFF] ${sortBy === sortType ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-50' : ''}`;
    const deviceTabStyle = 'select-none cursor-pointer px-3 py-2 rounded-3xl mr-2';
    const deviceTabCountStyle = 'px-2 py-0 rounded-3xl bg-[#DEE1FC] text-[0.7rem] font-bold ml-1';
    const mobileFilterOptionsStyle = 'visible mt-8 border absolute min-w-[0] rounded-lg max-h-96 bg-white z-50 w-52 right-2 p-4';
@@ -198,14 +196,12 @@ const KeywordFilters = (props: KeywordFilterProps) => {
                      data-testid="sort_options"
                      className='sort_options mt-2 border absolute w-48 min-w-[0] right-0 rounded-lg
                      max-h-96 bg-white z-[9999] overflow-y-auto styled-scrollbar'>
-                        {sortOptionChoices.map((sortOption) => {
-                           return <li
+                        {sortOptionChoices.map((sortOption) => <li
                                     key={sortOption.value}
                                     className={sortItemStyle(sortOption.value)}
                                     onClick={() => { updateSort(sortOption.value); showSortOptions(false); }}>
                                        {sortOption.label}
-                                    </li>;
-                        })}
+                                    </li>)}
                      </ul>
                   )}
                </div>
@@ -224,8 +220,7 @@ const KeywordFilters = (props: KeywordFilterProps) => {
                      data-testid="sort_options"
                      className='sort_options mt-2 border absolute w-48 min-w-[0] right-0 rounded-lg
                      max-h-96 bg-white z-[9999] overflow-y-auto styled-scrollbar border-gray-200 '>
-                        {columnOptionChoices.map(({ value, label, locked }) => {
-                           return <li
+                        {columnOptionChoices.map(({ value, label, locked }) => <li
                                     key={value}
                                     className={sortItemStyle(value) + (locked ? 'bg-gray-50 cursor-not-allowed pointer-events-none' : '') }
                                     onClick={() => { if (updateColumns) { updateColumns(value); } showColumnOptions(false); }}
@@ -240,8 +235,7 @@ const KeywordFilters = (props: KeywordFilterProps) => {
                                         </span>
                                        {' '}{label}
 
-                                    </li>;
-                        })}
+                                    </li>)}
                      </ul>
                   )}
                </div>

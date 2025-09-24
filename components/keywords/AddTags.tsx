@@ -62,7 +62,7 @@ const AddTags = ({ keywords = [], existingTags = [], closeModal }: AddTagsProps)
                               className=' p-2 cursor-pointer hover:text-indigo-600 hover:bg-indigo-50 transition'
                               key={index}
                               onClick={() => {
-                                 // eslint-disable-next-line no-nested-ternary
+                                  
                                  const tagToInsert = tagInput + (tagInput.trim().slice(-1) === ',' ? '' : (tagInput.trim() ? ', ' : '')) + tag;
                                  setTagInput(tagToInsert);
                                  setShowSuggestions(false);

@@ -127,8 +127,7 @@ const Domains: NextPage = () => {
                </div>
             </div>
             <div className='flex w-full flex-col mb-8'>
-               {domainsData?.domains && domainsData.domains.map((domain:DomainType) => {
-                  return <DomainItem
+               {domainsData?.domains && domainsData.domains.map((domain:DomainType) => <DomainItem
                            key={domain.ID}
                            domain={domain}
                            selected={false}
@@ -137,8 +136,7 @@ const Domains: NextPage = () => {
                            updateThumb={manuallyUpdateThumb}
                            screenshotsEnabled={SCREENSHOTS_ENABLED}
                            // isConsoleIntegrated={false}
-                           />;
-               })}
+                           />)}
                {!isDomainsLoading && domainsData && domainsData.domains && domainsData.domains.length === 0 && (
                   <div className='noDomains mt-4 p-5 py-12 rounded border text-center bg-white text-sm'>
                      No Domains Found. Add a Domain to get started!

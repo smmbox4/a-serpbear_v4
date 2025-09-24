@@ -264,9 +264,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
  * @returns {Promise}
  */
 const refreshParallel = async (keywords:KeywordType[], settings:SettingsType) : Promise<RefreshResult[]> => {
-   const promises: Promise<RefreshResult>[] = keywords.map((keyword) => {
-      return scrapeKeywordFromGoogle(keyword, settings);
-   });
+   const promises: Promise<RefreshResult>[] = keywords.map((keyword) => scrapeKeywordFromGoogle(keyword, settings));
 
    return Promise.all(promises).then((promiseData) => {
       console.log('ALL DONE!!!');

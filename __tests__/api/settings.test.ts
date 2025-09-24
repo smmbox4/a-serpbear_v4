@@ -217,7 +217,9 @@ describe('GET /api/settings and configuration requirements', () => {
   });
 
   it('returns defaults when files are missing', async () => {
-    readFileMock.mockRejectedValueOnce(new Error('missing settings')).mockRejectedValueOnce(new Error('missing failed queue'));
+    readFileMock
+      .mockRejectedValueOnce(new Error('missing settings'))
+      .mockRejectedValueOnce(new Error('missing failed queue'));
     writeFileMock.mockResolvedValue(undefined);
 
     const settings = await settingsApi.getAppSettings();

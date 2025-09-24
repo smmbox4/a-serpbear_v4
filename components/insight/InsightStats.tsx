@@ -14,13 +14,11 @@ type InsightStatsProps = {
 
 const InsightStats = ({ stats = [], totalKeywords = 0, totalPages = 0 }:InsightStatsProps) => {
     const totalStat = useMemo(() => {
-      const totals = stats.reduce((acc, item) => {
-          return {
+      const totals = stats.reduce((acc, item) => ({
             impressions: item.impressions + acc.impressions,
             clicks: item.clicks + acc.clicks,
             position: item.position + acc.position,
-          };
-      }, { impressions: 0, clicks: 0, position: 0 });
+          }), { impressions: 0, clicks: 0, position: 0 });
 
       return {
           ...totals,

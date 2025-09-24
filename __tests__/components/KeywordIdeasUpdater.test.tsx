@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
@@ -48,13 +50,11 @@ describe('KeywordIdeasUpdater Component', () => {
       });
    });
 
-   const renderWithQueryClient = (component: React.ReactElement) => {
-      return render(
+   const renderWithQueryClient = (component: React.ReactElement) => render(
          <QueryClientProvider client={queryClient}>
             {component}
          </QueryClientProvider>,
       );
-   };
 
    it('renders without crashing', () => {
       renderWithQueryClient(

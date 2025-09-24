@@ -27,9 +27,7 @@ describe('Migration Error Handling', () => {
     // Create a mock queryInterface that will fail
     const mockQueryInterface = {
       sequelize: {
-        transaction: jest.fn((callback) => {
-          return callback({ transaction: 'mock' });
-        }),
+        transaction: jest.fn((callback) => callback({ transaction: 'mock' })),
       },
       describeTable: jest.fn().mockRejectedValue(new Error('Test database error')),
     };
@@ -56,9 +54,7 @@ describe('Migration Error Handling', () => {
     // Create a mock queryInterface that will fail
     const mockQueryInterface = {
       sequelize: {
-        transaction: jest.fn((callback) => {
-          return callback({ transaction: 'mock' });
-        }),
+        transaction: jest.fn((callback) => callback({ transaction: 'mock' })),
       },
       removeIndex: jest.fn().mockRejectedValue(new Error('Index removal failed')),
     };
@@ -85,9 +81,7 @@ describe('Migration Error Handling', () => {
     // Create a mock queryInterface that succeeds
     const mockQueryInterface = {
       sequelize: {
-        transaction: jest.fn(async (callback) => {
-          return await callback({ transaction: 'mock' });
-        }),
+        transaction: jest.fn(async (callback) => await callback({ transaction: 'mock' })),
         constructor: { DataTypes },
       },
       describeTable: jest.fn().mockResolvedValue({

@@ -41,9 +41,7 @@ const KeywordDetails = ({ keyword, closeDetails }:KeywordDetailsProps) => {
       }
    }, [keywordSearchResult, keyword.position]);
 
-   const chartData = useMemo(() => {
-      return generateTheChartData(keywordHistory, chartTime);
-   }, [keywordHistory, chartTime]);
+   const chartData = useMemo(() => generateTheChartData(keywordHistory, chartTime), [keywordHistory, chartTime]);
 
    const closeOnBGClick = (e:React.SyntheticEvent) => {
       e.stopPropagation();

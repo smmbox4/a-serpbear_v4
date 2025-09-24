@@ -193,9 +193,7 @@ export const safeTrim = (value: any): string => {
  * Checks if a trimmed value has non-zero length
  * Handles both string and non-string values safely
  */
-export const hasTrimmedLength = (value: any): boolean => {
-   return safeTrim(value).length > 0;
-};
+export const hasTrimmedLength = (value: any): boolean => safeTrim(value).length > 0;
 
 /**
  * Trims all string properties in an object

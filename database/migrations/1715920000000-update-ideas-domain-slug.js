@@ -2,9 +2,9 @@
 
 module.exports = {
    up: async () => {
-      // eslint-disable-next-line global-require
+       
       const fs = require('fs/promises');
-      // eslint-disable-next-line global-require
+       
       const path = require('path');
       try {
          const dataDir = path.resolve(process.cwd(), 'data');

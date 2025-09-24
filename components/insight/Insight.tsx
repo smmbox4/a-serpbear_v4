@@ -73,7 +73,7 @@ const SCInsight = ({ insight, isLoading = true, isConsoleIntegrated = true, doma
                   </ul>
                   <div className='insight_selector lg:hidden'>
                      <SelectField
-                     options={['stats', 'keywords', 'countries', 'pages'].map((d) => { return { label: d, value: d }; })}
+                     options={['stats', 'keywords', 'countries', 'pages'].map((d) => ({ label: d, value: d }))}
                      selected={[activeTab]}
                      defaultLabel="Select Tab"
                      updateField={(updatedTab:[string]) => switchTab(updatedTab[0])}

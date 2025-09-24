@@ -20,7 +20,7 @@ jest.mock('../../utils/apiLogging', () => ({
   withApiLogging: (handler: any) => handler,
 }));
 
-type MutableEnv = NodeJS.ProcessEnv & {
+type MutableEnv = typeof process.env & {
    USER?: string;
    USER_NAME?: string;
    PASSWORD?: string;

@@ -40,7 +40,7 @@ const DomainHeader = (
             </h1>
             <div className='domain_selector bg-white mt-2 lg:hidden relative z-10'>
                <SelectField
-               options={domains && domains.length > 0 ? domains.map((d) => { return { label: d.domain, value: d.slug }; }) : []}
+               options={domains && domains.length > 0 ? domains.map((d) => ({ label: d.domain, value: d.slug })) : []}
                selected={[domain.slug]}
                defaultLabel="Select Domain"
                updateField={(updateSlug:[string]) => updateSlug && updateSlug[0] && router.push(`${updateSlug[0]}`)}
@@ -137,14 +137,12 @@ const DomainHeader = (
                   </span>
                   {ShowSCDates && (
                      <div className='absolute w-24 z-50 mt-0 right-0 bg-white border border-gray-200 rounded text-center'>
-                        {['threeDays', 'sevenDays', 'thirtyDays'].map((itemKey) => {
-                           return <button
+                        {['threeDays', 'sevenDays', 'thirtyDays'].map((itemKey) => <button
                                     key={itemKey}
                                     className={`${scDataFilterStyle} ${scFilter === itemKey ? ' bg-indigo-100 text-indigo-600' : ''}`}
                                     onClick={() => { setShowSCDates(false); if (setScFilter) setScFilter(itemKey); }}
                                     >Last {daysName(itemKey)}
-                                 </button>;
-                        })}
+                                 </button>)}
                      </div>
                   )}
                </div>

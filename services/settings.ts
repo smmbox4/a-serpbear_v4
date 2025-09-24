@@ -61,8 +61,7 @@ export function useClearFailedQueue(onSuccess:Function) {
    });
 }
 
-export const useSendNotifications = () => {
-   return useMutation(async () => {
+export const useSendNotifications = () => useMutation(async () => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers };
       const res = await fetch(`${window.location.origin}/api/notify`, fetchOpts);
@@ -91,7 +90,6 @@ export const useSendNotifications = () => {
          toast(error.message || 'Error Sending Notifications.', { icon: '⚠️' });
       },
    });
-};
 
 // Migration helpers were removed when the database API endpoint was retired. The
 // Docker entrypoint now owns running migrations during container startup.

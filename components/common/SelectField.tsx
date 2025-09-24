@@ -40,11 +40,7 @@ const SelectField = (props: SelectFieldProps) => {
    const [filterInput, setFilterInput] = useState<string>('');
    const [filterdOptions, setFilterdOptions] = useState<SelectionOption[]>([]);
 
-   const selectedLabels = useMemo(() => {
-      return options.reduce((acc:string[], item:SelectionOption) :string[] => {
-         return selected.includes(item.value) ? [...acc, item.label] : [...acc];
-     }, []);
-   }, [selected, options]);
+   const selectedLabels = useMemo(() => options.reduce((acc:string[], item:SelectionOption) :string[] => selected.includes(item.value) ? [...acc, item.label] : [...acc], []), [selected, options]);
 
    const selectItem = (option:SelectionOption) => {
       let updatedSelect = [option.value];

@@ -64,20 +64,14 @@ const Keyword = (props: KeywordProps) => {
    const [showOptions, setShowOptions] = useState(false);
    const [showPositionError, setPositionError] = useState(false);
 
-   const turncatedURL = useMemo(() => {
-      return url.replace(`https://${domain}`, '').replace(`https://www.${domain}`, '').replace(`http://${domain}`, '');
-   }, [url, domain]);
+   const turncatedURL = useMemo(() => url.replace(`https://${domain}`, '').replace(`https://www.${domain}`, '').replace(`http://${domain}`, ''), [url, domain]);
 
-   const chartData = useMemo(() => {
-      return generateTheChartData(history, '7');
-   }, [history]);
+   const chartData = useMemo(() => generateTheChartData(history, '7'), [history]);
 
    const positionChange = useMemo(() => {
       let status = 0;
       if (Object.keys(history).length >= 2) {
-         const historyArray = Object.keys(history).map((dateKey:string) => {
-            return { date: new Date(dateKey).getTime(), dateRaw: dateKey, position: history[dateKey] };
-         });
+         const historyArray = Object.keys(history).map((dateKey:string) => ({ date: new Date(dateKey).getTime(), dateRaw: dateKey, position: history[dateKey] }));
          const historySorted = historyArray.sort((a, b) => a.date - b.date);
          const previousPos = historySorted[historySorted.length - 2].position;
          status = previousPos === 0 ? position : previousPos - position;
