@@ -25,6 +25,7 @@ export interface LogEntry {
 
 class Logger {
   private logLevel: LogLevel;
+  private logSuccessEvents: boolean;
 
   constructor() {
     // Set log level from environment or default to INFO
@@ -45,6 +46,9 @@ class Logger {
       default:
         this.logLevel = LogLevel.INFO;
     }
+
+    const envSuccessLogging = process.env.LOG_SUCCESS_EVENTS?.toLowerCase();
+    this.logSuccessEvents = !['false', '0', 'off'].includes(envSuccessLogging ?? '');
   }
 
   private static formatLogEntry(level: string, message: string, meta?: Record<string, any>, error?: Error): string {
@@ -96,6 +100,10 @@ class Logger {
     this.log(LogLevel.VERBOSE, 'VERBOSE', message, meta);
   }
 
+  isSuccessLoggingEnabled(): boolean {
+    return this.logSuccessEvents;
+  }
+
   // API request logging helper
   apiRequest(method: string, url: string, statusCode?: number, duration?: number, meta?: Record<string, any>): void {
     const logMeta = {
@@ -123,7 +131,9 @@ class Logger {
     };
 
     if (success) {
-      this.info(`Auth Event: ${event}`, logMeta);
+      if (this.logSuccessEvents) {
+        this.info(`Auth Event: ${event}`, logMeta);
+      }
     } else {
       this.warn(`Auth Event Failed: ${event}`, logMeta);
     }
