@@ -29,6 +29,13 @@ const sharedSettings = {
   },
 };
 
+const noUnusedVarsConfig = {
+  argsIgnorePattern: "^_",
+  varsIgnorePattern: "^_",
+  caughtErrors: "all",
+  caughtErrorsIgnorePattern: "^_",
+};
+
 export default [
   {
     ignores: [".next/**", "coverage/**", "node_modules/**", "dist/**", "build/**"],
@@ -92,12 +99,7 @@ export default [
       "class-methods-use-this": "error",
       "no-unused-vars": [
         "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrors: "all",
-          caughtErrorsIgnorePattern: "^_",
-        },
+        noUnusedVarsConfig,
       ],
 
       // Imports
@@ -136,12 +138,7 @@ export default [
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",
-        {
-          argsIgnorePattern: "^_",
-          varsIgnorePattern: "^_",
-          caughtErrors: "all",
-          caughtErrorsIgnorePattern: "^_",
-        },
+        noUnusedVarsConfig,
       ],
     },
   },
