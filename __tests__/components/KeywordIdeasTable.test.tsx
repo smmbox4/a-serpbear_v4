@@ -34,7 +34,7 @@ jest.mock('react-chartjs-2', () => ({
 
 const useFetchKeywordsMock = useFetchKeywords as jest.MockedFunction<typeof useFetchKeywords>;
 
-describe('KeywordIdeasTable tracked keyword behaviour', () => {
+describe('KeywordIdeasTable DRY Principle Implementation', () => {
    let queryClient: QueryClient;
 
    const domain: DomainType = {

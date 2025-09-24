@@ -16,6 +16,11 @@ import IdeaDetails from './IdeaDetails';
 import { fetchDomains } from '../../services/domains';
 import SelectField from '../common/SelectField';
 
+// Extended IdeaKeyword type that includes precomputed tracking status
+type IdeaKeywordWithTracking = IdeaKeyword & {
+   isTracked: boolean;
+};
+
 type IdeasKeywordsTableProps = {
    domain: DomainType | null,
    keywords: IdeaKeyword[],
@@ -84,15 +89,19 @@ const IdeasKeywordsTable = ({
 
    useWindowResize(() => setListHeight(window.innerHeight - (isMobile ? 200 : 400)));
 
-   const finalKeywords: IdeaKeyword[] = useMemo(() => {
+   const finalKeywords: IdeaKeywordWithTracking[] = useMemo(() => {
       const filteredKeywords = IdeasfilterKeywords(showFavorites ? favorites : keywords, filterParams);
       const sortedKeywords = IdeasSortKeywords(filteredKeywords, sortBy);
-      return sortedKeywords;
-   }, [keywords, showFavorites, favorites, filterParams, sortBy]);
+      // Compute isTracked status once for each keyword to follow DRY principle
+      return sortedKeywords.map(keyword => ({
+         ...keyword,
+         isTracked: isIdeaTracked(keyword),
+      }));
+   }, [keywords, showFavorites, favorites, filterParams, sortBy, isIdeaTracked]);
 
    const selectableKeywordIds = useMemo(() => {
-      return finalKeywords.filter((keyword) => !isIdeaTracked(keyword)).map((keyword) => keyword.uid);
-   }, [finalKeywords, isIdeaTracked]);
+      return finalKeywords.filter((keyword) => !keyword.isTracked).map((keyword) => keyword.uid);
+   }, [finalKeywords]);
 
    const favoriteIDs: string[] = useMemo(() => favorites.map((fav) => fav.uid), [favorites]);
 
@@ -155,8 +164,7 @@ const IdeasKeywordsTable = ({
    const selectedAllItems = selectableKeywordIds.length > 0 && selectedKeywords.length === selectableKeywordIds.length;
 
    const Row = ({ data, index, style }:ListChildComponentProps) => {
-      const keyword: IdeaKeyword = data[index];
-      const tracked = isIdeaTracked(keyword);
+      const keyword: IdeaKeywordWithTracking = data[index];
       return (
          <KeywordIdea
          key={keyword.uid}
@@ -168,7 +176,7 @@ const IdeasKeywordsTable = ({
          isFavorite={favoriteIDs.includes(keyword.uid)}
          keywordData={keyword}
          lastItem={index === (finalKeywords.length - 1)}
-         isTracked={tracked}
+         isTracked={keyword.isTracked}
          />
       );
    };
@@ -178,9 +186,7 @@ const IdeasKeywordsTable = ({
       if (isMobile) {
          keywordsContent = (
             <div className='block sm:hidden'>
-               {finalKeywords.map((keyword, index) => {
-                  const tracked = isIdeaTracked(keyword);
-                  return (
+               {finalKeywords.map((keyword, index) => (
                   <KeywordIdea
                      key={keyword.uid}
                      style={{}}
@@ -191,10 +197,9 @@ const IdeasKeywordsTable = ({
                      isFavorite={favoriteIDs.includes(keyword.uid)}
                      keywordData={keyword}
                      lastItem={index === (finalKeywords.length - 1)}
-                     isTracked={tracked}
+                     isTracked={keyword.isTracked}
                   />
-               );
-               })}
+               ))}
             </div>
          );
       } else {
