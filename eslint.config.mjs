@@ -14,23 +14,13 @@ import tsParser from "@typescript-eslint/parser";
 
 const baseDirectory = path.dirname(fileURLToPath(import.meta.url));
 
-const reactRecommended = reactPlugin.configs.flat.recommended;
-const reactHooksRecommended = reactHooksPlugin.configs.recommended;
-const importRecommended = importPlugin.configs.recommended;
-const importTypescript = importPlugin.configs.typescript;
-const nextCoreWebVitals = nextPlugin.flatConfig.coreWebVitals;
-
 const sharedSettings = {
-  react: {
-    version: "detect",
-  },
+  react: { version: "detect" },
   "import/parsers": {
-    "@typescript-eslint/parser": [".ts", ".cts", ".mts", ".tsx", ".d.ts"],
+    "@typescript-eslint/parser": [".ts", ".tsx", ".d.ts"],
   },
   "import/resolver": {
-    node: {
-      extensions: [".js", ".jsx", ".ts", ".tsx"],
-    },
+    node: { extensions: [".js", ".jsx", ".ts", ".tsx"] },
     typescript: {
       alwaysTryTypes: true,
       project: "./tsconfig.json",
@@ -40,13 +30,7 @@ const sharedSettings = {
 
 export default [
   {
-    ignores: [
-      ".next/**",
-      "coverage/**",
-      "node_modules/**",
-      "dist/**",
-      "build/**",
-    ],
+    ignores: [".next/**", "coverage/**", "node_modules/**", "dist/**", "build/**"],
   },
   js.configs.recommended,
   {
@@ -65,94 +49,53 @@ export default [
         ecmaVersion: "latest",
         sourceType: "module",
         requireConfigFile: false,
-        allowImportExportEverywhere: true,
-        ecmaFeatures: {
-          jsx: true,
-        },
-        babelOptions: {
-          presets: ["next/babel"],
-          caller: {
-            supportsTopLevelAwait: true,
-          },
-        },
+        ecmaFeatures: { jsx: true },
+        babelOptions: { presets: ["next/babel"] },
       },
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-      },
+      globals: { ...globals.browser, ...globals.node },
     },
     settings: sharedSettings,
-    linterOptions: {
-      reportUnusedDisableDirectives: "off",
-    },
     rules: {
-      ...reactRecommended.rules,
-      ...reactHooksRecommended.rules,
-      ...importRecommended.rules,
-      ...importTypescript.rules,
-      ...nextCoreWebVitals.rules,
-      "jsx-a11y/alt-text": [
-        "warn",
-        {
-          elements: ["img"],
-          img: ["Image"],
-        },
-      ],
+      ...reactPlugin.configs.flat.recommended.rules,
+      ...reactHooksPlugin.configs.recommended.rules,
+      ...importPlugin.configs.recommended.rules,
+      ...importPlugin.configs.typescript.rules,
+      ...nextPlugin.flatConfig.coreWebVitals.rules,
+
+      // Accessibility
+      "jsx-a11y/alt-text": ["warn", { elements: ["img"], img: ["Image"] }],
       "jsx-a11y/aria-props": "warn",
       "jsx-a11y/aria-proptypes": "warn",
       "jsx-a11y/aria-unsupported-elements": "warn",
       "jsx-a11y/role-has-required-aria-props": "warn",
       "jsx-a11y/role-supports-aria-props": "warn",
-      "react/jsx-no-target-blank": "off",
-      "react/no-unknown-property": "off",
+
+      // React modernizations
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
-      "react/jsx-uses-react": "off",
-      "linebreak-style": "off",
-      indent: "off",
-      "no-undef": "off",
-      "no-console": "off",
-      camelcase: "off",
-      "object-curly-newline": "off",
-      "no-use-before-define": "off",
-      "no-await-in-loop": "off",
-      "arrow-body-style": "off",
-      "max-len": [
-        "error",
-        { code: 150, ignoreComments: true, ignoreUrls: true },
-      ],
-      "import/no-extraneous-dependencies": "off",
-      "no-unused-vars": "off",
-      "implicit-arrow-linebreak": "off",
-      "function-paren-newline": "off",
-      complexity: ["error", { max: 50 }],
-      "comma-dangle": "off",
+
+      // Style / readability
+      "max-len": ["error", { code: 120, ignoreComments: true, ignoreUrls: true }],
+      "arrow-body-style": ["error", "as-needed"],
       "class-methods-use-this": "error",
-      "no-restricted-syntax": [
-        "error",
-        {
-          selector:
-            "TemplateLiteral[expressions.length > 0] > TemplateElement[value.raw*='<']",
-          message:
-            "Avoid HTML in template strings with interpolated variables for security reasons.",
-        },
-      ],
-      "security/detect-non-literal-fs-filename": "error",
+
+      // Imports
+      "import/no-extraneous-dependencies": "off",
       "import/extensions": [
         "error",
         "ignorePackages",
-        {
-          "": "never",
-          js: "never",
-          jsx: "never",
-          ts: "never",
-          tsx: "never",
-        },
+        { js: "never", jsx: "never", ts: "never", tsx: "never" },
       ],
+
+      // Security
+      "security/detect-non-literal-fs-filename": "error",
+
+      // Complexity guardrail
+      complexity: ["error", { max: 20 }],
     },
   },
   {
-    name: "serpbear/typescript-parser",
+    name: "serpbear/typescript",
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parser: tsParser,
@@ -161,38 +104,21 @@ export default [
         tsconfigRootDir: baseDirectory,
         sourceType: "module",
         ecmaVersion: "latest",
-        ecmaFeatures: {
-          jsx: true,
-        },
+        ecmaFeatures: { jsx: true },
       },
     },
   },
   {
-    name: "serpbear/tests-overrides",
-    files: [
-      "**/__tests__/**/*",
-      "**/__mocks__/**/*",
-      "**/*.test.*",
-      "**/*.spec.*",
-      "jest.setup.js",
-    ],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node,
-        ...globals.jest,
-      },
-    },
+    name: "serpbear/tests",
+    files: ["**/__tests__/**/*", "**/__mocks__/**/*", "**/*.{test,spec}.*", "jest.setup.js"],
+    languageOptions: { globals: { ...globals.browser, ...globals.node, ...globals.jest } },
     rules: {
-      "no-restricted-properties": "off",
       complexity: "off",
     },
   },
   {
-    name: "serpbear/config-overrides",
+    name: "serpbear/config",
     files: ["eslint.config.mjs"],
-    rules: {
-      "import/extensions": "off",
-    },
+    rules: { "import/extensions": "off" },
   },
 ];
