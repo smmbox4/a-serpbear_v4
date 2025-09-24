@@ -4,6 +4,7 @@ import SecretField from '../common/SecretField';
 import InputField from '../common/InputField';
 import Icon from '../common/Icon';
 import { useSendNotifications } from '../../services/settings';
+import { hasTrimmedLength } from '../../utils/security';
 
 type NotificationSettingsProps = {
    settings: SettingsType,
@@ -22,12 +23,8 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
       .map((email) => email.trim())
       .filter((email) => email.length > 0);
    const hasNotificationEmails = sanitizedNotificationEmails.length > 0;
-   const hasSmtpServer = typeof settings.smtp_server === 'string'
-      ? settings.smtp_server.trim().length > 0
-      : !!settings.smtp_server;
-   const hasSmtpPort = typeof settings.smtp_port === 'string'
-      ? settings.smtp_port.trim().length > 0
-      : settings.smtp_port !== null && settings.smtp_port !== undefined && String(settings.smtp_port).trim().length > 0;
+   const hasSmtpServer = hasTrimmedLength(settings.smtp_server);
+   const hasSmtpPort = hasTrimmedLength(settings.smtp_port);
    const canSendNotifications = settings.notification_interval !== 'never'
       && hasSmtpServer
       && hasSmtpPort
