@@ -107,12 +107,12 @@ export function withApiAuthAndLogging(
     allowedMethods?: string[];
   } = {}
 ) {
-  const { allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'], name } = options;
+  const { allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'] } = options;
 
   return withApiLogging(async (req: NextApiRequest, res: NextApiResponse) => {
     // Method validation
     if (!allowedMethods.includes(req.method || '')) {
-      logger.warn(`Method not allowed${name ? ` [${name}]` : ''}`, {
+      logger.warn(`Method not allowed${options.name ? ` [${options.name}]` : ''}`, {
         method: req.method,
         url: req.url,
         allowedMethods,
@@ -125,7 +125,7 @@ export function withApiAuthAndLogging(
     
     const authorized = verifyUser(req, res);
     if (authorized !== 'authorized') {
-      logger.warn(`Authentication failed${name ? ` [${name}]` : ''}`, {
+      logger.warn(`Authentication failed${options.name ? ` [${options.name}]` : ''}`, {
         method: req.method,
         url: req.url,
         reason: authorized,
