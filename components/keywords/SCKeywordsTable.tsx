@@ -40,7 +40,9 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
       return keywords.reduce((lookup: Record<string, boolean>, trackedKeyword: KeywordType) => {
          const { keyword: trackedKeywordValue, country: trackedCountry, device: trackedDevice, location: trackedLocation } = trackedKeyword;
          if (trackedKeywordValue && trackedCountry && trackedDevice) {
-            lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}:${trackedLocation || ''}`] = true;
+            // Ensure consistent location formatting - if no location is stored, use the country
+            const locationForLookup = trackedLocation || formatLocation({ country: trackedCountry });
+            lookup[`${trackedKeywordValue}:${trackedCountry}:${trackedDevice}:${locationForLookup}`] = true;
          }
          return lookup;
       }, {} as Record<string, boolean>);
