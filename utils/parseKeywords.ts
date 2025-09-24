@@ -21,6 +21,30 @@ export const normaliseHistory = (rawHistory: unknown): KeywordHistory => {
  * @param {Keyword[]} allKeywords - Keywords to scrape
  * @returns {KeywordType[]}
  */
+const normaliseBoolean = (value: unknown): boolean => {
+   if (typeof value === 'boolean') {
+      return value;
+   }
+
+   if (typeof value === 'number') {
+      return value !== 0;
+   }
+
+   if (typeof value === 'string') {
+      const trimmed = value.trim().toLowerCase();
+      if (trimmed === '' || trimmed === '0' || trimmed === 'false' || trimmed === 'no' || trimmed === 'off') {
+         return false;
+      }
+      if (trimmed === '1' || trimmed === 'true' || trimmed === 'yes' || trimmed === 'on') {
+         return true;
+      }
+
+      return Boolean(trimmed);
+   }
+
+   return Boolean(value);
+};
+
 const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
    const parsedItems = allKeywords.map((keywrd:Keyword) => {
       let historyRaw: unknown;
@@ -38,10 +62,11 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          try { lastUpdateError = JSON.parse(keywrd.lastUpdateError); } catch { lastUpdateError = {}; }
       }
 
-      const rawMapPack = (keywrd as any).map_pack_top3;
-      const mapPackTop3 = typeof rawMapPack === 'boolean'
-         ? rawMapPack
-         : ((keywrd as any).mapPackTop3 === true);
+      const rawMapPack = (keywrd as any).map_pack_top3 ?? (keywrd as any).mapPackTop3;
+      const mapPackTop3 = normaliseBoolean(rawMapPack);
+
+      const updating = normaliseBoolean((keywrd as any).updating);
+      const sticky = normaliseBoolean((keywrd as any).sticky);
 
       return {
          ...keywrd,
@@ -50,6 +75,8 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          tags,
          lastResult,
          lastUpdateError,
+         sticky,
+         updating,
          mapPackTop3,
       };
    });
