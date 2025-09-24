@@ -435,8 +435,7 @@ const detectMapPackFromHtml = (
          const value = match[1]
             .replace(/\\u002F/g, '/')
             .replace(/\\u003A/g, ':')
-            .replace(/\u002F/g, '/')
-            .replace(/\u003A/g, ':');
+            .replace(/\u002F/g, '/');
          if (value) {
             candidates.push(value);
          }
