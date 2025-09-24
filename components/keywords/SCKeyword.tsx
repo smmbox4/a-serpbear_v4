@@ -19,6 +19,10 @@ const SCKeyword = (props: SCKeywordProps) => {
    const { keywordData, selected, lastItem, selectKeyword, style, isTracked = false } = props;
    const { keyword, uid, position, country, impressions, ctr, clicks } = keywordData;
 
+   const selectionLabel = isTracked
+      ? 'Keyword already tracked'
+      : selected ? 'Deselect keyword' : 'Select keyword';
+
    return (
       <div
       key={keyword}
@@ -28,10 +32,19 @@ const SCKeyword = (props: SCKeywordProps) => {
 
          <div className=' w-3/4 lg:flex-1 lg:basis-20 lg:w-auto font-semibold cursor-pointer'>
             <button
+               type="button"
                className={`p-0 mr-2 leading-[0px] inline-block rounded-sm pt-0 px-[1px] pb-[3px] border 
-               ${isTracked || selected ? ' bg-blue-700 border-blue-700 text-white' : 'text-transparent'}
-               ${isTracked ? 'bg-gray-400 border-gray-400 cursor-default' : ''}`}
-               onClick={() => !isTracked && selectKeyword(uid)}
+               ${
+                 isTracked
+                   ? 'bg-gray-400 border-gray-400 text-white cursor-not-allowed opacity-80'
+                   : selected
+                     ? 'bg-blue-700 border-blue-700 text-white'
+                     : 'text-transparent'
+               }`}
+               aria-label={selectionLabel}
+               aria-disabled={isTracked}
+               disabled={isTracked}
+               onClick={() => selectKeyword(uid, isTracked)}
                >
                   <Icon type="check" size={10} title={isTracked ? 'Already in Tracker' : ''} />
             </button>
