@@ -18,9 +18,18 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
       const allKeywords:Keyword[] = await Keyword.findAll({ where: { domain: domain.domain } });
       const keywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
       domainWithStat.keywordsTracked = keywords.length;
-      domainWithStat.mapPackKeywords = keywords.filter((keyword) => keyword.mapPackTop3 === true).length;
-      const keywordPositions = keywords.reduce((acc, itm) => (acc + itm.position), 0);
-      const KeywordsUpdateDates: number[] = keywords.reduce((acc: number[], itm) => [...acc, new Date(itm.lastUpdated).getTime()], [0]);
+      const { mapPackKeywords, keywordPositions, KeywordsUpdateDates } = keywords.reduce(
+        (stats, keyword) => {
+          if (keyword.mapPackTop3 === true) {
+            stats.mapPackKeywords++;
+          }
+          stats.keywordPositions += keyword.position;
+          stats.KeywordsUpdateDates.push(new Date(keyword.lastUpdated).getTime());
+          return stats;
+        },
+        { mapPackKeywords: 0, keywordPositions: 0, KeywordsUpdateDates: [0] as number[] },
+      );
+      domainWithStat.mapPackKeywords = mapPackKeywords;
       const lastKeywordUpdateDate = Math.max(...KeywordsUpdateDates);
       domainWithStat.keywordsUpdated = new Date(lastKeywordUpdateDate || new Date(domain.lastUpdated).getTime()).toJSON();
       domainWithStat.avgPosition = keywords.length > 0 ? Math.round(keywordPositions / keywords.length) : 0;
