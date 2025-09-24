@@ -45,7 +45,7 @@ const SingleDomain: NextPage = () => {
 
    const { keywordsData, keywordsLoading } = useFetchKeywords(router, activDomain?.domain || '', setKeywordSPollInterval, keywordSPollInterval);
    const theDomains: DomainType[] = (domainsData && domainsData.domains) || [];
-   const theKeywords: KeywordType[] = (keywordsData && keywordsData.keywords) || [];
+   const theKeywords: KeywordType[] = (keywordsData?.keywords || []) as KeywordType[];
 
    return (
       <div className="Domain">

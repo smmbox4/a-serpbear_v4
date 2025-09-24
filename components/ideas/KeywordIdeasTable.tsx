@@ -55,7 +55,7 @@ const IdeasKeywordsTable = ({
       if (Array.isArray(trackedKeywordsData)) {
          return trackedKeywordsData as KeywordType[];
       }
-      return (trackedKeywordsData?.keywords as KeywordType[]) || [];
+      return (trackedKeywordsData?.keywords || []) as KeywordType[];
    }, [trackedKeywordsData]);
 
    const trackedKeywordLookup = useMemo(() => {
