@@ -14,6 +14,7 @@ const serpapi:ScraperSettings = {
    name: 'SerpApi.com',
    website: 'serpapi.com',
    allowsCity: true,
+   supportsMapPack: true,
    headers: (keyword: KeywordType, settings: SettingsType) => ({
          'Content-Type': 'application/json',
          'X-API-Key': settings.scraping_api,

@@ -31,6 +31,7 @@ const serply:ScraperSettings = {
       return `https://api.serply.io/v1/search?${searchParams.toString()}`;
    },
    resultObjectKey: 'result',
+   supportsMapPack: true,
    serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
       let results: SerplyResult[] = [];

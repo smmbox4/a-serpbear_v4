@@ -26,6 +26,7 @@ const spaceSerp:ScraperSettings = {
       return `https://api.spaceserp.com/google/search?apiKey=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&pageSize=100&gl=${country}&hl=${lang}${location}${device}&resultBlocks=`;
    },
    resultObjectKey: 'organic_results',
+   supportsMapPack: true,
    serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
       let results: SpaceSerpResult[] = [];

@@ -19,6 +19,7 @@ const serper:ScraperSettings = {
       return `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}&num=100&apiKey=${settings.scraping_api}`;
    },
    resultObjectKey: 'organic',
+   supportsMapPack: true,
    serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
       let results: SerperResult[] = [];

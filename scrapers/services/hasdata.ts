@@ -27,6 +27,7 @@ const hasdata:ScraperSettings = {
       return `https://api.scrape-it.cloud/scrape/google/serp?q=${encodeURIComponent(keyword.keyword)}${location}&num=100&gl=${country.toLowerCase()}&deviceType=${keyword.device}`;
    },
    resultObjectKey: 'organicResults',
+   supportsMapPack: true,
    serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
       let results: HasDataResult[] = [];
