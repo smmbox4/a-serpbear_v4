@@ -237,6 +237,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
   - `npm run lint` for ESLint (JavaScript/TypeScript).
   - `npm run lint:css` for Stylelint (global styles).
   - Follow the repository's no-trailing-commas rule for object and array literals so configuration changes pass linting.
+  - ESLint now caps line length warnings at 200 characters and reports function complexity over 60 as a warning; prefix unused arguments or errors with `_` to silence the new TypeScript-aware unused-variable checks.
 - **Testing:**
   - `npm test` executes the Jest test suite using the `@happy-dom/jest-environment` adapter.
   - `npm run test:ci` mirrors the CI environment.

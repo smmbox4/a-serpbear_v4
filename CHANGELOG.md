@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Raised ESLint's `max-len` threshold to 200 characters, relaxed the complexity limit to a warning at 60, and delegated unused-variable checks to `@typescript-eslint` so linting no longer fails on long SVG paths or intentionally ignored caught errors.
 * Added inline guidance and ARIA status messaging to the Notification settings "Send Notifications Now" control so manual email runs advertise readiness and progress to assistive tech.
 * Removed trailing commas from configuration and migration files to align with the project's linting rules.
 
