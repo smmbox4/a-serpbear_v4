@@ -17,8 +17,13 @@ describe('fetchDomainScreenshot cache resilience', () => {
       }
    });
 
-   it('clears invalid cached thumbnails before fetching', async () => {
-      localStorage.setItem('domainThumbs', 'not-json');
+   it.each([
+      ['invalid JSON string', 'not-json'],
+      ['a JSON array', '[]'],
+      ['a JSON primitive', 'true'],
+      ['an object with non-string values', '{"domain":123}'],
+   ])('clears invalid cached thumbnails (%s) before fetching', async (_name, invalidCache) => {
+      localStorage.setItem('domainThumbs', invalidCache);
 
       let fetchDomainScreenshot: FetchDomainScreenshot | undefined;
       jest.isolateModules(() => {
