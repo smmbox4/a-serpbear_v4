@@ -32,10 +32,10 @@ const normaliseBoolean = (value: unknown): boolean => {
 
    if (typeof value === 'string') {
       const trimmed = value.trim().toLowerCase();
-      if (trimmed === '' || trimmed === '0' || trimmed === 'false' || trimmed === 'no' || trimmed === 'off') {
+      if (['', '0', 'false', 'no', 'off'].includes(trimmed)) {
          return false;
       }
-      if (trimmed === '1' || trimmed === 'true' || trimmed === 'yes' || trimmed === 'on') {
+      if (['1', 'true', 'yes', 'on'].includes(trimmed)) {
          return true;
       }
 
