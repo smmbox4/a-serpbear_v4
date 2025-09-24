@@ -16,17 +16,8 @@ type DomainItemProps = {
    thumb: string,
    updateThumb: Function,
    screenshotsEnabled?: boolean,
+   showMapPackStat?: boolean,
 }
-
-const toggleTrackClassName = [
-   'relative rounded-3xl w-9 h-5 bg-gray-200',
-   'peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300',
-   'dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700',
-   'peer-checked:after:translate-x-full peer-checked:after:border-white',
-   "after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300",
-   'after:border after:rounded-full after:h-4 after:w-4 after:transition-all',
-   'dark:border-gray-600 peer-checked:bg-blue-600',
-].join(' ');
 
 const DomainItem = ({
    domain,
@@ -35,8 +26,18 @@ const DomainItem = ({
    thumb,
    updateThumb,
    screenshotsEnabled = true,
+   showMapPackStat = false,
 }: DomainItemProps) => {
-   const { keywordsUpdated, slug, keywordsTracked = 0, avgPosition = 0, scVisits = 0, scImpressions = 0, scPosition = 0 } = domain;
+   const {
+      keywordsUpdated,
+      slug,
+      keywordsTracked = 0,
+      avgPosition = 0,
+      scVisits = 0,
+      scImpressions = 0,
+      scPosition = 0,
+      mapPackKeywords = 0,
+   } = domain;
    const { mutateAsync: updateDomainToggle, isLoading: isToggleUpdating } = useUpdateDomainToggles();
 
    const isDomainActive = (domain.scrape_enabled !== false)
@@ -119,6 +120,11 @@ const DomainItem = ({
                   <div className="flex-1 relative">
                      <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Avg position</span>{avgPosition}
                   </div>
+                  {showMapPackStat && (
+                     <div className="flex-1 relative">
+                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Map Pack</span>{mapPackKeywords}
+                     </div>
+                  )}
                </div>
             </div>
             {isConsoleIntegrated && (

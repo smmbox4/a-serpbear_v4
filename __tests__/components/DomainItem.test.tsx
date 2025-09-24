@@ -24,6 +24,7 @@ const defaultProps = {
    thumb: '',
    updateThumb: updateThumbMock,
    screenshotsEnabled: true,
+   showMapPackStat: true,
 };
 
 describe('DomainItem Component', () => {
@@ -36,12 +37,16 @@ describe('DomainItem Component', () => {
       expect(container.querySelector('.domItem')).toBeInTheDocument();
    });
 
-   it('renders keywords and average position stats', async () => {
-      const { container } = render(<DomainItem {...defaultProps} />);
-      const domStatsKeywords = container.querySelector('.dom_stats div:nth-child(1)');
-      const domStatsAvg = container.querySelector('.dom_stats div:nth-child(2)');
-      expect(domStatsKeywords?.textContent).toBe('Keywords10');
-      expect(domStatsAvg?.textContent).toBe('Avg position24');
+   it('renders keywords, average position, and map pack stats', async () => {
+      render(<DomainItem {...defaultProps} />);
+
+      const keywordsStat = screen.getByText('Keywords');
+      const avgStat = screen.getByText('Avg position');
+      const mapPackStat = screen.getByText('Map Pack');
+
+      expect(keywordsStat.parentElement).toHaveTextContent('Keywords10');
+      expect(avgStat.parentElement).toHaveTextContent('Avg position24');
+      expect(mapPackStat.parentElement).toHaveTextContent('Map Pack3');
    });
 
    it('updates domain thumbnail when reload button is clicked', async () => {
@@ -57,6 +62,11 @@ describe('DomainItem Component', () => {
    it('hides screenshot reload button when screenshots are disabled', () => {
       const { container } = render(<DomainItem {...defaultProps} screenshotsEnabled={false} />);
       expect(container.querySelector('.domain_thumb button')).not.toBeInTheDocument();
+   });
+
+   it('does not show the map pack stat when disabled', () => {
+      render(<DomainItem {...defaultProps} showMapPackStat={false} />);
+      expect(screen.queryByText('Map Pack')).not.toBeInTheDocument();
    });
 
    it('renders the unified active toggle', () => {

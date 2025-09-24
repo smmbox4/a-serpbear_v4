@@ -39,5 +39,6 @@ describe('getdomainStats', () => {
     const result = await getdomainStats([domain]);
     expect(result[0].avgPosition).toBe(0);
     expect(result[0].keywordsTracked).toBe(0);
+    expect(result[0].mapPackKeywords).toBe(0);
   });
 });

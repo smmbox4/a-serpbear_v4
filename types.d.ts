@@ -12,6 +12,7 @@ type DomainType = {
    keywordsTracked?: number,
    keywordsUpdated?: string,
    avgPosition?: number,
+   mapPackKeywords?: number,
    scVisits?: number,
    scImpressions?: number,
    scPosition?: number,
@@ -95,7 +96,7 @@ type SettingsType = {
    smtp_tls_servername?: string,
    smtp_username?: string,
    smtp_password?: string,
-   available_scapers?: { label: string, value: string, allowsCity?: boolean }[],
+   available_scapers?: { label: string, value: string, allowsCity?: boolean, supportsMapPack?: boolean }[],
    scrape_interval?: string,
    scrape_delay?: string,
    scrape_retry?: boolean,
@@ -267,6 +268,11 @@ interface ScraperSettings {
     * Custom function to extract SERP results from the provider payload.
     * Should return the organic listings and, when available, whether the tracked
     * domain appears in the top-three map-pack results.
-    */
+   */
    serpExtractor?(content:ScraperExtractorInput): ScraperExtractorResult,
+   /**
+    * Indicates whether the provider exposes enough data to compute
+    * map pack visibility for tracked keywords.
+    */
+   supportsMapPack?: boolean,
 }

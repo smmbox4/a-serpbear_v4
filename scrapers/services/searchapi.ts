@@ -14,6 +14,7 @@ const searchapi:ScraperSettings = {
   name: 'SearchApi.io',
   website: 'searchapi.io',
   allowsCity: true,
+  supportsMapPack: true,
   headers: (keyword: KeywordType, settings: SettingsType) => ({
         'Content-Type': 'application/json',
         Authorization: `Bearer ${settings.scraping_api}`,

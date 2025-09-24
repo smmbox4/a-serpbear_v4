@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. Releases no
 ### Changed
 
 * Shortened the email map-pack badge label from "MAP" to "MP" so the stacked flag fits within narrow mail client layouts.
+* Surfaced a domains-dashboard "Map Pack" tracker counter that aggregates keywords detected in the local pack when the active scraper exposes that signal.
 * Hardened domain screenshot caching by tolerating corrupted `domainThumbs` entries, clearing the bad data, and retrying the thumbnail fetch instead of throwing in the browser.
 * Normalised keyword `updating` flags parsed from the database and coerced API responses on the client so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
 * Propagated map-pack membership from supported scrapers through persistence, emails, and keyword UIs, adding a stacked CSS badge that references `map-pack.png` whenever a tracked domain appears in the local pack top three.

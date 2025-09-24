@@ -26,7 +26,13 @@ const Domains: NextPage = () => {
    const { data: domainsData, isLoading: isDomainsLoading } = useFetchDomains(router, true);
 
    const appSettings:SettingsType = appSettingsData?.settings || {};
-   const { scraper_type = '' } = appSettings;
+   const { scraper_type = '', available_scapers = [] } = appSettings;
+
+   const activeScraper = useMemo(
+      () => available_scapers.find((scraper) => scraper.value === scraper_type),
+      [available_scapers, scraper_type],
+   );
+   const showMapPackStat = activeScraper?.supportsMapPack === true;
 
    const totalKeywords = useMemo(() => {
       let keywords = 0;
@@ -135,6 +141,7 @@ const Domains: NextPage = () => {
                            thumb={domainThumbs[domain.domain]}
                            updateThumb={manuallyUpdateThumb}
                            screenshotsEnabled={SCREENSHOTS_ENABLED}
+                           showMapPackStat={showMapPackStat}
                            // isConsoleIntegrated={false}
                            />)}
                {!isDomainsLoading && domainsData && domainsData.domains && domainsData.domains.length === 0 && (

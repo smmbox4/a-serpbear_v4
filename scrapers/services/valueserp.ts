@@ -26,6 +26,7 @@ const valueSerp:ScraperSettings = {
       return `https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&output=json&include_answer_box=false&include_advertiser_info=false`;
    },
    resultObjectKey: 'organic_results',
+   supportsMapPack: true,
    serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
       let results: ValueSerpResult[] = [];

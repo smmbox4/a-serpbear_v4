@@ -4,6 +4,7 @@ const scrapingRobot:ScraperSettings = {
    id: 'scrapingrobot',
    name: 'Scraping Robot',
    website: 'scrapingrobot.com',
+   supportsMapPack: false,
    scrapeURL: (keyword, settings, countryData) => {
       const country = resolveCountryCode(keyword.country);
       const device = keyword.device === 'mobile' ? '&mobile=true' : '';
