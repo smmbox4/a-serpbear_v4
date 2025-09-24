@@ -124,11 +124,12 @@ describe('getSerp', () => {
       </body>
     `;
 
-    const extracted = extractScrapedResult(html, 'desktop');
-    expect(extracted).toHaveLength(1);
-    expect(extracted[0].url).toBe('https://example.com/landing');
+    const extraction = extractScrapedResult(html, 'desktop', 'example.com');
+    expect(extraction.organic).toHaveLength(1);
+    expect(extraction.organic[0].url).toBe('https://example.com/landing');
+    expect(extraction.mapPackTop3).toBe(false);
 
-    const serp = getSerp('example.com', extracted);
+    const serp = getSerp('example.com', extraction.organic);
     expect(serp.position).toBe(1);
     expect(serp.url).toBe('https://example.com/landing');
   });

@@ -6,6 +6,7 @@ import countries from './countries';
 import { serializeError } from './errorSerialization';
 import allScrapers from '../scrapers/index';
 import { GOOGLE_BASE_URL } from './constants';
+import { computeMapPackTop3, doesUrlMatchDomainHost, normaliseDomainHost } from './mapPack';
 
 type SearchResult = {
    title: string,
@@ -24,8 +25,9 @@ export type RefreshResult = false | {
    position:number,
    url: string,
    result: SearchResult[],
+   mapPackTop3: boolean,
    error?: boolean | string
-}
+};
 
 /**
  * Implements exponential backoff with jitter for retry attempts
@@ -166,6 +168,7 @@ export const scrapeKeywordFromGoogle = async (keyword:KeywordType, settings:Sett
       position: keyword.position,
       url: keyword.url,
       result: keyword.lastResult,
+      mapPackTop3: keyword.mapPackTop3 === true,
       error: true,
    };
    
@@ -211,22 +214,48 @@ export const scrapeKeywordFromGoogle = async (keyword:KeywordType, settings:Sett
             continue;
          }
 
-         const scraperResult = scraperObj?.resultObjectKey && res[scraperObj.resultObjectKey] ? res[scraperObj.resultObjectKey] : '';
-         const scrapeResult:string = (res.data || res.html || res.results || scraperResult || '');
-         
-         if (res && scrapeResult) {
-            const extracted = scraperObj?.serpExtractor ? scraperObj.serpExtractor(scrapeResult) : extractScrapedResult(scrapeResult, keyword.device);
-            // await writeFile('result.txt', JSON.stringify(scrapeResult), { encoding: 'utf-8' }).catch((err) => { console.log(err); });
-            const serp = getSerp(keyword.domain, extracted);
+         const resultPayload = scraperObj?.resultObjectKey && res && typeof res === 'object'
+            ? res[scraperObj.resultObjectKey]
+            : undefined;
+
+         const fallbackPayload = resultPayload ?? res?.data ?? res?.html ?? res?.results ?? res?.body ?? null;
+         const extractorInput = { keyword, response: res, result: fallbackPayload };
+
+         let extraction: { organic: SearchResult[]; mapPackTop3?: boolean } | null = null;
+
+         if (scraperObj?.serpExtractor) {
+            extraction = scraperObj.serpExtractor(extractorInput);
+         } else {
+            const htmlContent = typeof fallbackPayload === 'string'
+               ? fallbackPayload
+               : typeof res?.data === 'string'
+                  ? res.data
+                  : '';
+
+            if (!htmlContent) {
+               throw new Error('Scraper payload did not include HTML content to parse.');
+            }
+
+            extraction = extractScrapedResult(htmlContent, keyword.device, keyword.domain);
+         }
+
+         if (extraction && Array.isArray(extraction.organic)) {
+            const organicResults = extraction.organic;
+            const serp = getSerp(keyword.domain, organicResults);
+            const computedMapPack = typeof extraction.mapPackTop3 === 'boolean'
+               ? extraction.mapPackTop3
+               : computeMapPackTop3(keyword.domain, res);
+
             refreshedResults = {
                ID: keyword.ID,
                keyword: keyword.keyword,
                position: serp.position,
                url: serp.url,
-               result: extracted,
+               result: organicResults,
+               mapPackTop3: Boolean(computedMapPack),
                error: false,
             };
-            console.log(`[SERP] Success on attempt ${attempt + 1}:`, keyword.keyword, serp.position, serp.url);
+            console.log(`[SERP] Success on attempt ${attempt + 1}:`, keyword.keyword, serp.position, serp.url, computedMapPack ? 'MAP' : '');
             return refreshedResults; // Success, return immediately
          } else {
             // Enhanced error extraction for empty results
@@ -277,9 +306,11 @@ export const scrapeKeywordFromGoogle = async (keyword:KeywordType, settings:Sett
 
 /**
  * Extracts the Google Search result as object array from the Google Search's HTML content
+ * and determines whether the tracked domain appears inside the map pack.
  * @param {string} content - scraped google search page html data.
  * @param {string} device - The device of the keyword.
- * @returns {SearchResult[]}
+ * @param {string} [domain] - The tracked domain, used to detect map-pack membership.
+ * @returns {{ organic: SearchResult[]; mapPackTop3: boolean }}
  */
 const GOOGLE_REDIRECT_PATHS = ['/url', '/interstitial', '/imgres', '/aclk', '/link'];
 const GOOGLE_REDIRECT_PARAMS = ['url', 'q', 'imgurl', 'target', 'dest', 'u', 'adurl'];
@@ -352,8 +383,74 @@ const normaliseGoogleHref = (href: string | undefined | null): string | null => 
    return resolvedURL.toString();
 };
 
-export const extractScrapedResult = (content: string, device: string): SearchResult[] => {
-   const extractedResult = [];
+const collectCandidateWebsiteLinks = ($: cheerio.CheerioAPI): string[] => {
+   const candidates: string[] = [];
+   const pushCandidate = (value: string | undefined | null) => {
+      if (value && value.trim()) {
+         candidates.push(value.trim());
+      }
+   };
+
+   $('div.VkpGBb, div[data-latlng], div[data-cid]').slice(0, 3).each((_, element) => {
+      const el = $(element);
+      pushCandidate(el.find('a[data-url]').attr('data-url'));
+      pushCandidate(el.attr('data-url'));
+      const websiteAnchor = el.find('a[href]').filter((__, anchor) => {
+         const text = $(anchor).text().toLowerCase();
+         return text.includes('website') || text.includes('menu');
+      }).first();
+      pushCandidate(websiteAnchor.attr('href'));
+   });
+
+   if (candidates.length === 0) {
+      $('a[data-url]').slice(0, 6).each((_, anchor) => {
+         pushCandidate($(anchor).attr('data-url'));
+      });
+   }
+
+   if (candidates.length === 0) {
+      $('a[href*="maps/place"]').slice(0, 6).each((_, anchor) => {
+         pushCandidate($(anchor).attr('href'));
+      });
+   }
+
+   return candidates;
+};
+
+const detectMapPackFromHtml = (
+   $: cheerio.CheerioAPI,
+   rawHtml: string,
+   domain?: string,
+): boolean => {
+   if (!domain) { return false; }
+   const domainHost = normaliseDomainHost(domain);
+   if (!domainHost) { return false; }
+
+   const candidates = collectCandidateWebsiteLinks($);
+
+   if (candidates.length === 0 && rawHtml) {
+      const websiteRegex = /"website":"(.*?)"/g;
+      let match: RegExpExecArray | null;
+      while ((match = websiteRegex.exec(rawHtml)) !== null && candidates.length < 6) {
+         const value = match[1]
+            .replace(/\\u002F/g, '/')
+            .replace(/\\u003A/g, ':')
+            .replace(/\u002F/g, '/');
+         if (value) {
+            candidates.push(value);
+         }
+      }
+   }
+
+   return candidates.some((candidate) => doesUrlMatchDomainHost(domainHost, candidate));
+};
+
+export const extractScrapedResult = (
+   content: string,
+   device: string,
+   domain?: string,
+): { organic: SearchResult[]; mapPackTop3: boolean } => {
+   const extractedResult: SearchResult[] = [];
 
    const $ = cheerio.load(content);
    const hasValidContent = [...$('body').find('#search'), ...$('body').find('#rso')];
@@ -400,7 +497,8 @@ export const extractScrapedResult = (content: string, device: string): SearchRes
       }
    }
 
-   return extractedResult;
+   const mapPackTop3 = detectMapPackFromHtml($, content, domain);
+   return { organic: extractedResult, mapPackTop3 };
 };
 
 /**

@@ -30,6 +30,7 @@ describe('generateEmail', () => {
         updating: false,
         lastUpdateError: false,
         location: 'Berlin,Berlin State,DE',
+        mapPackTop3: true,
       },
     ] as any;
 
@@ -37,5 +38,6 @@ describe('generateEmail', () => {
 
     const html = await generateEmail({ domain: 'example.com' } as any, keywords, settings);
     expect(html).toContain('(Berlin, Berlin State)');
+    expect(html).toContain('map-pack-flag');
   });
 });

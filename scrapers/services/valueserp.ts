@@ -1,6 +1,7 @@
 import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
+import { computeMapPackTop3 } from '../../utils/mapPack';
 
 interface ValueSerpResult {
    title: string,
@@ -25,28 +26,33 @@ const valueSerp:ScraperSettings = {
       return `https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&output=json&include_answer_box=false&include_advertiser_info=false`;
    },
    resultObjectKey: 'organic_results',
-   serpExtractor: (content) => {
+   serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
-      let results: ValueSerpResult[];
-      if (typeof content === 'string') {
+      let results: ValueSerpResult[] = [];
+      if (typeof result === 'string') {
          try {
-            results = JSON.parse(content) as ValueSerpResult[];
+            results = JSON.parse(result) as ValueSerpResult[];
          } catch (error) {
             throw new Error(`Invalid JSON response for Value Serp: ${error instanceof Error ? error.message : error}`);
          }
-      } else {
-         results = content as ValueSerpResult[];
+      } else if (Array.isArray(result)) {
+         results = result as ValueSerpResult[];
+      } else if (Array.isArray(response?.organic_results)) {
+         results = response.organic_results as ValueSerpResult[];
       }
-      for (const result of results) {
-         if (result.title && result.link) {
+      for (const item of results) {
+         if (item?.title && item?.link) {
             extractedResult.push({
-               title: result.title,
-               url: result.link,
-               position: result.position,
+               title: item.title,
+               url: item.link,
+               position: item.position,
             });
          }
       }
-      return extractedResult;
+
+      const mapPackTop3 = computeMapPackTop3(keyword.domain, response);
+
+      return { organic: extractedResult, mapPackTop3 };
    },
 };
 
