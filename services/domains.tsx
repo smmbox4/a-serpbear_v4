@@ -123,8 +123,24 @@ export async function fetchDomain(router: NextRouter, domainName: string): Promi
 
 export async function fetchDomainScreenshot(domain: string, forceFetch = false): Promise<string | false> {
    if (!SCREENSHOTS_ENABLED) { return false; }
-   const domainThumbsRaw = localStorage.getItem('domainThumbs');
-   const domThumbs = domainThumbsRaw ? JSON.parse(domainThumbsRaw) : {};
+   if (typeof window === 'undefined' || !window.localStorage) { return false; }
+
+   let domThumbs: Record<string, string> = {};
+   const domainThumbsRaw = window.localStorage.getItem('domainThumbs');
+
+   if (domainThumbsRaw) {
+      try {
+         const parsedThumbs = JSON.parse(domainThumbsRaw);
+         if (parsedThumbs && typeof parsedThumbs === 'object') {
+            domThumbs = parsedThumbs as Record<string, string>;
+         }
+      } catch (error) {
+         console.warn('[WARN] Invalid cached domainThumbs data detected. Clearing corrupted screenshot cache.', error);
+         window.localStorage.removeItem('domainThumbs');
+         domThumbs = {};
+      }
+   }
+
    if (!domThumbs[domain] || forceFetch) {
       try {
          const screenshotURL = `https://image.thum.io/get/maxAge/96/width/200/https://${domain}`;
@@ -138,7 +154,7 @@ export async function fetchDomainScreenshot(domain: string, forceFetch = false):
                reader.readAsDataURL(domainImageBlob);
             });
             const imageBase: string = reader.result && typeof reader.result === 'string' ? reader.result : '';
-            localStorage.setItem('domainThumbs', JSON.stringify({ ...domThumbs, [domain]: imageBase }));
+            window.localStorage.setItem('domainThumbs', JSON.stringify({ ...domThumbs, [domain]: imageBase }));
             return imageBase;
          }
          return false;
@@ -146,7 +162,7 @@ export async function fetchDomainScreenshot(domain: string, forceFetch = false):
          return false;
       }
    } else if (domThumbs[domain]) {
-         return domThumbs[domain];
+      return domThumbs[domain];
    }
 
    return false;

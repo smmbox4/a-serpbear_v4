@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Hardened domain screenshot caching by tolerating corrupted `domainThumbs` entries, clearing the bad data, and retrying the thumbnail fetch instead of throwing in the browser.
 * Normalised keyword `updating` flags parsed from the database and coerced API responses on the client so `'0'`/`'false'` records no longer leave the dashboard stuck on loading spinners after a refresh.
 * Propagated map-pack membership from supported scrapers through persistence, emails, and keyword UIs, adding a stacked CSS badge that references `map-pack.png` whenever a tracked domain appears in the local pack top three.
 * Raised ESLint's `max-len` threshold to 200 characters, relaxed the complexity limit to a warning at 60, and delegated unused-variable checks to `@typescript-eslint` so linting no longer fails on long SVG paths or intentionally ignored caught errors.
