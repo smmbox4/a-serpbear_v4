@@ -75,11 +75,8 @@ export const useSendNotifications = () => {
       }
 
       if (!res.ok) {
-         const errorMessage = typeof data === 'object' && data !== null
-            ? (data as { message?: string; error?: string }).message
-               || (data as { message?: string; error?: string }).error
-               || 'Error Sending Notifications.'
-            : 'Error Sending Notifications.';
+         const errorData = data as { message?: string; error?: string };
+         const errorMessage = errorData?.message || errorData?.error || 'Error Sending Notifications.';
          throw new Error(errorMessage);
       }
 
