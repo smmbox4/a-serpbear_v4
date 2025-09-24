@@ -121,13 +121,13 @@ export function useMutateKeywordIdeas(router:NextRouter, onSuccess?: Function) {
 
       return responsePayload;
    }, {
-      onSuccess: async (_data) => {
+      onSuccess: async (data) => {
          console.log('Ideas Added:', data);
          toast('Keyword Ideas Loaded Successfully!', { icon: '✔️' });
          if (onSuccess) {
             onSuccess(false);
          }
-         queryClient.invalidateQueries([`keywordIdeas-${domainSlug}`]);
+         queryClient.invalidateQueries(`keywordIdeas-${domainSlug}`);
       },
       onError: (error) => {
          console.log('Error Loading Keyword Ideas!!!', error);
@@ -171,7 +171,7 @@ export function useMutateFavKeywordIdeas(router:NextRouter, onSuccess?: Function
          if (onSuccess) {
             onSuccess(false);
          }
-         queryClient.invalidateQueries([`keywordIdeas-${domainSlug}`]);
+         queryClient.invalidateQueries(`keywordIdeas-${domainSlug}`);
       },
       onError: (error) => {
          console.log('Error Favorating Keywords', error);

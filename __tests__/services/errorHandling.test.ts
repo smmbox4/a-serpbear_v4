@@ -29,13 +29,16 @@ jest.mock('react-query', () => ({
    useQueryClient: () => ({
       invalidateQueries: mockInvalidateQueries
    }),
-   useMutation: (fn: any, options: any) => ({
+   useMutation: (fn: any, options: any = {}) => ({
       mutate: async (data: any) => {
          try {
-            await fn(data);
-            if (options.onSuccess) options.onSuccess();
+            const result = await fn(data);
+            if (options.onSuccess) {
+               await options.onSuccess(result, data, undefined, undefined);
+            }
+            return result;
          } catch (error) {
-            if (options.onError) options.onError(error);
+            if (options.onError) options.onError(error, data, undefined);
             throw error;
          }
       }
@@ -58,6 +61,7 @@ describe('Improved Error Handling in Services', () => {
       mockFetch.mockClear();
       mockPush.mockClear();
       mockInvalidateQueries.mockClear();
+      mockInvalidateQueries.mockResolvedValue(undefined);
       (toast as unknown as jest.Mock).mockClear();
    });
 
@@ -198,5 +202,33 @@ describe('Improved Error Handling in Services', () => {
 
       await expect(ideasMutation.mutate({ keywords: ['test'] })).rejects.toThrow('Session expired');
       expect(mockPush).toHaveBeenCalledWith('/login');
+   });
+
+   it('logs successful keyword ideas and invalidates the cached query', async () => {
+      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+
+      mockFetch.mockResolvedValueOnce({
+         status: 200,
+         ok: true,
+         headers: {
+            get: jest.fn().mockReturnValue('application/json')
+         },
+         text: jest.fn().mockResolvedValue(JSON.stringify({ ideas: ['alpha'] }))
+      } as any);
+
+      const { useMutateKeywordIdeas } = require('../../services/adwords');
+      const mockRouter = { push: mockPush, pathname: '/test', query: { slug: 'test-domain' } };
+      const onSuccess = jest.fn();
+
+      const ideasMutation = useMutateKeywordIdeas(mockRouter as any, onSuccess);
+
+      await ideasMutation.mutate({ keywords: ['test'] });
+
+      expect(logSpy).toHaveBeenCalledWith('Ideas Added:', { ideas: ['alpha'] });
+      expect(onSuccess).toHaveBeenCalledWith(false);
+      expect(mockInvalidateQueries).toHaveBeenCalledWith('keywordIdeas-test-domain');
+      expect((toast as unknown as jest.Mock)).toHaveBeenCalledWith('Keyword Ideas Loaded Successfully!', { icon: '✔️' });
+
+      logSpy.mockRestore();
    });
 });

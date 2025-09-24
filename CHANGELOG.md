@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Bug Fixes
 - Cleared ESLint warnings by wiring width/min-width props into UI components, surfacing settings errors inline, sanitising SMTP TLS hostnames, and logging caught exceptions throughout Ads/Search Console utilities and API handlers.
+- Fixed the Google Ads keyword ideas mutation so successful requests no longer throw a runtime reference error and now properly invalidate the cached query for the active domain.
 
 # [3.0.0](https://github.com/djav1985/v-serpbear/compare/v2.0.7...v3.0.0) (2025-09-24)
 
