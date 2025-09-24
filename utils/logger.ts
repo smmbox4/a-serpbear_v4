@@ -46,7 +46,6 @@ export class Logger {
       default:
         this.logLevel = LogLevel.INFO;
     }
-
     // Set success event logging from environment or default to true
     const envSuccessLogging = process.env.LOG_SUCCESS_EVENTS;
     this.logSuccessEvents = !['false', '0', 'off'].includes(envSuccessLogging ?? '');
@@ -101,6 +100,10 @@ export class Logger {
     this.log(LogLevel.VERBOSE, 'VERBOSE', message, meta);
   }
 
+  isSuccessLoggingEnabled(): boolean {
+    return this.logSuccessEvents;
+  }
+
   // API request logging helper
   apiRequest(method: string, url: string, statusCode?: number, duration?: number, meta?: Record<string, any>): void {
     const logMeta = {
@@ -126,7 +129,6 @@ export class Logger {
       success,
       ...meta,
     };
-
     if (success && this.logSuccessEvents) {
       this.info(`Auth Event: ${event}`, logMeta);
     } else if (!success) {

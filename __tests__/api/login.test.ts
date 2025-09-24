@@ -11,6 +11,7 @@ jest.mock('../../utils/logger', () => ({
     info: jest.fn(),
     debug: jest.fn(),
     verbose: jest.fn(),
+    isSuccessLoggingEnabled: jest.fn(() => true),
   },
 }));
 
