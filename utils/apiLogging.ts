@@ -143,7 +143,7 @@ export function withApiAuthAndLogging(
     }
 
     return handler(req, res);
-  }, { ...options, skipAuth: true, logSuccess }); // skipAuth since we handle it manually above
+  }, { ...options, skipAuth: true }); // skipAuth since we handle it manually above
 }
 
 export default withApiLogging;
