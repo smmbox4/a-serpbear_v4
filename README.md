@@ -30,7 +30,7 @@ SerpBear is a full-stack Next.js application that tracks where your pages rank o
 - **Keyword research & ideas:** Pull search volumes and suggested keywords straight from your Google Ads test account.
 - **Google Search Console enrichment:** Overlay verified impression and click data on keyword trends to see which rankings actually drive traffic.
 - **Scheduled notifications:** Deliver branded summaries of ranking changes, winners/losers, and visit counts to your inbox.
-- **Local map-pack tracking:** When supported scrapers return the top-three local pack, SerpBear stores the flag and displays a stacked "MAP" badge beneath each keyword's country flag in the dashboard and email digests.
+- **Local map-pack tracking:** When supported scrapers return the top-three local pack, SerpBear stores the flag and displays a stacked "MAP" badge beneath each keyword's country flag in the dashboard and email digests. The badge now suppresses the legacy sprite background so you will not see stray punctuation behind the green label.
 - **Mobile-ready progressive web app:** Install the dashboard on iOS or Android for quick monitoring on the go. The layout keeps consistent gutters while the top navigation now stretches truly edge-to-edge on phones—the helper offsets the body gutter and widens the bar so no stray right-side padding returns.
 - **Adaptive desktop canvas:** Domain dashboards, Search Console insights, and the research workspace reuse a shared `desktop-container` utility that expands to 90 % of the viewport on large screens so wide monitors surface more data at once.
 - **Focused loading states:** Keyword tables drive their own loading indicators, so the single-domain and research workspaces stay visible while data refreshes, and only the domains index keeps the full-page bootstrap overlay when first loading.
@@ -195,6 +195,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 
 - Authenticate with a service account and SerpBear will enrich each keyword with impression, click, and CTR metrics.
 - Cached data refreshes automatically once per `CRON_MAIN_SCHEDULE` cycle (respecting `CRON_TIMEZONE`) and can be refreshed manually from the settings view.
+- The Discover tab now disables Search Console keywords that are already tracked and its "select all" checkbox ignores those rows, mirroring the Google Ads ideas workflow to prevent duplicate tracking.
 - Search Console data is optional; when credentials are missing the UI gracefully hides related panels.
 - When credentials are present, manual refreshes and scheduled digests now always run the Search Console pipeline instead of skipping requests when the domain payload is unexpectedly falsy.
 
