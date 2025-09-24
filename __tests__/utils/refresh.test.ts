@@ -250,6 +250,7 @@ describe('refreshAndUpdateKeywords', () => {
       position: 7,
       url: 'https://example.com/result',
       result: undefined,
+      mapPackTop3: false,
       error: 'temporary failure',
     } as RefreshResult;
 
@@ -313,6 +314,7 @@ describe('refreshAndUpdateKeywords', () => {
       position: 1,
       url: 'https://example.com',
       result: arrayResult,
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 
@@ -371,6 +373,7 @@ describe('refreshAndUpdateKeywords', () => {
       ID: mockPlainKeyword.ID,
       position: 5,
       result: [],
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 
@@ -431,6 +434,7 @@ describe('refreshAndUpdateKeywords', () => {
       position: 3,
       url: 'https://example.com/result',
       result: [],
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 
@@ -488,6 +492,7 @@ describe('refreshAndUpdateKeywords', () => {
       ID: baseKeyword.ID,
       position: 3,
       result: [],
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 
@@ -500,6 +505,7 @@ describe('refreshAndUpdateKeywords', () => {
       ID: baseKeyword.ID,
       position: '7' as any,
       result: [],
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 
@@ -512,6 +518,7 @@ describe('refreshAndUpdateKeywords', () => {
       ID: baseKeyword.ID,
       position: undefined,
       result: [],
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 
@@ -524,6 +531,7 @@ describe('refreshAndUpdateKeywords', () => {
       ID: baseKeyword.ID,
       position: null as any,
       result: [],
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 
@@ -538,6 +546,7 @@ describe('refreshAndUpdateKeywords', () => {
       ID: baseKeyword.ID,
       position: 'invalid' as any,
       result: [],
+      mapPackTop3: false,
       error: false,
     } as RefreshResult;
 

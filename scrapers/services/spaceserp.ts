@@ -1,6 +1,7 @@
 import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
+import { computeMapPackTop3 } from '../../utils/mapPack';
 
 interface SpaceSerpResult {
    title: string,
@@ -25,28 +26,33 @@ const spaceSerp:ScraperSettings = {
       return `https://api.spaceserp.com/google/search?apiKey=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&pageSize=100&gl=${country}&hl=${lang}${location}${device}&resultBlocks=`;
    },
    resultObjectKey: 'organic_results',
-   serpExtractor: (content) => {
+   serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
-      let results: SpaceSerpResult[];
-      if (typeof content === 'string') {
+      let results: SpaceSerpResult[] = [];
+      if (typeof result === 'string') {
          try {
-            results = JSON.parse(content) as SpaceSerpResult[];
+            results = JSON.parse(result) as SpaceSerpResult[];
          } catch (error) {
             throw new Error(`Invalid JSON response for Space Serp: ${error instanceof Error ? error.message : error}`);
          }
-      } else {
-         results = content as SpaceSerpResult[];
+      } else if (Array.isArray(result)) {
+         results = result as SpaceSerpResult[];
+      } else if (Array.isArray(response?.organic_results)) {
+         results = response.organic_results as SpaceSerpResult[];
       }
-      for (const result of results) {
-         if (result.title && result.link) {
+      for (const item of results) {
+         if (item?.title && item?.link) {
             extractedResult.push({
-               title: result.title,
-               url: result.link,
-               position: result.position,
+               title: item.title,
+               url: item.link,
+               position: item.position,
             });
          }
       }
-      return extractedResult;
+
+      const mapPackTop3 = computeMapPackTop3(keyword.domain, response);
+
+      return { organic: extractedResult, mapPackTop3 };
    },
 };
 

@@ -97,6 +97,9 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
 
    let keywordsTable = '';
 
+   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
+   const mapPackImage = appUrl ? `${appUrl}/map-pack.png` : '/map-pack.png';
+
    keywords.forEach((keyword) => {
       let positionChangeIcon = '';
 
@@ -104,6 +107,10 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       const deviceIconImg = keyword.device === 'desktop' ? desktopIcon : mobileIcon;
       const countryFlag = `<img class="flag" src="https://flagcdn.com/w20/${keyword.country.toLowerCase()}.png" alt="${keyword.country}" title="${keyword.country}" />`;
       const deviceIcon = `<img class="device" src="${deviceIconImg}" alt="${keyword.device}" title="${keyword.device}" width="18" height="18" />`;
+      const mapPackFlag = keyword.mapPackTop3
+         ? `<span class="map-pack-flag" role="img" aria-label="Map pack top three" style="background-image:url('${mapPackImage}')">MAP</span>`
+         : '';
+      const flagStack = `<span class="flag-stack">${countryFlag}${mapPackFlag}</span>`;
 
       if (positionChange > 0) { positionChangeIcon = '<span style="color:#5ed7c3;">▲</span>'; improved += 1; }
       if (positionChange < 0) { positionChangeIcon = '<span style="color:#fca5a5;">▼</span>'; declined += 1; }
@@ -113,7 +120,7 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       const locationText = [locationParts.city, locationParts.state].filter(Boolean).join(', ');
 
       keywordsTable += `<tr class="keyword">
-                           <td>${countryFlag} ${deviceIcon} ${keyword.keyword}</td>
+                           <td>${flagStack} ${deviceIcon} ${keyword.keyword}</td>
                            <td>${locationText ? `(${locationText})` : ''}</td>
                            <td>${keyword.position}${posChangeIcon}</td>
                            <td>${getBestKeywordPosition(keyword.history)}</td>

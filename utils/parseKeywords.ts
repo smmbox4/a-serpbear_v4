@@ -38,6 +38,11 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          try { lastUpdateError = JSON.parse(keywrd.lastUpdateError); } catch { lastUpdateError = {}; }
       }
 
+      const rawMapPack = (keywrd as any).map_pack_top3;
+      const mapPackTop3 = typeof rawMapPack === 'boolean'
+         ? rawMapPack
+         : ((keywrd as any).mapPackTop3 === true);
+
       return {
          ...keywrd,
          location: typeof (keywrd as any).location === 'string' ? (keywrd as any).location : '',
@@ -45,6 +50,7 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          tags,
          lastResult,
          lastUpdateError,
+         mapPackTop3,
       };
    });
    return parsedItems;

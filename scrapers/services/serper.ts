@@ -1,4 +1,5 @@
 import { resolveCountryCode } from '../../utils/scraperHelpers';
+import { computeMapPackTop3 } from '../../utils/mapPack';
 
 interface SerperResult {
    title: string,
@@ -18,17 +19,19 @@ const serper:ScraperSettings = {
       return `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}&num=100&apiKey=${settings.scraping_api}`;
    },
    resultObjectKey: 'organic',
-   serpExtractor: (content) => {
+   serpExtractor: ({ result, response, keyword }) => {
       const extractedResult = [];
-      let results: SerperResult[];
-      if (typeof content === 'string') {
+      let results: SerperResult[] = [];
+      if (typeof result === 'string') {
          try {
-            results = JSON.parse(content) as SerperResult[];
+            results = JSON.parse(result) as SerperResult[];
          } catch (error) {
             throw new Error(`Invalid JSON response for Serper.dev: ${error instanceof Error ? error.message : error}`);
          }
-      } else {
-         results = content as SerperResult[];
+      } else if (Array.isArray(result)) {
+         results = result as SerperResult[];
+      } else if (Array.isArray(response?.organic)) {
+         results = response.organic as SerperResult[];
       }
 
       for (const { link, title, position } of results) {
@@ -40,7 +43,10 @@ const serper:ScraperSettings = {
             });
          }
       }
-      return extractedResult;
+
+      const mapPackTop3 = computeMapPackTop3(keyword.domain, response);
+
+      return { organic: extractedResult, mapPackTop3 };
    },
 };
 

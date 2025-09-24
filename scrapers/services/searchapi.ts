@@ -1,6 +1,7 @@
 import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
+import { computeMapPackTop3 } from '../../utils/mapPack';
 
 interface SearchApiResult {
    title: string,
@@ -26,17 +27,19 @@ const searchapi:ScraperSettings = {
      return `https://www.searchapi.io/api/v1/search?engine=google&q=${encodeURIComponent(keyword.keyword)}&num=100&gl=${country}&device=${keyword.device}${location}`;
   },
   resultObjectKey: 'organic_results',
-  serpExtractor: (content) => {
+  serpExtractor: ({ result, response, keyword }) => {
      const extractedResult = [];
-     let results: SearchApiResult[];
-     if (typeof content === 'string') {
+     let results: SearchApiResult[] = [];
+     if (typeof result === 'string') {
         try {
-           results = JSON.parse(content) as SearchApiResult[];
+           results = JSON.parse(result) as SearchApiResult[];
         } catch (error) {
            throw new Error(`Invalid JSON response for SearchApi.io: ${error instanceof Error ? error.message : error}`);
         }
-     } else {
-        results = content as SearchApiResult[];
+     } else if (Array.isArray(result)) {
+        results = result as SearchApiResult[];
+     } else if (Array.isArray(response?.organic_results)) {
+        results = response.organic_results as SearchApiResult[];
      }
 
      for (const { link, title, position } of results) {
@@ -48,7 +51,10 @@ const searchapi:ScraperSettings = {
            });
         }
      }
-     return extractedResult;
+
+     const mapPackTop3 = computeMapPackTop3(keyword.domain, response);
+
+     return { organic: extractedResult, mapPackTop3 };
   },
 };
 
