@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Changed
 
+* Treated empty Google Ads keyword idea responses as 404s and updated the client mutation to bubble the server error, warn the user, and redirect to login on 401s with expanded service coverage.
+* Reserved HTTP 401 for authentication failures on `/api/notify`, returning 400 for SMTP misconfiguration and 500 for delivery errors alongside new regression tests.
 * Shortened the email map-pack badge label from "MAP" to "MP" so the stacked flag fits within narrow mail client layouts.
 * Surfaced a domains-dashboard "Map Pack" tracker counter that aggregates keywords detected in the local pack when the active scraper exposes that signal.
 * Hardened domain screenshot caching by tolerating corrupted `domainThumbs` entries, clearing the bad data, and retrying the thumbnail fetch instead of throwing in the browser.

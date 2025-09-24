@@ -96,8 +96,8 @@ const updateKeywordIdeas = async (req: NextApiRequest, res: NextApiResponse<keyw
          if (keywordIdeas && Array.isArray(keywordIdeas) && keywordIdeas.length > 0) {
             return res.status(200).json({ keywords: keywordIdeas });
          }
-         // No error, just no keywords over the search volume minimum
-         return res.status(200).json({ keywords: [], error: 'No keywords found over the search volume minimum.' });
+         // Surface empty result sets as a not-found condition so the client can warn the user appropriately
+         return res.status(404).json({ keywords: [], error: 'No keywords found over the search volume minimum.' });
       } catch (error: any) {
          console.log('[ERROR] Fetching Keyword Ideas: ', error);
          const message = error?.message || errMsg;

@@ -204,6 +204,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 - Connect a Google Ads test account to unlock keyword suggestions and historical volume data right inside SerpBear.
 - The app exposes the same functionality through its REST API, making it easy to integrate with reporting pipelines.
 - Already-tracked keyword ideas now render as disabled for the active device so research flows stay deduplicated when you revisit Google Ads suggestions.
+- When Google Ads cannot supply any ideas that match your filters, the API now responds with a 404 and the UI shows a warning toast instead of a success banner so you can adjust the request immediately.
 
 ### Loading states & accessibility
 
@@ -215,6 +216,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 - Email digests summarise rank gains/losses, highlight top movers, and include Search Console traffic data when available.
 - Notification cadence is fully configurable through `CRON_EMAIL_SCHEDULE`. Disable SMTP variables to skip sending emails entirely.
 - Trigger a manual run from the **Send Notifications Now** button in the Notification settings modal. Inline guidance and assistive-technology announcements walk through the prerequisites so teams can confirm SMTP credentials and email recipients immediately.
+- `/api/notify` now reserves HTTP 401 strictly for authentication issues—misconfigured SMTP hosts return 400 and runtime delivery errors surface as 500 responses with descriptive messages for easier debugging.
 
 ---
 
