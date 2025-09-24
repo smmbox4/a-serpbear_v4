@@ -201,6 +201,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 
 - Connect a Google Ads test account to unlock keyword suggestions and historical volume data right inside SerpBear.
 - The app exposes the same functionality through its REST API, making it easy to integrate with reporting pipelines.
+- Already-tracked keyword ideas now render as disabled for the active device so research flows stay deduplicated when you revisit Google Ads suggestions.
 
 ### Loading states & accessibility
 
