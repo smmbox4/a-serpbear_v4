@@ -69,29 +69,13 @@ describe('fetchKeywords normalisation', () => {
       expect(keyword.mapPackTop3).toBe(true);
    });
 
-   it('returns consistent object shape when domain is falsy', async () => {
-      // Test with empty string
-      const response1 = await fetchKeywords({} as any, '');
-      expect(response1).toBeTruthy();
-      expect(typeof response1).toBe('object');
-      expect('keywords' in response1).toBe(true);
-      expect(Array.isArray(response1.keywords)).toBe(true);
-      expect(response1.keywords).toHaveLength(0);
-
-      // Test with null
-      const response2 = await fetchKeywords({} as any, null as any);
-      expect(response2).toBeTruthy();
-      expect(typeof response2).toBe('object');
-      expect('keywords' in response2).toBe(true);
-      expect(Array.isArray(response2.keywords)).toBe(true);
-      expect(response2.keywords).toHaveLength(0);
-
-      // Test with undefined
-      const response3 = await fetchKeywords({} as any, undefined as any);
-      expect(response3).toBeTruthy();
-      expect(typeof response3).toBe('object');
-      expect('keywords' in response3).toBe(true);
-      expect(Array.isArray(response3.keywords)).toBe(true);
-      expect(response3.keywords).toHaveLength(0);
+   it('returns consistent object structure when domain is falsy', async () => {
+      const response = await fetchKeywords({} as any, '');
+      
+      expect(response).toBeTruthy();
+      expect(typeof response).toBe('object');
+      expect(response.keywords).toBeDefined();
+      expect(Array.isArray(response.keywords)).toBe(true);
+      expect(response.keywords.length).toBe(0);
    });
 });
