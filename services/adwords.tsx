@@ -121,7 +121,7 @@ export function useMutateKeywordIdeas(router:NextRouter, onSuccess?: Function) {
 
       return responsePayload;
    }, {
-      onSuccess: async (_data) => {
+      onSuccess: async (data) => {
          console.log('Ideas Added:', data);
          toast('Keyword Ideas Loaded Successfully!', { icon: '✔️' });
          if (onSuccess) {
