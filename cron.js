@@ -42,7 +42,7 @@ const getAppSettings = async () => {
       smtp_server: '',
       smtp_port: '',
       smtp_username: '',
-      smtp_password: '',
+      smtp_password: ''
    };
    // console.log('process.env.SECRET: ', process.env.SECRET);
    try {
