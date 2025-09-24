@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { OAuth2Client } from 'google-auth-library';
 import { readFile, writeFile } from 'fs/promises';

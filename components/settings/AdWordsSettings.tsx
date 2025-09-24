@@ -1,3 +1,5 @@
+/// <reference path="../../types.d.ts" />
+
 import React, { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useMutateKeywordsVolume, useTestAdwordsIntegration } from '../../services/adwords';
