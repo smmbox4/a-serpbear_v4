@@ -23,7 +23,7 @@ export interface LogEntry {
   };
 }
 
-class Logger {
+export class Logger {
   private logLevel: LogLevel;
   private logSuccessEvents: boolean;
 
@@ -46,13 +46,9 @@ class Logger {
       default:
         this.logLevel = LogLevel.INFO;
     }
-
-    const envSuccessLogging = process.env.LOG_SUCCESS_EVENTS?.toLowerCase();
-    this.logSuccessEvents = !(
-      envSuccessLogging === 'false'
-      || envSuccessLogging === '0'
-      || envSuccessLogging === 'off'
-    );
+    // Set success event logging from environment or default to true
+    const envSuccessLogging = process.env.LOG_SUCCESS_EVENTS;
+    this.logSuccessEvents = !['false', '0', 'off'].includes(envSuccessLogging ?? '');
   }
 
   private static formatLogEntry(level: string, message: string, meta?: Record<string, any>, error?: Error): string {
@@ -120,7 +116,7 @@ class Logger {
 
     if (statusCode && statusCode >= 400) {
       this.error(`API Request Failed: ${method} ${url}`, undefined, logMeta);
-    } else {
+    } else if (this.logSuccessEvents) {
       this.info(`API Request: ${method} ${url}`, logMeta);
     }
   }
@@ -133,13 +129,9 @@ class Logger {
       success,
       ...meta,
     };
-
-    if (success) {
-      if (!this.logSuccessEvents) {
-        return;
-      }
+    if (success && this.logSuccessEvents) {
       this.info(`Auth Event: ${event}`, logMeta);
-    } else {
+    } else if (!success) {
       this.warn(`Auth Event Failed: ${event}`, logMeta);
     }
   }

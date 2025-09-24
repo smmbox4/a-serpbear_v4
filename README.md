@@ -30,7 +30,7 @@ SerpBear is a full-stack Next.js application that tracks where your pages rank o
 - **Keyword research & ideas:** Pull search volumes and suggested keywords straight from your Google Ads test account.
 - **Google Search Console enrichment:** Overlay verified impression and click data on keyword trends to see which rankings actually drive traffic.
 - **Scheduled notifications:** Deliver branded summaries of ranking changes, winners/losers, and visit counts to your inbox.
-- **Mobile-ready progressive web app:** Install the dashboard on iOS or Android for quick monitoring on the go. The layout keeps consistent gutters while the top navigation now stretches truly edge-to-edge on phones for a native feel—no more stray right-side padding.
+- **Mobile-ready progressive web app:** Install the dashboard on iOS or Android for quick monitoring on the go. The layout keeps consistent gutters while the top navigation now stretches truly edge-to-edge on phones—the helper offsets the body gutter and widens the bar so no stray right-side padding returns.
 - **Adaptive desktop canvas:** Domain dashboards, Search Console insights, and the research workspace reuse a shared `desktop-container` utility that expands to 90 % of the viewport on large screens so wide monitors surface more data at once.
 - **Focused loading states:** Keyword tables drive their own loading indicators, so the single-domain and research workspaces stay visible while data refreshes, and only the domains index keeps the full-page bootstrap overlay when first loading.
 - **Robust API:** Manage domains, keywords, settings, and refresh jobs programmatically for automated reporting pipelines.
