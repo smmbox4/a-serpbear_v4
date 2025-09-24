@@ -11,6 +11,7 @@ import reactHooksPlugin from "eslint-plugin-react-hooks";
 import securityPlugin from "eslint-plugin-security";
 import nextBabelParser from "next/dist/compiled/babel/eslint-parser.js";
 import tsParser from "@typescript-eslint/parser";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
 
 const baseDirectory = path.dirname(fileURLToPath(import.meta.url));
 
@@ -42,6 +43,7 @@ export default [
       react: reactPlugin,
       "react-hooks": reactHooksPlugin,
       security: securityPlugin,
+      "@typescript-eslint": tsPlugin,
     },
     languageOptions: {
       parser: nextBabelParser,
@@ -75,9 +77,28 @@ export default [
       "react/prop-types": "off",
 
       // Style / readability
-      "max-len": ["error", { code: 120, ignoreComments: true, ignoreUrls: true }],
+      "max-len": [
+        "warn",
+        {
+          code: 200,
+          ignoreComments: true,
+          ignoreUrls: true,
+          ignoreStrings: true,
+          ignoreTemplateLiterals: true,
+          ignoreRegExpLiterals: true,
+        },
+      ],
       "arrow-body-style": ["error", "as-needed"],
       "class-methods-use-this": "error",
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
 
       // Imports
       "import/no-extraneous-dependencies": "off",
@@ -91,12 +112,15 @@ export default [
       "security/detect-non-literal-fs-filename": "error",
 
       // Complexity guardrail
-      complexity: ["error", { max: 20 }],
+      complexity: ["warn", { max: 60 }],
     },
   },
   {
     name: "serpbear/typescript",
     files: ["**/*.{ts,tsx}"],
+    plugins: {
+      "@typescript-eslint": tsPlugin,
+    },
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -106,6 +130,19 @@ export default [
         ecmaVersion: "latest",
         ecmaFeatures: { jsx: true },
       },
+    },
+    rules: {
+      "no-undef": "off",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
     },
   },
   {

@@ -57,7 +57,6 @@ export const getScraperClient = (
       Accept: 'application/json; charset=utf8;',
    };
 
-   // eslint-disable-next-line max-len
    const mobileAgent = 'Mozilla/5.0 (Linux; Android 10; SM-G996U Build/QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Mobile Safari/537.36';
    if (keyword && keyword.device === 'mobile') {
       headers['User-Agent'] = mobileAgent;
@@ -219,7 +218,14 @@ export const scrapeKeywordFromGoogle = async (keyword:KeywordType, settings:Sett
             const extracted = scraperObj?.serpExtractor ? scraperObj.serpExtractor(scrapeResult) : extractScrapedResult(scrapeResult, keyword.device);
             // await writeFile('result.txt', JSON.stringify(scrapeResult), { encoding: 'utf-8' }).catch((err) => { console.log(err); });
             const serp = getSerp(keyword.domain, extracted);
-            refreshedResults = { ID: keyword.ID, keyword: keyword.keyword, position: serp.position, url: serp.url, result: extracted, error: false };
+            refreshedResults = {
+               ID: keyword.ID,
+               keyword: keyword.keyword,
+               position: serp.position,
+               url: serp.url,
+               result: extracted,
+               error: false,
+            };
             console.log(`[SERP] Success on attempt ${attempt + 1}:`, keyword.keyword, serp.position, serp.url);
             return refreshedResults; // Success, return immediately
          } else {
