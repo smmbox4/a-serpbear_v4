@@ -86,9 +86,8 @@ export const useSendNotifications = () => {
       return data;
    }, {
       onSuccess: (response) => {
-         const successMessage = typeof response === 'object' && response !== null
-            ? (response as { message?: string }).message || 'Notifications Sent!'
-            : 'Notifications Sent!';
+         const successData = response as { message?: string };
+         const successMessage = successData?.message || 'Notifications Sent!';
          toast(successMessage, { icon: '✔️' });
       },
       onError: (error: Error) => {
