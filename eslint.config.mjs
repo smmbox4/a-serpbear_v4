@@ -174,7 +174,15 @@ export default [
       "**/__mocks__/**/*",
       "**/*.test.*",
       "**/*.spec.*",
+      "jest.setup.js",
     ],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.jest,
+      },
+    },
     rules: {
       "no-restricted-properties": "off",
       complexity: "off",

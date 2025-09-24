@@ -1,12 +1,8 @@
 // Migration: Remove keywordCount column from domain table.
 
 module.exports = {
-   up: async function up(params = {}, legacySequelize) {
+   up: async function up(params = {}) {
       const queryInterface = params?.context ?? params;
-      const SequelizeLib = params?.Sequelize
-         ?? legacySequelize
-         ?? queryInterface?.sequelize?.constructor
-         ?? require('sequelize');
 
       return queryInterface.sequelize.transaction(async (transaction) => {
          const domainTableDefinition = await queryInterface.describeTable('domain');
