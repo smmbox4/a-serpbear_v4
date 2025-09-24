@@ -8,6 +8,8 @@ on:
 jobs:
   cleanup-caches:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
       - name: Authenticate GH CLI
         run: gh auth setup-git
