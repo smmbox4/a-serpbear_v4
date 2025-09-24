@@ -7,6 +7,7 @@ import getdomainStats from '../../utils/domains';
 import verifyUser from '../../utils/verifyUser';
 import { checkSearchConsoleIntegration, removeLocalSCData } from '../../utils/searchConsole';
 import { withApiLogging } from '../../utils/apiLogging';
+import { logger } from '../../utils/logger';
 
 type DomainsGetRes = {
    domains: DomainType[]
@@ -166,7 +167,9 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
    }
 };
 
-export default withApiLogging(handler, { 
+export default withApiLogging(handler, {
    name: 'domains',
-   logBody: false 
+   logBody: false,
+   // Propagate the shared success logging toggle for clarity
+   logSuccess: logger.isSuccessLoggingEnabled()
 });
