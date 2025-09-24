@@ -136,7 +136,7 @@ export const sanitizeJsonInput = (input: any): { isValid: boolean; sanitized: an
       }
       
       return { isValid: false, sanitized: null };
-   } catch (error) {
+   } catch (_error) {
       return { isValid: false, sanitized: null };
    }
 };
