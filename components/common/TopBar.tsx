@@ -42,7 +42,7 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
          {!isDomainsPage && router.asPath !== '/research' && (
             <Link
                href={'/domains'}
-               className='topbar__back right-22 top-4 px-2 py-1 cursor-pointer bg-[#ecf2ff] hover:bg-indigo-100 transition-all
+               className='topbar__back top-4 px-2 py-1 cursor-pointer bg-[#ecf2ff] hover:bg-indigo-100 transition-all
                lg:top-4 lg:px-3 lg:py-2 rounded-full'
             >
                <Icon type="caret-left" size={16} title="Go Back" />
