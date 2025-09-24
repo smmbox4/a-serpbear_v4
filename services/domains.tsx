@@ -131,8 +131,15 @@ export async function fetchDomainScreenshot(domain: string, forceFetch = false):
    if (domainThumbsRaw) {
       try {
          const parsedThumbs = JSON.parse(domainThumbsRaw);
-         if (parsedThumbs && typeof parsedThumbs === 'object') {
+         if (parsedThumbs && 
+             typeof parsedThumbs === 'object' && 
+             !Array.isArray(parsedThumbs) &&
+             Object.values(parsedThumbs).every(val => typeof val === 'string')) {
             domThumbs = parsedThumbs as Record<string, string>;
+         } else {
+            console.warn('[WARN] Invalid cached domainThumbs data detected. Clearing corrupted screenshot cache.');
+            window.localStorage.removeItem('domainThumbs');
+            domThumbs = {};
          }
       } catch (error) {
          console.warn('[WARN] Invalid cached domainThumbs data detected. Clearing corrupted screenshot cache.', error);
