@@ -57,7 +57,7 @@ const Research: NextPage = () => {
    const labelStyle = 'mb-2 font-semibold inline-block text-sm text-gray-700 capitalize w-full';
 
    return (
-      <div className='Login'>
+      <div className='Research'>
          <Head>
             <title>Research Keywords - SerpBear</title>
          </Head>
