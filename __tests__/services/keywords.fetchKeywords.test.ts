@@ -68,4 +68,14 @@ describe('fetchKeywords normalisation', () => {
       expect(keyword.sticky).toBe(false);
       expect(keyword.mapPackTop3).toBe(true);
    });
+
+   it('returns consistent object structure when domain is falsy', async () => {
+      const response = await fetchKeywords({} as any, '');
+      
+      expect(response).toBeTruthy();
+      expect(typeof response).toBe('object');
+      expect(response.keywords).toBeDefined();
+      expect(Array.isArray(response.keywords)).toBe(true);
+      expect(response.keywords.length).toBe(0);
+   });
 });
