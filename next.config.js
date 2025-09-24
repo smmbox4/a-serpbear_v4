@@ -26,7 +26,7 @@ const nextConfig = {
   
   // Bundle analyzer (enable with ANALYZE=true)
   ...(process.env.ANALYZE === 'true' && {
-    webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
+    webpack: (config, { dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
       if (!dev && !isServer) {
         const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
         config.plugins.push(
@@ -49,7 +49,7 @@ const nextConfig = {
   },
   
   // Webpack optimizations
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
+  webpack: (config, { dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
     // Bundle size optimizations
     if (!dev) {
       config.optimization.splitChunks.cacheGroups = {
