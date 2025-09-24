@@ -67,14 +67,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: List and delete all caches
+      - name: List and delete all caches (paginate)
         run: |
-          echo "Fetching all cache keys for ${{ github.repository }}"
-          gh actions-cache list -R ${{ github.repository }} --limit 1000 | cut -f 1 | while read key; do
-            if [ -n "$key" ]; then
-              echo "Deleting cache: $key"
-              gh actions-cache delete "$key" -R ${{ github.repository }} --confirm || true
+          echo "Deleting all caches for ${{ github.repository }}"
+          while true; do
+            keys=$(gh actions-cache list -R ${{ github.repository }} --limit 100 | cut -f 1)
+            if [ -z "$keys" ]; then
+              echo "No more caches found."
+              break
             fi
+            echo "$keys" | while read key; do
+              if [ -n "$key" ]; then
+                echo "Deleting cache: $key"
+                gh actions-cache delete "$key" -R ${{ github.repository }} --confirm || true
+              fi
+            done
           done
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
