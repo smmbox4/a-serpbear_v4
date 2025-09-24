@@ -139,7 +139,7 @@ describe('DomainSettings Component', () => {
    });
 
    it('preserves user changes to other settings when async fetch completes (functional state update fix)', async () => {
-      let capturedCallback: ((domainObj: DomainType) => void) | null = null;
+      let capturedCallback: ((_domainObj: DomainType) => void) | null = null;
 
       // Capture the callback passed to useFetchDomain
       mockUseFetchDomain.mockImplementation((_router, _domain, onSuccess) => {
@@ -205,7 +205,7 @@ describe('DomainSettings Component', () => {
       // This test validates that the fix prevents the stale closure issue
       // by ensuring we use the functional form of setState
 
-      let capturedCallback: ((domainObj: DomainType) => void) | null = null;
+      let capturedCallback: ((_domainObj: DomainType) => void) | null = null;
 
       mockUseFetchDomain.mockImplementation((_router, _domain, onSuccess) => {
          capturedCallback = onSuccess;
