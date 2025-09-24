@@ -32,7 +32,7 @@ describe('NotificationSettings manual trigger', () => {
       jest.clearAllMocks();
    });
 
-   it('calls the send notifications mutation when the button is clicked', () => {
+   it('renders the manual trigger with correct initial state and accessibility attributes', () => {
       const mutate = jest.fn();
       useSendNotificationsMock.mockReturnValue({ mutate, isLoading: false });
 
@@ -49,7 +49,21 @@ describe('NotificationSettings manual trigger', () => {
       expect(triggerButton).toHaveAttribute('aria-busy', 'false');
       expect(screen.getByText(/Send a notification email immediately/i)).toBeInTheDocument();
       expect(screen.getByText(/Ready to send notifications immediately\./i)).toBeInTheDocument();
+   });
 
+   it('calls the send notifications mutation when the button is clicked', () => {
+      const mutate = jest.fn();
+      useSendNotificationsMock.mockReturnValue({ mutate, isLoading: false });
+
+      render(
+         <NotificationSettings
+            settings={buildSettings()}
+            settingsError={null}
+            updateSettings={jest.fn()}
+         />,
+      );
+
+      const triggerButton = screen.getByRole('button', { name: /send notifications now/i });
       fireEvent.click(triggerButton);
 
       expect(mutate).toHaveBeenCalledTimes(1);
