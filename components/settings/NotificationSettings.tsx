@@ -22,12 +22,8 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
       .map((email) => email.trim())
       .filter((email) => email.length > 0);
    const hasNotificationEmails = sanitizedNotificationEmails.length > 0;
-   const hasSmtpServer = typeof settings.smtp_server === 'string'
-      ? settings.smtp_server.trim().length > 0
-      : !!settings.smtp_server;
-   const hasSmtpPort = typeof settings.smtp_port === 'string'
-      ? settings.smtp_port.trim().length > 0
-      : settings.smtp_port !== null && settings.smtp_port !== undefined && String(settings.smtp_port).trim().length > 0;
+   const hasSmtpServer = (settings.smtp_server || '').trim().length > 0;
+   const hasSmtpPort = (settings.smtp_port || '').trim().length > 0;
    const canSendNotifications = settings.notification_interval !== 'never'
       && hasSmtpServer
       && hasSmtpPort
