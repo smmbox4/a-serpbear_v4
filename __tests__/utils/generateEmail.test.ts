@@ -197,4 +197,61 @@ describe('generateEmail', () => {
     expect(html).toContain('colspan="2"');
     expect(html).not.toContain('Map Pack');
   });
+
+  it('calculates tracker summary stats from keywords when domain stats are missing', async () => {
+    mockReadFile.mockResolvedValue('<html>{{domainStats}}</html>');
+
+    const keywords = [
+      {
+        ID: 1,
+        keyword: 'fallback keyword 1',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 3,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+      {
+        ID: 2,
+        keyword: 'fallback keyword 2',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 4,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: false,
+      },
+    ] as any;
+
+    const domain = {
+      domain: 'example.com',
+    } as any;
+
+    const settings = createSettings();
+
+    const html = await generateEmail(domain, keywords, settings);
+
+    expect(html).toMatch(/<span class="mini_stats__label">Keywords<\/span>\s*<span class="mini_stats__value">2<\/span>/);
+    expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">3.5<\/span>/);
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">1<\/span>/);
+  });
 });

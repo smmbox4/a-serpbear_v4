@@ -97,6 +97,23 @@ const formatAveragePosition = (value: number): string => {
    return fixed.endsWith('.0') ? Math.round(value).toString() : fixed;
 };
 
+type KeywordSummary = {
+   mapPackKeywords: number,
+   totalPosition: number,
+   positionCount: number,
+};
+
+const calculateKeywordSummary = (items: KeywordType[]): KeywordSummary => items.reduce((stats, keyword) => {
+   if (keyword.mapPackTop3 === true) {
+      stats.mapPackKeywords += 1;
+   }
+   if (typeof keyword.position === 'number' && Number.isFinite(keyword.position)) {
+      stats.totalPosition += keyword.position;
+      stats.positionCount += 1;
+   }
+   return stats;
+}, { mapPackKeywords: 0, totalPosition: 0, positionCount: 0 } as KeywordSummary);
+
 /**
  * Generate the Email HTML based on given domain name and its keywords
  * @param {string} domainName - Keywords to scrape
@@ -144,9 +161,16 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
    const improvedStat = improved > 0 ? `${improved} Improved` : '';
    const declinedStat = declined > 0 ? `${declined} Declined` : '';
    const stat = [improvedStat, declinedStat].filter(Boolean).join(', ');
+   const keywordSummary = calculateKeywordSummary(keywords);
+   const computedAvgPosition = keywordSummary.positionCount > 0
+      ? keywordSummary.totalPosition / keywordSummary.positionCount
+      : null;
+   const avgPositionFallback = typeof computedAvgPosition === 'number' && Number.isFinite(computedAvgPosition)
+      ? computedAvgPosition
+      : 0;
    const keywordsTrackedStat = resolveStatNumber(domain.keywordsTracked, keywordsCount);
-   const avgPositionStat = resolveStatNumber(domain.avgPosition, 0);
-   const mapPackKeywordsStat = resolveStatNumber(domain.mapPackKeywords, 0);
+   const avgPositionStat = resolveStatNumber(domain.avgPosition, avgPositionFallback);
+   const mapPackKeywordsStat = resolveStatNumber(domain.mapPackKeywords, keywordSummary.mapPackKeywords);
    const availableScrapers = Array.isArray(settings.available_scapers) ? settings.available_scapers : [];
    const activeScraper = availableScrapers.find((scraper) => scraper.value === settings.scraper_type);
    const showMapPackStat = activeScraper?.supportsMapPack === true;
