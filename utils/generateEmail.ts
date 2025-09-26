@@ -14,8 +14,7 @@ const googleIcon = 'https://serpbear.b-cdn.net/Sx3u0X9.png';
 const resolveEmailBranding = () => {
    const brandingDetails = getBranding();
    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
-   const useCustomLogo = brandingDetails.whiteLabelEnabled && Boolean(baseUrl);
-   const logoUrl = useCustomLogo ? buildLogoUrl(baseUrl) : '';
+   const logoUrl = buildLogoUrl(baseUrl);
 
    return {
       ...brandingDetails,
