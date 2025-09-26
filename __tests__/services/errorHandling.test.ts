@@ -34,7 +34,7 @@ jest.mock('react-query', () => ({
          try {
             const result = await fn(data);
             if (options.onSuccess) {
-               await options.onSuccess(result, data, undefined, undefined);
+               await options.onSuccess(result, data, undefined);
             }
             return result;
          } catch (error) {
