@@ -206,6 +206,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 - The app exposes the same functionality through its REST API, making it easy to integrate with reporting pipelines.
 - Already-tracked keyword ideas now render as disabled for the active device so research flows stay deduplicated when you revisit Google Ads suggestions.
 - When Google Ads cannot supply any ideas that match your filters, the API now responds with a 404 and the UI shows a warning toast instead of a success banner so you can adjust the request immediately.
+- Successful keyword idea imports no longer crash with a reference error and the research table now refreshes instantly because the React Query cache invalidation matches the underlying query key again.
 
 ### Loading states & accessibility
 

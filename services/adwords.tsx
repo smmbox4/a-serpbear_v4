@@ -127,7 +127,7 @@ export function useMutateKeywordIdeas(router:NextRouter, onSuccess?: Function) {
          if (onSuccess) {
             onSuccess(false);
          }
-         queryClient.invalidateQueries([`keywordIdeas-${domainSlug}`]);
+         queryClient.invalidateQueries(`keywordIdeas-${domainSlug}`);
       },
       onError: (error) => {
          console.log('Error Loading Keyword Ideas!!!', error);
@@ -171,7 +171,7 @@ export function useMutateFavKeywordIdeas(router:NextRouter, onSuccess?: Function
          if (onSuccess) {
             onSuccess(false);
          }
-         queryClient.invalidateQueries([`keywordIdeas-${domainSlug}`]);
+         queryClient.invalidateQueries(`keywordIdeas-${domainSlug}`);
       },
       onError: (error) => {
          console.log('Error Favorating Keywords', error);
