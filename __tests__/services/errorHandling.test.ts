@@ -29,13 +29,16 @@ jest.mock('react-query', () => ({
    useQueryClient: () => ({
       invalidateQueries: mockInvalidateQueries
    }),
-   useMutation: (fn: any, options: any) => ({
+   useMutation: (fn: any, options: any = {}) => ({
       mutate: async (data: any) => {
          try {
-            await fn(data);
-            if (options.onSuccess) options.onSuccess();
+            const result = await fn(data);
+            if (options.onSuccess) {
+               await options.onSuccess(result, data, undefined);
+            }
+            return result;
          } catch (error) {
-            if (options.onError) options.onError(error);
+            if (options.onError) options.onError(error, data, undefined);
             throw error;
          }
       }
