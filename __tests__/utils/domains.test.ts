@@ -104,4 +104,35 @@ describe('getdomainStats', () => {
     expect(result[0].mapPackKeywords).toBe(0); // no keywords with mapPackTop3 = true
     expect(result[0].avgPosition).toBe(2); // Math.round((1+2)/2) = Math.round(1.5) = 2
   });
+
+  it('excludes keywords with position 0 (not ranked) from average position calculation', async () => {
+    const parsedKeywords = [
+      { ID: 1, position: 5, lastUpdated: '2023-01-01', mapPackTop3: true },
+      { ID: 2, position: 0, lastUpdated: '2023-01-02', mapPackTop3: false }, // Not ranked
+      { ID: 3, position: 10, lastUpdated: '2023-01-03', mapPackTop3: true },
+      { ID: 4, position: 0, lastUpdated: '2023-01-04', mapPackTop3: false }, // Not ranked
+    ];
+
+    mockFindAll.mockResolvedValue([]);
+    mockParseKeywords.mockReturnValue(parsedKeywords);
+    mockReadLocalSCData.mockResolvedValue(null);
+
+    const domain = { 
+      ID: 1, 
+      domain: 'test.com', 
+      slug: 'test-com', 
+      notification: false,
+      notification_interval: '',
+      notification_emails: '',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+    } as any;
+
+    const result = await getdomainStats([domain]);
+    
+    expect(result[0].keywordsTracked).toBe(4);
+    expect(result[0].mapPackKeywords).toBe(2); // two keywords have mapPackTop3 = true
+    // Should only average the ranked keywords (5+10)/2 = 7.5 -> Math.round(7.5) = 8
+    expect(result[0].avgPosition).toBe(8);
+  });
 });

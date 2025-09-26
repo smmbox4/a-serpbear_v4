@@ -119,7 +119,7 @@ const calculateKeywordSummary = (items: KeywordType[]): KeywordSummary => items.
    if (keyword.mapPackTop3 === true) {
       stats.mapPackKeywords += 1;
    }
-   if (typeof keyword.position === 'number' && Number.isFinite(keyword.position)) {
+   if (typeof keyword.position === 'number' && Number.isFinite(keyword.position) && keyword.position > 0) {
       stats.totalPosition += keyword.position;
       stats.positionCount += 1;
    }

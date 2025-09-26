@@ -254,4 +254,150 @@ describe('generateEmail', () => {
     expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">3.5<\/span>/);
     expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">1<\/span>/);
   });
+
+  it('calculates tracker summary stats correctly excluding position 0 keywords when domain stats are missing', async () => {
+    mockReadFile.mockResolvedValue('<html>{{domainStats}}</html>');
+
+    const keywords = [
+      {
+        ID: 1,
+        keyword: 'ranked keyword 1',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 5,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+      {
+        ID: 2,
+        keyword: 'not ranked keyword',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 0, // Not ranked
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: false,
+      },
+      {
+        ID: 3,
+        keyword: 'ranked keyword 2',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 10,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+    ] as any;
+
+    const domain = {
+      domain: 'example.com',
+    } as any;
+
+    const settings = createSettings();
+
+    const html = await generateEmail(domain, keywords, settings);
+
+    expect(html).toMatch(/<span class="mini_stats__label">Keywords<\/span>\s*<span class="mini_stats__value">3<\/span>/);
+    // Should only average the ranked keywords: (5+10)/2 = 7.5
+    expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">7.5<\/span>/);
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">2<\/span>/);
+  });
+
+  it('simulates real notification scenario with domain object from database (no computed stats)', async () => {
+    mockReadFile.mockResolvedValue('<html>{{domainStats}}</html>');
+
+    // Simulate keywords with real positions (like would come from notification API)
+    const keywords = [
+      {
+        ID: 1,
+        keyword: 'real keyword 1',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 8,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+      {
+        ID: 2,
+        keyword: 'real keyword 2',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 12,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: false,
+      },
+    ] as any;
+
+    // Simulate domain object that comes directly from database (no computed stats)
+    const domainFromDB = {
+      domain: 'example.com',
+      slug: 'example-com',
+      notification: true,
+      notification_interval: 'daily',
+      notification_emails: 'test@example.com',
+      lastUpdated: new Date().toISOString(),
+      added: new Date().toISOString(),
+      // Note: NO keywordsTracked, avgPosition, or mapPackKeywords properties
+    } as any;
+
+    const settings = createSettings();
+
+    const html = await generateEmail(domainFromDB, keywords, settings);
+
+    // Should show correct fallback calculations
+    expect(html).toMatch(/<span class="mini_stats__label">Keywords<\/span>\s*<span class="mini_stats__value">2<\/span>/);
+    // Average should be (8+12)/2 = 10
+    expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">10<\/span>/);
+    // Map pack should be 1 (only first keyword has mapPackTop3: true)
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">1<\/span>/);
+  });
 });

@@ -18,21 +18,24 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
       const allKeywords:Keyword[] = await Keyword.findAll({ where: { domain: domain.domain } });
       const keywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
       domainWithStat.keywordsTracked = keywords.length;
-      const { mapPackKeywords, keywordPositions, KeywordsUpdateDates } = keywords.reduce(
+      const { mapPackKeywords, keywordPositions, positionCount, KeywordsUpdateDates } = keywords.reduce(
         (stats, keyword) => {
           if (keyword.mapPackTop3 === true) {
             stats.mapPackKeywords++;
           }
-          stats.keywordPositions += keyword.position;
+          if (typeof keyword.position === 'number' && Number.isFinite(keyword.position) && keyword.position > 0) {
+            stats.keywordPositions += keyword.position;
+            stats.positionCount++;
+          }
           stats.KeywordsUpdateDates.push(new Date(keyword.lastUpdated).getTime());
           return stats;
         },
-        { mapPackKeywords: 0, keywordPositions: 0, KeywordsUpdateDates: [0] as number[] },
+        { mapPackKeywords: 0, keywordPositions: 0, positionCount: 0, KeywordsUpdateDates: [0] as number[] },
       );
       domainWithStat.mapPackKeywords = mapPackKeywords;
       const lastKeywordUpdateDate = Math.max(...KeywordsUpdateDates);
       domainWithStat.keywordsUpdated = new Date(lastKeywordUpdateDate || new Date(domain.lastUpdated).getTime()).toJSON();
-      domainWithStat.avgPosition = keywords.length > 0 ? Math.round(keywordPositions / keywords.length) : 0;
+      domainWithStat.avgPosition = positionCount > 0 ? Math.round(keywordPositions / positionCount) : 0;
 
       // Then Load the SC File and read the stats and calculate the Last 7 days stats
       const localSCData = await readLocalSCData(domain.domain);
