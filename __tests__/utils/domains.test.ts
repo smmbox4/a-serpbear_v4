@@ -104,7 +104,7 @@ describe('getdomainStats', () => {
     expect(result[0].mapPackKeywords).toBe(0); // no keywords with mapPackTop3 = true
     expect(result[0].avgPosition).toBe(2); // Math.round((1+2)/2) = Math.round(1.5) = 2
   });
-
+  
   it('excludes position 0 keywords from average position calculation', async () => {
     const parsedKeywords = [
       { ID: 1, position: 5, lastUpdated: '2023-01-01', mapPackTop3: true },
