@@ -331,4 +331,73 @@ describe('generateEmail', () => {
     expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">7.5<\/span>/);
     expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">2<\/span>/);
   });
+
+  it('simulates real notification scenario with domain object from database (no computed stats)', async () => {
+    mockReadFile.mockResolvedValue('<html>{{domainStats}}</html>');
+
+    // Simulate keywords with real positions (like would come from notification API)
+    const keywords = [
+      {
+        ID: 1,
+        keyword: 'real keyword 1',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 8,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+      {
+        ID: 2,
+        keyword: 'real keyword 2',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 12,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: false,
+      },
+    ] as any;
+
+    // Simulate domain object that comes directly from database (no computed stats)
+    const domainFromDB = {
+      domain: 'example.com',
+      slug: 'example-com',
+      notification: true,
+      notification_interval: 'daily',
+      notification_emails: 'test@example.com',
+      lastUpdated: new Date().toISOString(),
+      added: new Date().toISOString(),
+      // Note: NO keywordsTracked, avgPosition, or mapPackKeywords properties
+    } as any;
+
+    const settings = createSettings();
+
+    const html = await generateEmail(domainFromDB, keywords, settings);
+
+    // Should show correct fallback calculations
+    expect(html).toMatch(/<span class="mini_stats__label">Keywords<\/span>\s*<span class="mini_stats__value">2<\/span>/);
+    // Average should be (8+12)/2 = 10
+    expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">10<\/span>/);
+    // Map pack should be 1 (only first keyword has mapPackTop3: true)
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">1<\/span>/);
+  });
 });
