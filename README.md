@@ -6,6 +6,18 @@
 
 > _Some GitHub and self-hosted markdown viewers block remote images._ The hero banner above shows the SerpBear dashboard with keyword trend charts and key performance indicators for a sample domain. Even if the image fails to load, the rest of this README describes the same experience in detail.
 
+> ### ✨ Why v-serpbear outperforms upstream SerpBear
+>
+> **1. Bug fixes & patches** – Hardened scrapers survive DOM and API drift, patched dependency regressions, and keep long-running jobs stable under high request volumes.
+>
+> **4. Configuration & flexibility** – Streamlined environment variables, CI-powered deployment workflows, and dynamic toggles for ValueSerp, SerpAPI, and other providers eliminate hardcoded defaults.
+>
+> **5. Security & modernization** – Modern Node.js support, removal of deprecated libraries, and stricter sanitisation guard against warning-laden installs and insecure runtime behaviour.
+>
+> **6. Error handling & observability** – Descriptive logs, layered retry logic, and adjustable debug levels make diagnosing scraper hiccups or API failures straightforward.
+>
+> **7. Performance & caching** – Smarter SERP caching, batched keyword refreshes, and fewer redundant calls drive faster crawls while reducing API spend.
+
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7e7a0030c3f84c6fb56a3ce6273fbc1d)](https://app.codacy.com/gh/djav1985/v-serpbear/dashboard) ![License](https://img.shields.io/github/license/djav1985/v-serpbear) ![Version](https://img.shields.io/github/package-json/v/djav1985/v-serpbear) ![Docker pulls](https://img.shields.io/docker/pulls/vontainment/v-serpbear)
 
 ---
