@@ -229,7 +229,7 @@ export function useAddDomain(onSuccess:Function) {
          }
          queryClient.invalidateQueries(['domains']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Adding New Domain!!!');
          toast('Error Adding New Domain');
       },
@@ -246,7 +246,7 @@ export function useUpdateDomain(onSuccess:Function) {
          queryClient.invalidateQueries({ queryKey: ['domains'] });
          queryClient.invalidateQueries({ queryKey: ['domain'] });
       },
-      onError: (error) => {
+      onError: (error, _variables, _context) => {
          console.log('Error Updating Domain Settings!!!', error);
          toast('Error Updating Domain Settings', { icon: '⚠️' });
       },
@@ -319,7 +319,7 @@ export function useDeleteDomain(onSuccess:Function) {
          onSuccess();
          queryClient.invalidateQueries(['domains']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Removing Domain!!!');
          toast('Error Removing Domain', { icon: '⚠️' });
       },

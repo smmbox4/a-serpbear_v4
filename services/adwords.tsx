@@ -35,7 +35,7 @@ export function useTestAdwordsIntegration(onSuccess?: Function) {
             onSuccess(false);
          }
       },
-      onError: (error) => {
+      onError: (error, _variables, _context) => {
          console.log('Error Loading Keyword Ideas!!!', error);
          toast('Failed to connect to Google Ads. Please make sure you have provided the correct API info.', { icon: '⚠️' });
       },
@@ -129,7 +129,7 @@ export function useMutateKeywordIdeas(router:NextRouter, onSuccess?: Function) {
          }
          queryClient.invalidateQueries(`keywordIdeas-${domainSlug}`);
       },
-      onError: (error) => {
+      onError: (error, _variables, _context) => {
          console.log('Error Loading Keyword Ideas!!!', error);
          const message = (error as Error)?.message || 'Error Loading Keyword Ideas';
          toast(message, { icon: '⚠️' });
@@ -173,7 +173,7 @@ export function useMutateFavKeywordIdeas(router:NextRouter, onSuccess?: Function
          }
          queryClient.invalidateQueries(`keywordIdeas-${domainSlug}`);
       },
-      onError: (error) => {
+      onError: (error, _variables, _context) => {
          console.log('Error Favorating Keywords', error);
          toast('Error Favorating Keywords', { icon: '⚠️' });
       },
@@ -215,7 +215,7 @@ export function useMutateKeywordsVolume(onSuccess?: Function) {
             window.location.reload();
          }, 3000);
       },
-      onError: (error) => {
+      onError: (error, _variables, _context) => {
          console.log('Error Loading Keyword Volume Data!!!', error);
          const message = (error as Error)?.message || 'Error Loading Keyword Volume Data';
          toast(message, { icon: '⚠️' });

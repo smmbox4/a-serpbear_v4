@@ -91,7 +91,7 @@ export function useAddKeywords(onSuccess:Function) {
          onSuccess();
          queryClient.invalidateQueries(['keywords']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Adding New Keywords!!!');
          toast('Error Adding New Keywords', { icon: '⚠️' });
       },
@@ -130,7 +130,7 @@ export function useDeleteKeywords(onSuccess:Function) {
          toast('Keywords Removed Successfully!', { icon: '✔️' });
          queryClient.invalidateQueries(['keywords']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Removing Keyword!!!');
          toast('Error Removing the Keywords', { icon: '⚠️' });
       },
@@ -170,7 +170,7 @@ export function useFavKeywords(onSuccess:Function) {
          toast(isSticky ? 'Keywords Made Favorite!' : 'Keywords Unfavorited!', { icon: '✔️' });
          queryClient.invalidateQueries(['keywords']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Changing Favorite Status!!!');
          toast('Error Changing Favorite Status.', { icon: '⚠️' });
       },
@@ -210,7 +210,7 @@ export function useUpdateKeywordTags(onSuccess:Function) {
          toast('Keyword Tags Updated!', { icon: '✔️' });
          queryClient.invalidateQueries(['keywords']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Updating Keyword Tags!!!');
          toast('Error Updating Keyword Tags.', { icon: '⚠️' });
       },
@@ -251,7 +251,7 @@ export function useRefreshKeywords(onSuccess:Function) {
          toast('Keywords Added to Refresh Queue', { icon: '🔄' });
          queryClient.invalidateQueries(['keywords']);
       },
-      onError: (error) => {
+      onError: (error, _variables, _context) => {
          console.log('Error Refreshing Keywords!!!', error);
          const message = (error as Error)?.message || 'Error Refreshing Keywords.';
          toast(message, { icon: '⚠️' });
@@ -296,7 +296,7 @@ export function useFetchSingleKeyword(keywordID:number) {
          throw new Error('Error Loading Keyword Details');
       }
    }, {
-      onError: () => {
+      onError: (error) => {
          console.log('Error Loading Keyword Data!!!');
          toast('Error Loading Keyword Details.', { icon: '⚠️' });
       },

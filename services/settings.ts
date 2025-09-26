@@ -31,7 +31,7 @@ export const useUpdateSettings = (onSuccess:Function|undefined) => {
          toast('Settings Updated!', { icon: '✔️' });
          queryClient.invalidateQueries(['settings']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Updating App Settings!!!');
          toast('Error Updating App Settings.', { icon: '⚠️' });
       },
@@ -54,7 +54,7 @@ export function useClearFailedQueue(onSuccess:Function) {
          toast('Failed Queue Cleared', { icon: '✔️' });
          queryClient.invalidateQueries(['settings']);
       },
-      onError: () => {
+      onError: (_error, _variables, _context) => {
          console.log('Error Clearing Failed Queue!!!');
          toast('Error Clearing Failed Queue.', { icon: '⚠️' });
       },
@@ -87,8 +87,8 @@ export const useSendNotifications = () => useMutation(async () => {
          const successMessage = successData?.message || 'Notifications Sent!';
          toast(successMessage, { icon: '✔️' });
       },
-      onError: (error: Error) => {
-         toast(error.message || 'Error Sending Notifications.', { icon: '⚠️' });
+      onError: (error, _variables, _context) => {
+         toast((error as Error)?.message || 'Error Sending Notifications.', { icon: '⚠️' });
       },
    });
 
