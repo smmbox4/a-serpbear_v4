@@ -1,3 +1,7 @@
+import { getBranding } from '../utils/branding';
+
+const { platformName } = getBranding();
+
 export const dummyDomain = {
    ID: 1,
    domain: 'compressimage.io',
@@ -75,7 +79,7 @@ export const dummySettings = {
    notification_interval: 'never',
    notification_email: '',
    notification_email_from: '',
-   notification_email_from_name: 'SerpBear',
+   notification_email_from_name: platformName,
    smtp_server: '',
    smtp_port: '',
    smtp_username: '',

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import Icon from './Icon';
+import { BrandTitle } from './Branding';
 
 type TopbarProps = {
    showSettings: Function,
@@ -37,7 +38,7 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
       >
 
          <h3 className={`p-4 text-base font-bold text-blue-700 ${isDomainsPage ? 'lg:pl-0' : 'lg:hidden'}`}>
-            <span className=' relative top-[3px] mr-1'><Icon type="logo" size={24} color="#364AFF" /></span> SerpBear
+            <BrandTitle />
             <button className='px-3 py-1 font-bold text-blue-700  lg:hidden ml-3 text-lg' onClick={() => showAddModal()}>+</button>
          </h3>
          {!isDomainsPage && router.asPath !== '/research' && (

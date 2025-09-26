@@ -4,6 +4,9 @@ import * as ReactQuery from 'react-query';
 import { dummyDomain } from '../../__mocks__/data';
 import Domains from '../../pages/domains';
 import router from 'next-router-mock';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 
 // Mock the useAuth hook to always return authenticated state
 jest.mock('../../hooks/useAuth', () => ({
@@ -32,7 +35,7 @@ const asUrlString = (input: RequestInfo | URL): string => {
 
 const footerTextMatcher = (version: string) => (_: string, element?: Element | null) =>
    element?.tagName === 'SPAN' &&
-   element.textContent?.replace(/\s+/g, ' ').includes(`SerpBear v${version} by Vontainment`);
+   element.textContent?.replace(/\s+/g, ' ').includes(`${platformName} v${version} by Vontainment`);
 
 function createJsonResponse<T>(payload: T, status = 200): Response {
    return {

@@ -2,6 +2,9 @@ import fs from 'fs';
 import path from 'path';
 import { render, screen } from '@testing-library/react';
 import TopBar from '../../components/common/TopBar';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 
 jest.mock('next/router', () => ({
    useRouter: () => ({
@@ -14,7 +17,7 @@ describe('TopBar Component', () => {
    it('renders without crashing', async () => {
        render(<TopBar showSettings={jest.fn} showAddModal={jest.fn} />);
        expect(
-           await screen.findByText('SerpBear'),
+           await screen.findByText(platformName),
        ).toBeInTheDocument();
    });
 

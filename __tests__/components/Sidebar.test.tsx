@@ -1,6 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import Sidebar from '../../components/common/Sidebar';
 import { dummyDomain } from '../../__mocks__/data';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 
 const addDomainMock = jest.fn();
 jest.mock('next/router', () => jest.requireActual('next-router-mock'));
@@ -8,7 +11,7 @@ jest.mock('next/router', () => jest.requireActual('next-router-mock'));
 describe('Sidebar Component', () => {
    it('renders without crashing', async () => {
        render(<Sidebar domains={[dummyDomain]} showAddModal={addDomainMock} />);
-       expect(screen.getByText('SerpBear')).toBeInTheDocument();
+       expect(screen.getByText(platformName)).toBeInTheDocument();
    });
    it('renders domain list', async () => {
       render(<Sidebar domains={[dummyDomain]} showAddModal={addDomainMock} />);

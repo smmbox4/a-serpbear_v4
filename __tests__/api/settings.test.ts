@@ -3,6 +3,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import getConfig from 'next/config';
 import handler from '../../pages/api/settings';
 import * as settingsApi from '../../pages/api/settings';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 import verifyUser from '../../utils/verifyUser';
 
 jest.mock('../../utils/verifyUser', () => ({
@@ -193,7 +196,7 @@ describe('GET /api/settings and configuration requirements', () => {
       notification_interval: 'never',
       notification_email: '',
       notification_email_from: '',
-      notification_email_from_name: 'SerpBear',
+      notification_email_from_name: platformName,
       smtp_server: '',
       smtp_port: '',
       smtp_username: '',

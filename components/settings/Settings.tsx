@@ -7,6 +7,7 @@ import NotificationSettings from './NotificationSettings';
 import ScraperSettings from './ScraperSettings';
 import useOnKey from '../../hooks/useOnKey';
 import IntegrationSettings from './IntegrationSettings';
+import { getBranding } from '../../utils/branding';
 
 type SettingsProps = {
    closeSettings: Function,
@@ -17,6 +18,8 @@ type SettingsError = {
    type: string,
    msg: string
 }
+
+const { platformName } = getBranding();
 
 export const defaultSettings: SettingsType = {
    scraper_type: 'none',
@@ -30,7 +33,7 @@ export const defaultSettings: SettingsType = {
    smtp_username: '',
    smtp_password: '',
    notification_email_from: '',
-   notification_email_from_name: 'SerpBear',
+   notification_email_from_name: platformName,
    search_console: true,
    search_console_client_email: '',
    search_console_private_key: '',

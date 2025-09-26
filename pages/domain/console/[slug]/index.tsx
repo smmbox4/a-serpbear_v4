@@ -17,6 +17,9 @@ import { useFetchSCKeywords } from '../../../../services/searchConsole';
 import SCKeywordsTable from '../../../../components/keywords/SCKeywordsTable';
 import { useFetchSettings } from '../../../../services/settings';
 import Footer from '../../../../components/common/Footer';
+import { getBranding } from '../../../../utils/branding';
+
+const { platformName } = getBranding();
 
 const DiscoverPage: NextPage = () => {
    const router = useRouter();
@@ -83,7 +86,7 @@ const DiscoverPage: NextPage = () => {
       <div className="Domain ">
          {activDomain && activDomain.domain
          && <Head>
-               <title>{`${activDomain.domain} - SerpBear` } </title>
+               <title>{`${activDomain.domain} - ${platformName}` } </title>
             </Head>
          }
          <TopBar showSettings={() => setShowSettings(true)} showAddModal={() => setShowAddDomain(true)} />

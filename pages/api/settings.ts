@@ -9,6 +9,9 @@ import allScrapers from '../../scrapers/index';
 import { withApiLogging } from '../../utils/apiLogging';
 import { logger } from '../../utils/logger';
 import { trimStringProperties } from '../../utils/security';
+import { getBranding } from '../../utils/branding';
+
+const { platformName, whiteLabelEnabled } = getBranding();
 
 const SETTINGS_DEFAULTS: SettingsType = {
    scraper_type: 'none',
@@ -17,7 +20,7 @@ const SETTINGS_DEFAULTS: SettingsType = {
    notification_interval: 'never',
    notification_email: '',
    notification_email_from: '',
-   notification_email_from_name: 'SerpBear',
+   notification_email_from_name: platformName,
    smtp_server: '',
    smtp_port: '',
    smtp_tls_servername: '',
@@ -171,8 +174,15 @@ export const getAppSettings = async () : Promise<SettingsType> => {
          console.log('Error Decrypting Settings API Keys!', error);
       }
 
-      return {
+      const normalizedSettings: SettingsType = {
          ...decryptedSettings,
+         notification_email_from_name: whiteLabelEnabled
+            ? platformName
+            : (decryptedSettings.notification_email_from_name || platformName),
+      };
+
+      return {
+         ...normalizedSettings,
          search_console_integrated:
             !!(process.env.SEARCH_CONSOLE_PRIVATE_KEY && process.env.SEARCH_CONSOLE_CLIENT_EMAIL)
             || !!(decryptedSettings.search_console_client_email && decryptedSettings.search_console_private_key),

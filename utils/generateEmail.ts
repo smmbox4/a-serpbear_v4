@@ -4,11 +4,24 @@ import path from 'path';
 import { getKeywordsInsight, getPagesInsight } from './insight';
 import { fetchDomainSCData, getSearchConsoleApiInfo, isSearchConsoleDataFreshForToday, readLocalSCData } from './searchConsole';
 import { parseLocation } from './location';
+import { buildLogoUrl, getBranding } from './branding';
 
-const serpBearLogo = 'https://serpbear.b-cdn.net/ikAdjQq.png';
+const DEFAULT_BRAND_LOGO = 'https://serpbear.b-cdn.net/ikAdjQq.png';
 const mobileIcon = 'https://serpbear.b-cdn.net/SqXD9rd.png';
 const desktopIcon = 'https://serpbear.b-cdn.net/Dx3u0XD.png';
 const googleIcon = 'https://serpbear.b-cdn.net/Sx3u0X9.png';
+
+const resolveEmailBranding = () => {
+   const brandingDetails = getBranding();
+   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
+   const useCustomLogo = brandingDetails.whiteLabelEnabled && Boolean(baseUrl);
+   const logoUrl = useCustomLogo ? buildLogoUrl(baseUrl) : '';
+
+   return {
+      ...brandingDetails,
+      emailLogo: logoUrl || DEFAULT_BRAND_LOGO,
+   } as const;
+};
 
 type SCStatsObject = {
    [key:string]: {
@@ -213,8 +226,11 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
                               </tbody>
                            </table>`;
 
+   const { emailLogo, platformName: brandName } = resolveEmailBranding();
+
    const updatedEmail = emailTemplate
-         .replace('{{logo}}', `<img class="logo_img" src="${serpBearLogo}" alt="SerpBear" width="24" height="24" />`)
+         .replace('{{logo}}', `<img class="logo_img" src="${emailLogo}" alt="${brandName}" width="24" height="24" />`)
+         .replace(/{{platformName}}/g, brandName)
          .replace('{{currentDate}}', currentDate)
          .replace('{{domainName}}', domainName)
          .replace('{{keywordsCount}}', keywordsCount.toString())

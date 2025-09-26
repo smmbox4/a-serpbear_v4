@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Features
 - Daily notification email now surfaces a tracker mini-summary ahead of the Search Console tables, styled to match the dashboard tracker card and only showing the Map Pack column when the active scraper supports it.
+- White-label deployments can override the platform name and supply a `/app/data` logo that propagates through the UI, emails, and Docker environment defaults.
 
 ### Bug Fixes
 - Cleared ESLint warnings by wiring width/min-width props into UI components, surfacing settings errors inline, sanitising SMTP TLS hostnames, and logging caught exceptions throughout Ads/Search Console utilities and API handlers.

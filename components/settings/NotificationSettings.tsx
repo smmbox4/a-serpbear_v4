@@ -7,6 +7,7 @@ import InputField from '../common/InputField';
 import Icon from '../common/Icon';
 import { useSendNotifications } from '../../services/settings';
 import { hasTrimmedLength } from '../../utils/security';
+import { getBranding } from '../../utils/branding';
 
 type NotificationSettingsProps = {
    settings: SettingsType,
@@ -19,6 +20,7 @@ type NotificationSettingsProps = {
 
 const NotificationSettings = ({ settings, settingsError, updateSettings }:NotificationSettingsProps) => {
    const { mutate: triggerNotifications, isLoading: sendingNotifications } = useSendNotifications();
+   const { platformName } = getBranding();
 
    const sanitizedNotificationEmails = (settings.notification_email || '')
       .split(',')
@@ -139,8 +141,8 @@ const NotificationSettings = ({ settings, settingsError, updateSettings }:Notifi
                         <InputField
                         label='Email From Name'
                         hasError={settingsError?.type === 'no_smtp_from'}
-                        value={settings?.notification_email_from_name || 'Serpbear'}
-                        placeholder="Serpbear"
+                        value={settings?.notification_email_from_name || platformName}
+                        placeholder={platformName}
                         onChange={(value:string) => updateSettings('notification_email_from_name', value)}
                         />
                   </div>

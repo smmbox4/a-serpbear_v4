@@ -17,6 +17,9 @@ import { useFetchSCInsight } from '../../../../services/searchConsole';
 import SCInsight from '../../../../components/insight/Insight';
 import { useFetchSettings } from '../../../../services/settings';
 import Footer from '../../../../components/common/Footer';
+import { getBranding } from '../../../../utils/branding';
+
+const { platformName } = getBranding();
 
 const InsightPage: NextPage = () => {
    const router = useRouter();
@@ -49,7 +52,7 @@ const InsightPage: NextPage = () => {
       <div className="Domain ">
          {activDomain && activDomain.domain
          && <Head>
-               <title>{`${activDomain.domain} - SerpBear` } </title>
+               <title>{`${activDomain.domain} - ${platformName}` } </title>
             </Head>
          }
          <TopBar showSettings={() => setShowSettings(true)} showAddModal={() => setShowAddDomain(true)} />
