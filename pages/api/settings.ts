@@ -176,9 +176,7 @@ export const getAppSettings = async () : Promise<SettingsType> => {
 
       const normalizedSettings: SettingsType = {
          ...decryptedSettings,
-         notification_email_from_name: whiteLabelEnabled
-            ? platformName
-            : (decryptedSettings.notification_email_from_name || platformName),
+         notification_email_from_name: decryptedSettings.notification_email_from_name || platformName,
       };
 
       return {
