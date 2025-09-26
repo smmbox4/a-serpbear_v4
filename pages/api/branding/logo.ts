@@ -39,7 +39,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
    }
 
    try {
-      // Path is constrained to `/app/data` via `resolveLogoPath` and checked above.
+      // Path is constrained to the data directory via `resolveLogoPath` and checked above.
       // eslint-disable-next-line security/detect-non-literal-fs-filename
       const stat = await fs.stat(resolvedPath);
       if (!stat.isFile()) {
@@ -56,7 +56,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
          return;
       }
 
-      // Path is constrained to `/app/data` via `resolveLogoPath` and checked above.
+      // Path is constrained to the data directory via `resolveLogoPath` and checked above.
       // eslint-disable-next-line security/detect-non-literal-fs-filename
       const stream = createReadStream(resolvedPath);
       stream.on('error', () => {
