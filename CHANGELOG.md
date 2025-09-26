@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file. Releases no
 - Daily notification email now surfaces a tracker mini-summary ahead of the Search Console tables, styled to match the dashboard tracker card and only showing the Map Pack column when the active scraper supports it.
 - White-label deployments can override the platform name and supply a `/app/data` logo that propagates through the UI, emails, and Docker environment defaults.
 
+### Documentation
+- Documented the fork's stability, security, and performance improvements at the top of the README for quick comparison with upstream SerpBear.
+
 ### Bug Fixes
 - Cleared ESLint warnings by wiring width/min-width props into UI components, surfacing settings errors inline, sanitising SMTP TLS hostnames, and logging caught exceptions throughout Ads/Search Console utilities and API handlers.
 - Fixed the Google Ads keyword ideas mutation so successful requests no longer throw a runtime reference error and now properly invalidate the cached query for the active domain.
