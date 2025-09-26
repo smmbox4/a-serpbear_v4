@@ -7,6 +7,7 @@ import Domain from '../../database/models/domain';
 import Keyword from '../../database/models/keyword';
 import generateEmail from '../../utils/generateEmail';
 import parseKeywords from '../../utils/parseKeywords';
+import getdomainStats from '../../utils/domains';
 import verifyUser from '../../utils/verifyUser';
 import { canSendEmail, recordEmailSent } from '../../utils/emailThrottle';
 import { getAppSettings } from './settings';
@@ -137,7 +138,12 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
       const domainKeywords:Keyword[] = await Keyword.findAll(query);
       const keywordsArray = domainKeywords.map((el) => el.get({ plain: true }));
       const keywords: KeywordType[] = parseKeywords(keywordsArray);
-      const emailHTML = await generateEmail(domainObj, keywords, settings);
+      
+      // Calculate domain stats to ensure email shows correct tracker summary
+      const domainsWithStats = await getdomainStats([domainObj]);
+      const domainWithStats = domainsWithStats[0] || domainObj;
+      
+      const emailHTML = await generateEmail(domainWithStats, keywords, settings);
 
       const domainNotificationEmails = trimString(domain.notification_emails);
       const fallbackNotification = notification_email;
