@@ -16,6 +16,9 @@ import { useFetchKeywords } from '../../../services/keywords';
 import { useFetchSettings } from '../../../services/settings';
 import AddKeywords from '../../../components/keywords/AddKeywords';
 import Footer from '../../../components/common/Footer';
+import { getBranding } from '../../../utils/branding';
+
+const { platformName } = getBranding();
 
 const SingleDomain: NextPage = () => {
    const router = useRouter();
@@ -56,7 +59,7 @@ const SingleDomain: NextPage = () => {
          )}
          {activDomain && activDomain.domain
          && <Head>
-               <title>{`${activDomain.domain} - SerpBear` } </title>
+               <title>{`${activDomain.domain} - ${platformName}` } </title>
             </Head>
          }
          <TopBar showSettings={() => setShowSettings(true)} showAddModal={() => setShowAddDomain(true)} />

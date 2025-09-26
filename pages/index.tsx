@@ -3,6 +3,9 @@ import { useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Icon from '../components/common/Icon';
+import { getBranding } from '../utils/branding';
+
+const { platformName } = getBranding();
 
 const Home: NextPage = () => {
    const router = useRouter();
@@ -13,8 +16,8 @@ const Home: NextPage = () => {
   return (
     <div>
       <Head>
-        <title>SerpBear</title>
-        <meta name="description" content="SerpBear Google Keyword Position Tracking App" />
+        <title>{platformName}</title>
+        <meta name="description" content={`${platformName} Google Keyword Position Tracking App`} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

@@ -1,9 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import Footer from '../../components/common/Footer';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 
 const footerMatcher = (version: string) => (_: string, element?: Element | null) =>
    element?.tagName === 'SPAN' &&
-   element.textContent?.replace(/\s+/g, ' ').trim() === `SerpBear v${version} by Vontainment`;
+   element.textContent?.replace(/\s+/g, ' ').trim() === `${platformName} v${version} by Vontainment`;
 
 describe('Footer component', () => {
    it('renders the default version with a Vontainment link', () => {

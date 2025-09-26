@@ -11,6 +11,9 @@ import verifyUser from '../../utils/verifyUser';
 import { canSendEmail, recordEmailSent } from '../../utils/emailThrottle';
 import { getAppSettings } from './settings';
 import { trimStringProperties } from '../../utils/security';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 
 type NotifyResponse = {
    success?: boolean
@@ -102,7 +105,7 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
       smtp_password = '',
       notification_email = '',
       notification_email_from = '',
-      notification_email_from_name = 'SerpBear',
+      notification_email_from_name = platformName,
       smtp_tls_servername = '',
      } = settings;
 
@@ -112,7 +115,7 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
 
    const tlsServername = sanitizeHostname(smtp_tls_servername);
    const fromAddress = notification_email_from || 'no-reply@serpbear.com';
-   const fromName = notification_email_from_name || 'SerpBear';
+   const fromName = notification_email_from_name || platformName;
    const fromEmail = `${fromName} <${fromAddress}>`;
    const portNum = parseInt(smtp_port, 10);
    const validPort = isNaN(portNum) ? 587 : Math.max(1, Math.min(65535, portNum)); // Default to 587, validate range

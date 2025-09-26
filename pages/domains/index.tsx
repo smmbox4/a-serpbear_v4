@@ -13,6 +13,9 @@ import DomainItem from '../../components/domains/DomainItem';
 import Footer from '../../components/common/Footer';
 import { withAuth } from '../../hooks/useAuth';
 import PageLoader from '../../components/common/PageLoader';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 
 type thumbImages = { [domain:string] : string }
 
@@ -112,7 +115,7 @@ const Domains: NextPage = () => {
                </div>
          )}
          <Head>
-            <title>Domains - SerpBear</title>
+            <title>Domains - {platformName}</title>
          </Head>
          <TopBar showSettings={() => setShowSettings(true)} showAddModal={() => setShowAddDomain(true)} />
 

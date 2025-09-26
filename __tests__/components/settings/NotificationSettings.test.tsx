@@ -4,17 +4,20 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import NotificationSettings from '../../../components/settings/NotificationSettings';
 import { useSendNotifications } from '../../../services/settings';
+import { getBranding } from '../../../utils/branding';
 
 jest.mock('../../../services/settings');
 
 const useSendNotificationsMock = useSendNotifications as jest.Mock;
+
+const { platformName } = getBranding();
 
 const buildSettings = (overrides: Partial<SettingsType> = {}): SettingsType => ({
    scraper_type: 'none',
    notification_interval: 'daily',
    notification_email: 'notify@example.com',
    notification_email_from: 'no-reply@example.com',
-   notification_email_from_name: 'SerpBear',
+   notification_email_from_name: platformName,
    smtp_server: 'smtp.example.com',
    smtp_port: '587',
    smtp_tls_servername: '',

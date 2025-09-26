@@ -17,6 +17,10 @@ services:
       - APIKEY=5saedXklbbjbjbhp3pih4fdnakhjwq5
       - SESSION_DURATION=24
       - NEXT_PUBLIC_SCREENSHOTS=true
+      - NEXT_PUBLIC_WHITE_LABEL=false
+      # File name (stored in /app/data) for the white-label logo. Recommended dimensions: 96x96 pixels.
+      - WHITE_LABEL_LOGO_FILE=branding-logo.png
+      - NEXT_PUBLIC_PLATFORM_NAME=SerpBear
       - SEARCH_CONSOLE_CLIENT_EMAIL=
       - SEARCH_CONSOLE_PRIVATE_KEY=--
       - NEXT_PUBLIC_APP_URL=https://serp.hugev.xyz

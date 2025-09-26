@@ -102,6 +102,9 @@ All runtime behaviour is controlled through environment variables. The tables be
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | ✅ | Public URL of your deployment. Determines callback URLs for integrations and absolute links in email digests. |
 | `NEXT_PUBLIC_SCREENSHOTS` | `true` | ✅ | Toggle keyword thumbnail capture in the UI. Set to `false` to fall back to favicons. |
+| `NEXT_PUBLIC_WHITE_LABEL` | `false` | Optional | Enables white-label branding. When `true`, the platform name and logo come from the variables below. |
+| `WHITE_LABEL_LOGO_FILE` | `branding-logo.png` | Optional | File name under `/app/data` for the custom logo. Use a 96×96px PNG, SVG, or WEBP asset for best results. |
+| `NEXT_PUBLIC_PLATFORM_NAME` | `SerpBear` | Optional | Display name for the application and notification emails in white-label mode. |
 | `SCREENSHOT_API` | — | ✅ | API key from your screenshot provider (e.g., ScreenshotOne). Without it the app refuses to queue screenshot jobs and surfaces configuration errors. |
 
 ### Scraping providers & keyword gathering
@@ -131,7 +134,7 @@ All runtime behaviour is controlled through environment variables. The tables be
 | `SMTP_USERNAME` | — | Optional | Authentication username (if required by your provider). |
 | `SMTP_PASSWORD` | — | Optional | Authentication password or app-specific token. |
 | `NOTIFICATION_EMAIL_FROM` | — | Optional | Sender email address that appears in notification emails. |
-| `NOTIFICATION_EMAIL_FROM_NAME` | `SerpBear` | Optional | Friendly sender name shown to recipients. |
+| `NOTIFICATION_EMAIL_FROM_NAME` | `SerpBear` | Optional | Friendly sender name shown to recipients. Automatically switches to `NEXT_PUBLIC_PLATFORM_NAME` when white-label branding is enabled. |
 
 SerpBear also accepts an optional **SMTP TLS certificate hostname** override from the Notification settings modal (or via the `smtp_tls_servername` field in the settings API). Whitespace and trailing dots are trimmed automatically before the value is passed to Nodemailer as the TLS `servername`, making it easier to work with proxies or shared SMTP endpoints whose certificates do not match the connection host.
 

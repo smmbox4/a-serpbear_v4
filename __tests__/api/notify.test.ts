@@ -8,6 +8,9 @@ import verifyUser from '../../utils/verifyUser';
 import parseKeywords from '../../utils/parseKeywords';
 import generateEmail from '../../utils/generateEmail';
 import { getAppSettings } from '../../pages/api/settings';
+import { getBranding } from '../../utils/branding';
+
+const { platformName } = getBranding();
 
 jest.mock('../../database/database', () => ({
   __esModule: true,
@@ -77,7 +80,7 @@ describe('/api/notify - authentication', () => {
       smtp_password: '',
       notification_email: 'notify@example.com',
       notification_email_from: '',
-      notification_email_from_name: 'SerpBear',
+      notification_email_from_name: platformName,
     });
   });
 
@@ -177,7 +180,7 @@ describe('/api/notify - authentication', () => {
       smtp_tls_servername: ' override.test. ',
       notification_email: ' notify@example.com ',
       notification_email_from: ' ',
-      notification_email_from_name: ' SerpBear ',
+      notification_email_from_name: ` ${platformName} `,
     });
 
     const domainRecord = {
@@ -231,7 +234,7 @@ describe('/api/notify - authentication', () => {
     }));
     expect(sendMailMock).toHaveBeenCalledWith(expect.objectContaining({
       to: 'custom@example.com',
-      from: 'SerpBear <no-reply@serpbear.com>',
+      from: `${platformName} <no-reply@serpbear.com>`,
     }));
   });
 
@@ -265,7 +268,7 @@ describe('/api/notify - authentication', () => {
       smtp_password: '',
       notification_email: '',
       notification_email_from: '',
-      notification_email_from_name: 'SerpBear',
+      notification_email_from_name: platformName,
     });
 
     await handler(req as NextApiRequest, res as NextApiResponse);
