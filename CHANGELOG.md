@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. Releases no
 - Adopted `@stylistic/stylelint-plugin` and upgraded Stylelint tooling to v16 so indentation rules continue working under the plugin namespace.
 
 ### Bug Fixes
+- Expanded the notification email template container so digest tables render wider in supporting clients.
 - Clarified regression coverage to assert the camelCase `mapPackTop3` keyword property rather than the legacy snake_case flag.
 - Ensured keyword refresh cleanup always persists `updating` resets even when Sequelize instances still hold stale values after bulk updates, so failed scrapes no longer leave rows stuck in a loading state.
 - Cleared ESLint warnings by wiring width/min-width props into UI components, surfacing settings errors inline, sanitising SMTP TLS hostnames, and logging caught exceptions throughout Ads/Search Console utilities and API handlers.
