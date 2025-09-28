@@ -223,6 +223,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 - Already-tracked keyword ideas now render as disabled for the active device so research flows stay deduplicated when you revisit Google Ads suggestions.
 - When Google Ads cannot supply any ideas that match your filters, the API now responds with a 404 and the UI shows a warning toast instead of a success banner so you can adjust the request immediately.
 - Successful keyword idea imports no longer crash with a reference error and the research table now refreshes instantly because the React Query cache invalidation matches the underlying query key again.
+- Email selected keyword ideas straight from the research table or a domain-specific ideas tab. The research view prompts you to choose a destination domain before sending, while domain idea pages automatically use their notification contacts. The outbound message includes a formatted table with monthly searches, trend history, and competition without touching the scheduled notification throttle.
 
 ### Loading states & accessibility
 
