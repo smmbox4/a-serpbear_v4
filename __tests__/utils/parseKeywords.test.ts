@@ -19,6 +19,7 @@ describe('parseKeywords', () => {
       updating: false,
       lastUpdateError: 'false',
       mapPackTop3: false,
+      map_pack_top3: true,
       ...overrides,
    });
 
@@ -30,6 +31,7 @@ describe('parseKeywords', () => {
       expect(keyword.updating).toBe(false);
       expect(keyword.sticky).toBe(false);
       expect(keyword.mapPackTop3).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(keyword, 'map_pack_top3')).toBe(false);
    });
 
    it('normalises truthy boolean variants to true', () => {
@@ -40,6 +42,7 @@ describe('parseKeywords', () => {
       expect(keyword.updating).toBe(true);
       expect(keyword.sticky).toBe(true);
       expect(keyword.mapPackTop3).toBe(true);
+      expect(Object.prototype.hasOwnProperty.call(keyword, 'map_pack_top3')).toBe(false);
    });
 
    it('keeps existing keyword structure intact', () => {
@@ -49,5 +52,14 @@ describe('parseKeywords', () => {
       expect(keyword.tags).toEqual(['tag']);
       expect(keyword.lastResult).toEqual([]);
       expect(keyword.location).toBe('');
+   });
+
+   it('hydrates camelCase flag when only the snake_case column is present', () => {
+      const [{ mapPackTop3, map_pack_top3 }] = parseKeywords([
+         buildKeyword({ mapPackTop3: undefined, map_pack_top3: 1 }) as any,
+      ]);
+
+      expect(mapPackTop3).toBe(true);
+      expect(map_pack_top3).toBeUndefined();
    });
 });
