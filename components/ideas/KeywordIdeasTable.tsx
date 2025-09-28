@@ -5,6 +5,7 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { useAddKeywords, useFetchKeywords } from '../../services/keywords';
 import { useEmailKeywordIdeas } from '../../services/ideas';
 import { formatLocation } from '../../utils/location';
+import { getSelectedUntrackedKeywords } from '../../utils/client/helpers';
 import Icon from '../common/Icon';
 import SpinnerMessage from '../common/SpinnerMessage';
 import KeywordIdea from './KeywordIdea';
@@ -146,19 +147,17 @@ const IdeasKeywordsTable = ({
          toast('Please select a domain before adding keywords.', { icon: '⚠️' });
          return;
       }
-      const selectedkeywords:KeywordAddPayload[] = [];
-      finalKeywords.forEach((kitem:IdeaKeywordWithTracking) => {
-         if (!kitem.isTracked && selectedKeywords.includes(kitem.uid)) {
-            const { keyword, country } = kitem;
-            selectedkeywords.push({
-               keyword,
-               device: addKeywordDevice,
-               country,
-               domain: isResearchPage ? addKeywordDomain : (domain?.domain || ''),
-               tags: '',
-               location: formatLocation({ country }),
-            });
-         }
+      const selectedUntrackedKeywords = getSelectedUntrackedKeywords(finalKeywords, selectedKeywords);
+      const selectedkeywords: KeywordAddPayload[] = selectedUntrackedKeywords.map((kitem) => {
+         const { keyword, country } = kitem;
+         return {
+            keyword,
+            device: addKeywordDevice,
+            country,
+            domain: isResearchPage ? addKeywordDomain : (domain?.domain || ''),
+            tags: '',
+            location: formatLocation({ country }),
+         };
       });
       addKeywords(selectedkeywords);
       setSelectedKeywords([]);
@@ -170,7 +169,7 @@ const IdeasKeywordsTable = ({
          toast('Please select a domain before emailing keywords.', { icon: '⚠️' });
          return;
       }
-      const selectedIdeas = finalKeywords.filter((keyword) => selectedKeywords.includes(keyword.uid) && !keyword.isTracked);
+      const selectedIdeas = getSelectedUntrackedKeywords(finalKeywords, selectedKeywords);
       if (selectedIdeas.length === 0) {
          toast('Select at least one keyword idea to email.', { icon: '⚠️' });
          return;
