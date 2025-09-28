@@ -47,7 +47,7 @@ describe('refreshAndUpdateKeywords', () => {
     };
 
     (Domain.findAll as jest.Mock).mockResolvedValue([
-      { get: () => ({ domain: 'example.com', scrape_enabled: true }) },
+      { get: () => ({ domain: 'example.com', scrapeEnabled: true }) },
     ]);
 
     (Keyword.update as jest.Mock).mockResolvedValue([1]);
@@ -91,11 +91,11 @@ describe('refreshAndUpdateKeywords', () => {
       },
     ];
 
-    // Mock domains with scrape_enabled: false to trigger the skipped keywords path
+    // Mock domains with scrapeEnabled: false to trigger the skipped keywords path
     (Domain.findAll as jest.Mock).mockResolvedValue([
-      { get: () => ({ domain: 'disabled1.com', scrape_enabled: false }) },
-      { get: () => ({ domain: 'disabled2.com', scrape_enabled: false }) },
-      { get: () => ({ domain: 'disabled3.com', scrape_enabled: false }) },
+      { get: () => ({ domain: 'disabled1.com', scrapeEnabled: false }) },
+      { get: () => ({ domain: 'disabled2.com', scrapeEnabled: false }) },
+      { get: () => ({ domain: 'disabled3.com', scrapeEnabled: false }) },
     ]);
 
     (Keyword.update as jest.Mock).mockResolvedValue([3]);
@@ -144,7 +144,7 @@ describe('refreshAndUpdateKeywords', () => {
     ];
 
     (Domain.findAll as jest.Mock).mockResolvedValue([
-      { get: () => ({ domain: 'enabled.com', scrape_enabled: true }) },
+      { get: () => ({ domain: 'enabled.com', scrapeEnabled: true }) },
     ]);
 
     await refreshAndUpdateKeywords(mockKeywords, mockSettings);
@@ -166,7 +166,7 @@ describe('refreshAndUpdateKeywords', () => {
     ];
 
     (Domain.findAll as jest.Mock).mockResolvedValue([
-      { get: () => ({ domain: 'disabled.com', scrape_enabled: false }) },
+      { get: () => ({ domain: 'disabled.com', scrapeEnabled: false }) },
     ]);
 
     (Keyword.update as jest.Mock).mockResolvedValue([1]);
@@ -197,7 +197,7 @@ describe('refreshAndUpdateKeywords', () => {
     ];
 
     (Domain.findAll as jest.Mock).mockResolvedValue([
-      { get: () => ({ domain: 'disabled.com', scrape_enabled: false }) },
+      { get: () => ({ domain: 'disabled.com', scrapeEnabled: false }) },
     ]);
 
     (Keyword.update as jest.Mock).mockResolvedValue([1]);
@@ -229,7 +229,7 @@ describe('refreshAndUpdateKeywords', () => {
     ];
 
     (Domain.findAll as jest.Mock).mockResolvedValue([
-      { get: () => ({ domain: 'disabled.com', scrape_enabled: false }) },
+      { get: () => ({ domain: 'disabled.com', scrapeEnabled: false }) },
     ]);
 
     (Keyword.update as jest.Mock).mockResolvedValue([1]);

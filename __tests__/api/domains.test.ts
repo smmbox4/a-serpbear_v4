@@ -37,7 +37,7 @@ describe('PUT /api/domains', () => {
   let domainState: {
     domain: string;
     slug: string;
-    scrape_enabled: boolean;
+    scrapeEnabled: boolean;
     notification: boolean;
   };
   let domainInstance: {
@@ -45,7 +45,7 @@ describe('PUT /api/domains', () => {
     set: jest.Mock;
     save: jest.Mock;
   };
-  let persistedSnapshots: Array<{ scrape_enabled: number; notification: number }>;
+  let persistedSnapshots: Array<{ scrapeEnabled: number; notification: number }>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -56,7 +56,7 @@ describe('PUT /api/domains', () => {
     domainState = {
       domain: 'toggle-test.example.com',
       slug: 'toggle-test-slug',
-      scrape_enabled: true,
+      scrapeEnabled: true,
       notification: true,
     };
 
@@ -67,7 +67,7 @@ describe('PUT /api/domains', () => {
       }),
       save: jest.fn().mockImplementation(async () => {
         persistedSnapshots.push({
-          scrape_enabled: Number(domainState.scrape_enabled),
+          scrapeEnabled: Number(domainState.scrapeEnabled),
           notification: Number(domainState.notification),
         });
         return domainInstance;
@@ -77,11 +77,11 @@ describe('PUT /api/domains', () => {
     DomainMock.findOne.mockResolvedValue(domainInstance);
   });
 
-  it('persists scrape_enabled toggles and keeps notification in sync', async () => {
+  it('persists scrapeEnabled toggles and keeps notification in sync', async () => {
     const disableReq = {
       method: 'PUT',
       query: { domain: domainState.domain },
-      body: { scrape_enabled: false },
+      body: { scrapeEnabled: false },
       headers: {},
     } as unknown as NextApiRequest;
     const disableRes = createMockResponse();
@@ -91,7 +91,7 @@ describe('PUT /api/domains', () => {
     expect(dbMock.sync).toHaveBeenCalledTimes(1);
     expect(DomainMock.findOne).toHaveBeenCalledWith({ where: { domain: domainState.domain } });
     expect(domainInstance.set).toHaveBeenCalledWith(expect.objectContaining({
-      scrape_enabled: false,
+      scrapeEnabled: false,
       notification: false,
     }));
     expect(domainInstance.save).toHaveBeenCalledTimes(1);
@@ -99,14 +99,14 @@ describe('PUT /api/domains', () => {
 
     const disablePayload = (disableRes.json as jest.Mock).mock.calls[0][0];
     expect(disablePayload.domain).toBe(domainInstance);
-    expect(domainState.scrape_enabled).toBe(false);
+    expect(domainState.scrapeEnabled).toBe(false);
     expect(domainState.notification).toBe(false);
-    expect(persistedSnapshots[0]).toEqual({ scrape_enabled: 0, notification: 0 });
+    expect(persistedSnapshots[0]).toEqual({ scrapeEnabled: 0, notification: 0 });
 
     const enableReq = {
       method: 'PUT',
       query: { domain: domainState.domain },
-      body: { scrape_enabled: true },
+      body: { scrapeEnabled: true },
       headers: {},
     } as unknown as NextApiRequest;
     const enableRes = createMockResponse();
@@ -115,7 +115,7 @@ describe('PUT /api/domains', () => {
 
     expect(DomainMock.findOne).toHaveBeenCalledTimes(2);
     expect(domainInstance.set).toHaveBeenLastCalledWith(expect.objectContaining({
-      scrape_enabled: true,
+      scrapeEnabled: true,
       notification: true,
     }));
     expect(domainInstance.save).toHaveBeenCalledTimes(2);
@@ -123,8 +123,8 @@ describe('PUT /api/domains', () => {
 
     const enablePayload = (enableRes.json as jest.Mock).mock.calls[0][0];
     expect(enablePayload.domain).toBe(domainInstance);
-    expect(domainState.scrape_enabled).toBe(true);
+    expect(domainState.scrapeEnabled).toBe(true);
     expect(domainState.notification).toBe(true);
-    expect(persistedSnapshots[1]).toEqual({ scrape_enabled: 1, notification: 1 });
+    expect(persistedSnapshots[1]).toEqual({ scrapeEnabled: 1, notification: 1 });
   });
 });

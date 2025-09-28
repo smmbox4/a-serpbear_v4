@@ -75,7 +75,7 @@ describe('/api/refresh', () => {
     const keywordRecord = { ID: 1, domain: 'example.com' };
     (Keyword.findAll as jest.Mock).mockResolvedValue([keywordRecord]);
     (Domain.findAll as jest.Mock).mockResolvedValue([
-      { get: () => ({ domain: 'example.com', scrape_enabled: true }) },
+      { get: () => ({ domain: 'example.com', scrapeEnabled: true }) },
     ]);
 
     (refreshAndUpdateKeywords as jest.Mock).mockRejectedValue(new Error('scraper failed'));

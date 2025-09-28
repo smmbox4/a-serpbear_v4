@@ -16,10 +16,10 @@ export const SCREENSHOTS_ENABLED = normalizeEnvFlag(process.env.NEXT_PUBLIC_SCRE
 
 const normalizeDomainPatch = (patch: Partial<DomainSettings>): Partial<DomainType> => {
    const updates: Partial<DomainType> = {};
-   if (typeof patch.scrape_enabled === 'boolean') {
-      updates.scrape_enabled = patch.scrape_enabled;
-      // Update the legacy notification field to match scrape_enabled
-      updates.notification = patch.scrape_enabled;
+   if (typeof patch.scrapeEnabled === 'boolean') {
+      updates.scrapeEnabled = patch.scrapeEnabled;
+      // Update the legacy notification field to match scrapeEnabled
+      updates.notification = patch.scrapeEnabled;
    }
    if (typeof patch.notification_interval === 'string') {
       updates.notification_interval = patch.notification_interval;

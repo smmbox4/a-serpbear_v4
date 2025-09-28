@@ -32,10 +32,10 @@ const cronRefreshkeywords = async (req: NextApiRequest, res: NextApiResponse<CRO
       if (!settings || (settings && settings.scraper_type === 'none')) {
          return res.status(400).json({ started: false, error: 'Scraper has not been set up yet.' });
       }
-      const domainToggles = await Domain.findAll({ attributes: ['domain', 'scrape_enabled'] });
+      const domainToggles = await Domain.findAll({ attributes: ['domain', 'scrapeEnabled'] });
       const enabledDomains = domainToggles
          .map((dom) => dom.get({ plain: true }))
-         .filter((dom) => dom.scrape_enabled !== false)
+         .filter((dom) => dom.scrapeEnabled !== false)
          .map((dom) => dom.domain);
 
       if (enabledDomains.length === 0) {

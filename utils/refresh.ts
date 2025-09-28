@@ -25,10 +25,10 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
    let scrapePermissions = new Map<string, boolean>();
 
    if (domainNames.length > 0) {
-      const domains = await Domain.findAll({ where: { domain: domainNames }, attributes: ['domain', 'scrape_enabled'] });
+      const domains = await Domain.findAll({ where: { domain: domainNames }, attributes: ['domain', 'scrapeEnabled'] });
       scrapePermissions = new Map(domains.map((domain) => {
          const domainPlain = domain.get({ plain: true }) as DomainType;
-         return [domainPlain.domain, domainPlain.scrape_enabled !== false];
+         return [domainPlain.domain, domainPlain.scrapeEnabled !== false];
       }));
    }
 

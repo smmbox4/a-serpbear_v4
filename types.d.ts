@@ -3,7 +3,7 @@ type DomainType = {
    domain: string,
    slug: string,
    tags?: string,
-   scrape_enabled?: boolean,
+   scrapeEnabled?: boolean,
    notification: boolean,
    notification_interval: string,
    notification_emails: string,
@@ -80,7 +80,7 @@ type DomainSettings = {
    notification_interval: string,
    notification_emails: string,
    search_console?: DomainSearchConsole,
-   scrape_enabled?: boolean,
+   scrapeEnabled?: boolean,
 }
 
 type SettingsType = {

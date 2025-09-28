@@ -19,7 +19,6 @@ describe('parseKeywords', () => {
       updating: false,
       lastUpdateError: 'false',
       mapPackTop3: false,
-      map_pack_top3: true,
       ...overrides,
    });
 
@@ -54,12 +53,11 @@ describe('parseKeywords', () => {
       expect(keyword.location).toBe('');
    });
 
-   it('hydrates camelCase flag when only the snake_case column is present', () => {
-      const [{ mapPackTop3, map_pack_top3 }] = parseKeywords([
-         buildKeyword({ mapPackTop3: undefined, map_pack_top3: 1 }) as any,
+   it('returns false for missing mapPackTop3 flag', () => {
+      const [{ mapPackTop3 }] = parseKeywords([
+         buildKeyword({ mapPackTop3: undefined }) as any,
       ]);
 
-      expect(mapPackTop3).toBe(true);
-      expect(map_pack_top3).toBeUndefined();
+      expect(mapPackTop3).toBe(false);
    });
 });
