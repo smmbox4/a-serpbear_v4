@@ -4,7 +4,7 @@ import { TextEncoder, TextDecoder } from 'util';
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, width, height, unoptimized, ...rest }) => {
+  default: ({ src, alt, width, height, unoptimized: _unoptimized, ...rest }) => {
     const React = require('react');
     return React.createElement('img', { src, alt, width, height, ...rest });
   },
