@@ -266,6 +266,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
   - `npm test` executes the Jest test suite using the `@happy-dom/jest-environment` adapter.
   - `npm run test:ci` mirrors the CI environment.
   - `npm run test:cv -- --runInBand` generates serialised coverage when debugging.
+  - Regression specs assert the camelCase `mapPackTop3` keyword flag—update fixtures to keep that property present when adding new cases.
 - **Database scripts:** `npm run db:migrate` / `npm run db:revert`.
 - **Schema rename:** Apply the `1737426000000-rename-legacy-boolean-columns` migration after pulling this update to rename `keyword.map_pack_top3` → `mapPackTop3` and `domain.scrape_enabled` → `scrapeEnabled` before running the app.
 - **Production build:** `npm run build` followed by `npm run start`.
