@@ -76,7 +76,7 @@ describe('Boolean Normalization Functions', () => {
       tags: JSON.stringify(['tag']),
       updating: false,
       lastUpdateError: 'false',
-      map_pack_top3: 0,
+      mapPackTop3: false,
       ...overrides,
     });
 
@@ -84,7 +84,7 @@ describe('Boolean Normalization Functions', () => {
     it('returns true for recognized truthy strings', () => {
       const [keyword1] = parseKeywords([buildKeyword({ updating: '1' }) as any]);
       const [keyword2] = parseKeywords([buildKeyword({ sticky: 'true' }) as any]);
-      const [keyword3] = parseKeywords([buildKeyword({ map_pack_top3: 'YES' }) as any]);
+      const [keyword3] = parseKeywords([buildKeyword({ mapPackTop3: 'YES' }) as any]);
       const [keyword4] = parseKeywords([buildKeyword({ updating: 'on' }) as any]);
 
       expect(keyword1.updating).toBe(true);
@@ -97,7 +97,7 @@ describe('Boolean Normalization Functions', () => {
     it('returns false for recognized falsy strings', () => {
       const [keyword1] = parseKeywords([buildKeyword({ updating: '0' }) as any]);
       const [keyword2] = parseKeywords([buildKeyword({ sticky: 'false' }) as any]);
-      const [keyword3] = parseKeywords([buildKeyword({ map_pack_top3: 'no' }) as any]);
+      const [keyword3] = parseKeywords([buildKeyword({ mapPackTop3: 'no' }) as any]);
       const [keyword4] = parseKeywords([buildKeyword({ updating: 'off' }) as any]);
 
       expect(keyword1.updating).toBe(false);
@@ -111,7 +111,7 @@ describe('Boolean Normalization Functions', () => {
       // These are examples of API error messages that should not be treated as true
       const [keyword1] = parseKeywords([buildKeyword({ updating: 'API Error: Invalid request' }) as any]);
       const [keyword2] = parseKeywords([buildKeyword({ sticky: 'Server error occurred' }) as any]);
-      const [keyword3] = parseKeywords([buildKeyword({ map_pack_top3: 'timeout' }) as any]);
+      const [keyword3] = parseKeywords([buildKeyword({ mapPackTop3: 'timeout' }) as any]);
       const [keyword4] = parseKeywords([buildKeyword({ updating: 'maybe' }) as any]);
 
       expect(keyword1.updating).toBe(false);

@@ -216,7 +216,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
          history: JSON.stringify(history),
          lastUpdated: lastUpdatedValue,
          lastUpdateError: lastUpdateErrorValue,
-         map_pack_top3: updatedKeyword.mapPackTop3 === true,
+         mapPackTop3: updatedKeyword.mapPackTop3 === true,
       };
 
       if (updatedKeyword.error && settings?.scrape_retry) {
@@ -251,7 +251,7 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
             history,
             lastUpdated: effectiveLastUpdated,
             lastUpdateError: parsedError,
-            mapPackTop3: dbPayload.map_pack_top3 === true,
+            mapPackTop3: dbPayload.mapPackTop3 === true,
          };
       } catch (error) {
          console.log('[ERROR] Updating SERP for Keyword', keyword.keyword, error);

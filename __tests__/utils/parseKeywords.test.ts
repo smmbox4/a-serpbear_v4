@@ -18,13 +18,13 @@ describe('parseKeywords', () => {
       tags: JSON.stringify(['tag']),
       updating: false,
       lastUpdateError: 'false',
-      map_pack_top3: 0,
+      mapPackTop3: false,
       ...overrides,
    });
 
    it('normalises falsy boolean variants to false', () => {
       const [keyword] = parseKeywords([
-         buildKeyword({ updating: '0', sticky: 'no', map_pack_top3: 'false' }) as any,
+         buildKeyword({ updating: '0', sticky: 'no', mapPackTop3: 'false' }) as any,
       ]);
 
       expect(keyword.updating).toBe(false);
@@ -34,7 +34,7 @@ describe('parseKeywords', () => {
 
    it('normalises truthy boolean variants to true', () => {
       const [keyword] = parseKeywords([
-         buildKeyword({ updating: '1', sticky: 'YES', map_pack_top3: 1 }) as any,
+         buildKeyword({ updating: '1', sticky: 'YES', mapPackTop3: 1 }) as any,
       ]);
 
       expect(keyword.updating).toBe(true);
