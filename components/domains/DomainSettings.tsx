@@ -19,8 +19,8 @@ type DomainSettingsError = {
 
 const deriveDomainActiveState = (domainData?: DomainType | null) => {
    if (!domainData) { return true; }
-   const { scrape_enabled, notification } = domainData;
-   return (scrape_enabled !== false) && (notification !== false);
+   const { scrapeEnabled, notification } = domainData;
+   return (scrapeEnabled !== false) && (notification !== false);
 };
 
 const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
@@ -35,7 +35,7 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
       search_console: domain?.search_console ? JSON.parse(domain.search_console) : {
          property_type: 'domain', url: '', client_email: '', private_key: '',
       },
-      scrape_enabled: initialActiveState,
+      scrapeEnabled: initialActiveState,
    }));
 
    const { mutate: updateMutate, error: domainUpdateError, isLoading: isUpdating } = useUpdateDomain(() => closeModal(false));
@@ -48,18 +48,18 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
       setDomainSettings(prevSettings => ({
          ...prevSettings,
          search_console: currentSearchConsoleSettings || prevSettings.search_console,
-         scrape_enabled: nextActive,
+         scrapeEnabled: nextActive,
       }));
    });
 
    const updateDomainActiveState = (next: boolean) => {
       setDomainSettings(prevSettings => ({
          ...prevSettings,
-         scrape_enabled: next,
+         scrapeEnabled: next,
       }));
    };
 
-   const isDomainActive = domainSettings.scrape_enabled !== false;
+   const isDomainActive = domainSettings.scrapeEnabled !== false;
 
    const updateDomain = () => {
       let error: DomainSettingsError | null = null;

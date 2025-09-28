@@ -247,7 +247,7 @@ Every feature available in the UI is backed by authenticated API routes. Authent
 - `POST /api/refresh` – queue immediate re-scrapes for selected keywords.
 - `GET /api/settings` – fetch the current scraper, cron, and notification settings.
 
-Keyword responses now expose only the camelCase `mapPackTop3` flag alongside the other normalised booleans so integrations no longer need to strip the legacy `map_pack_top3` column returned by some databases.
+Keyword responses now expose only the camelCase `mapPackTop3` flag alongside the other normalised booleans. The legacy `map_pack_top3` column has been renamed by the `1737426000000-rename-legacy-boolean-columns` migration so API consumers and integrations no longer need to handle both cases.
 
 Refer to the [official documentation](https://docs.serpbear.com/) for the complete endpoint catalogue and payload schemas.
 
@@ -267,6 +267,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
   - `npm run test:ci` mirrors the CI environment.
   - `npm run test:cv -- --runInBand` generates serialised coverage when debugging.
 - **Database scripts:** `npm run db:migrate` / `npm run db:revert`.
+- **Schema rename:** Apply the `1737426000000-rename-legacy-boolean-columns` migration after pulling this update to rename `keyword.map_pack_top3` → `mapPackTop3` and `domain.scrape_enabled` → `scrapeEnabled` before running the app.
 - **Production build:** `npm run build` followed by `npm run start`.
 - **UI patterns:** Add new icons through the `ICON_RENDERERS` map in `components/common/Icon.tsx` and rely on the exported keyword filtering helpers when building new table views to keep predicates shared and complexity low.
 - **Side panels & dropdowns:** The `SidePanel` component now honours its `width` prop (`small`, `medium`, `large`) and `SelectField` respects `minWidth`, making it easier to tune layouts without hand-editing Tailwind classes.
@@ -282,7 +283,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 - **Screenshot refresh skips:** Manual thumbnail updates now always hit the screenshot service with the stored host, so investigate provider logs if a toast reports a failure instead of assuming the button silently ignored the request.
 - **Corrupted screenshot cache:** If thumbnail reloads stop responding after local `domainThumbs` storage is edited or damaged, the app now clears the cache automatically and fetches a fresh image the next time you open the modal.
 - **Empty domain slugs:** The dashboard now always requests `/api/domain`, even for blank slugs, so the API returns descriptive validation errors instead of the client throwing immediately.
-- **Domain scraping toggle not persisting:** The custom SQLite dialect now coerces boolean bindings to integers so `/api/domains` updates keep `scrape_enabled` and the legacy `notification` flag aligned.
+- **Domain scraping toggle not persisting:** The custom SQLite dialect now coerces boolean bindings to integers so `/api/domains` updates keep `scrapeEnabled` and the legacy `notification` flag aligned.
 - **Scraper misconfiguration:** 500-series API responses often include descriptive JSON (with a `details` field) – surface these logs when opening support tickets.
 - **Redirected SERP links:** The scraper now normalises Google results that route through `/url`, `/interstitial`, or related wrappers, so stored ranks always point at the destination domain. If you capture new HTML fixtures, keep those redirect paths intact so tests continue exercising the normalisation logic.
 - **Cron timing:** Adjust cron expressions and `CRON_TIMEZONE` to align with your reporting cadence; expressions are normalised automatically, so quoting them in `.env` files is safe.

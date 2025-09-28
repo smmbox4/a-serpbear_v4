@@ -31,7 +31,7 @@ const mockDomain: DomainType = {
    added: '2023-01-01',
    updated: '2023-01-01',
    tags: '',
-   scrape_enabled: true,
+   scrapeEnabled: true,
    notify_enabled: true,
    notification: true,
    notification_interval: 'daily',
@@ -133,7 +133,7 @@ describe('DomainSettings Component', () => {
       expect(mutateMock).toHaveBeenCalledWith({
          domain: mockDomain,
          domainSettings: expect.objectContaining({
-            scrape_enabled: false,
+            scrapeEnabled: false,
          }),
       });
    });

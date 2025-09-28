@@ -245,7 +245,7 @@ describe('/api/notify - authentication', () => {
       get: () => ({
         domain: 'example.com',
         notification: false,
-        scrape_enabled: false,
+        scrapeEnabled: false,
         notification_emails: 'custom@example.com',
       }),
     };
@@ -285,7 +285,7 @@ describe('/api/notify - authentication', () => {
       get: () => ({
         domain: 'example.com',
         notification: true,
-        scrape_enabled: true,
+        scrapeEnabled: true,
         notification_emails: 'custom@example.com',
       }),
     };

@@ -19,7 +19,7 @@ export const updateDomainStats = async (domainName: string): Promise<void> => {
             const keywordData = keyword.get({ plain: true });
             
             // Count mapPack keywords
-            if (keywordData.map_pack_top3 === true) {
+            if (keywordData.mapPackTop3 === true) {
                acc.mapPackKeywords++;
             }
             

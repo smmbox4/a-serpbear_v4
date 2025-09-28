@@ -89,7 +89,7 @@ const addDomain = async (req: NextApiRequest, res: NextApiResponse<DomainsAddRes
             slug: domain.trim().replaceAll('-', '_').replaceAll('.', '-').replaceAll('/', '-'),
             lastUpdated: new Date().toJSON(),
             added: new Date().toJSON(),
-            scrape_enabled: true,
+            scrapeEnabled: true,
             notification: true,
          });
       });
@@ -132,7 +132,7 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
       notification_interval,
       notification_emails,
       search_console,
-      scrape_enabled,
+      scrapeEnabled,
    } = payload;
 
    try {
@@ -152,10 +152,10 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
          const updates: Partial<Domain> = {};
          if (typeof notification_interval === 'string') { updates.notification_interval = notification_interval; }
          if (typeof notification_emails === 'string') { updates.notification_emails = notification_emails; }
-         if (typeof scrape_enabled === 'boolean') { 
-            updates.scrape_enabled = scrape_enabled;
-            // Update the legacy notification field to match scrape_enabled
-            updates.notification = scrape_enabled;
+         if (typeof scrapeEnabled === 'boolean') {
+            updates.scrapeEnabled = scrapeEnabled;
+            // Update the legacy notification field to match scrapeEnabled
+            updates.notification = scrapeEnabled;
          }
          if (search_console) {
             updates.search_console = JSON.stringify(search_console);

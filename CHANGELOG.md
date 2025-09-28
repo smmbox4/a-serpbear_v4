@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file. Releases no
 - Fixed the Google Ads keyword ideas mutation so successful requests no longer throw a runtime reference error and now properly invalidate the cached query for the active domain.
 - Tracker email summary now falls back to live keyword data to compute average position and map-pack totals, preventing those counters from showing 0 when domain aggregates are unavailable.
 - Domain stats retrieval now omits average position and map-pack counts unless persisted values exist, avoiding stale recalculations from keyword snapshots.
-- Keywords API responses now drop the legacy `map_pack_top3` field so consumers rely exclusively on the normalised `mapPackTop3` flag.
+- Renamed keyword `map_pack_top3` → `mapPackTop3` and domain `scrape_enabled` → `scrapeEnabled`, updating API responses and models accordingly. Run `npm run db:migrate` to apply the `1737426000000-rename-legacy-boolean-columns` migration before restarting services.
 
 # [3.0.0](https://github.com/djav1985/v-serpbear/compare/v2.0.7...v3.0.0) (2025-09-24)
 

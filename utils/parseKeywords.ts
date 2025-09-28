@@ -48,7 +48,7 @@ const normaliseBoolean = (value: unknown): boolean => {
 const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
    const parsedItems = allKeywords.map((keywrd:Keyword) => {
       const keywordData = keywrd as unknown as Record<string, any>;
-      const { map_pack_top3, ...keywordWithoutSnakeCase } = keywordData;
+      const { mapPackTop3, ...keywordWithoutMapPack } = keywordData;
 
       let historyRaw: unknown;
       try { historyRaw = JSON.parse(keywordData.history); } catch { historyRaw = {}; }
@@ -65,13 +65,13 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          try { lastUpdateError = JSON.parse(keywordData.lastUpdateError); } catch { lastUpdateError = {}; }
       }
 
-      const mapPackTop3 = normaliseBoolean(keywordData.mapPackTop3 ?? map_pack_top3);
+      const normalisedMapPackTop3 = normaliseBoolean(mapPackTop3);
 
       const updating = normaliseBoolean(keywordData.updating);
       const sticky = normaliseBoolean(keywordData.sticky);
 
       return {
-         ...keywordWithoutSnakeCase,
+         ...keywordWithoutMapPack,
          location: typeof keywordData.location === 'string' ? keywordData.location : '',
          history,
          tags,
@@ -79,7 +79,7 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          lastUpdateError,
          sticky,
          updating,
-         mapPackTop3,
+         mapPackTop3: normalisedMapPackTop3,
       };
    });
    return parsedItems;
