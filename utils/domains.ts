@@ -19,30 +19,24 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
       const keywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
       domainWithStat.keywordsTracked = keywords.length;
       
-      // Use persisted avgPosition and mapPackKeywords from database if available
-      // Fall back to calculation if not set or if avgPosition is 0 (likely uninitialized)
-      if (typeof domain.avgPosition === 'number' && domain.avgPosition > 0) {
+      const hasPersistedAvgPosition = typeof domain.avgPosition === 'number'
+         && Number.isFinite(domain.avgPosition)
+         && domain.avgPosition > 0;
+
+      if (hasPersistedAvgPosition) {
          domainWithStat.avgPosition = domain.avgPosition;
-      } else {
-         // Fallback calculation
-         const { keywordPositions, positionCount } = keywords.reduce(
-           (stats, keyword) => {
-             if (typeof keyword.position === 'number' && Number.isFinite(keyword.position) && keyword.position > 0) {
-               stats.keywordPositions += keyword.position;
-               stats.positionCount++;
-             }
-             return stats;
-           },
-           { keywordPositions: 0, positionCount: 0 },
-         );
-         domainWithStat.avgPosition = positionCount > 0 ? Math.round(keywordPositions / positionCount) : 0;
+      } else if ('avgPosition' in domainWithStat) {
+         delete domainWithStat.avgPosition;
       }
-      
-      if (typeof domain.mapPackKeywords === 'number' && domain.mapPackKeywords > 0) {
+
+      const hasPersistedMapPackKeywords = typeof domain.mapPackKeywords === 'number'
+         && Number.isFinite(domain.mapPackKeywords)
+         && domain.mapPackKeywords > 0;
+
+      if (hasPersistedMapPackKeywords) {
          domainWithStat.mapPackKeywords = domain.mapPackKeywords;
-      } else {
-         // Fallback calculation
-         domainWithStat.mapPackKeywords = keywords.filter(keyword => keyword.mapPackTop3 === true).length;
+      } else if ('mapPackKeywords' in domainWithStat) {
+         delete domainWithStat.mapPackKeywords;
       }
 
       // Get the last updated time from keywords
