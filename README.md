@@ -236,7 +236,6 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 ### Notifications & reporting
 
 - Email digests summarise rank gains/losses, highlight top movers, and include Search Console traffic data when available.
-- Digest layout now uses a wider container so keyword, trend, and competition tables have more breathing room in HTML clients.
 - Notification cadence is fully configurable through `CRON_EMAIL_SCHEDULE`. Disable SMTP variables to skip sending emails entirely.
 - Trigger a manual run from the **Send Notifications Now** button in the Notification settings modal. Inline guidance and assistive-technology announcements walk through the prerequisites so teams can confirm SMTP credentials and email recipients immediately.
 - `/api/notify` now reserves HTTP 401 strictly for authentication issues—misconfigured SMTP hosts return 400 and runtime delivery errors surface as 500 responses with descriptive messages for easier debugging.

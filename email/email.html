@@ -336,20 +336,38 @@
          color: #888;
          padding-bottom: 10px;
       }
-      .keyword td:nth-child(1){
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(1){
          text-align: center;
          width: 40px;
          padding-right: 5px;
       }
-      .keyword td:nth-child(2){
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(2){
          font-weight: bold;
       }
-      .keyword_table th:nth-child(3), .keyword_table th:nth-child(4), .keyword td:nth-child(3), .keyword td:nth-child(4), .keyword_table--sc th:nth-child(5), .keyword_table--sc td:nth-child(5){
+      .keyword_table:not(.keyword_table--sc) th:nth-child(3),
+      .keyword_table:not(.keyword_table--sc) th:nth-child(4),
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(3),
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(4){
          text-align: center;
       }
-      .keyword td:nth-child(4){
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(4){
          font-size: 12px;
          color: #888;
+      }
+      .keyword_table--sc th:first-child,
+      .keyword_table--sc td:first-child{
+         text-align: left;
+         width: 220px;
+         padding-right: 16px;
+      }
+      .keyword_table--sc th:nth-child(2),
+      .keyword_table--sc th:nth-child(3),
+      .keyword_table--sc th:nth-child(4),
+      .keyword_table--sc td:nth-child(2),
+      .keyword_table--sc td:nth-child(3),
+      .keyword_table--sc td:nth-child(4){
+         text-align: right;
+         width: 90px;
       }
       .keyword_table--sc td:nth-child(4){
          color:inherit;
