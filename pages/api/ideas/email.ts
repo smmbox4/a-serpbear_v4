@@ -48,7 +48,7 @@ const normalizeKeywords = (keywords: KeywordIdeasEmailKeyword[] = []): KeywordId
       keyword: trimString(keyword.keyword),
       avgMonthlySearches: typeof keyword.avgMonthlySearches === 'number'
          ? keyword.avgMonthlySearches
-         : Number(keyword.avgMonthlySearches) || 0,
+         : (Number.isFinite(Number(keyword.avgMonthlySearches)) ? Number(keyword.avgMonthlySearches) : undefined),
       monthlySearchVolumes: monthlyVolumes,
       competition: trimString(keyword.competition) || undefined,
       competitionIndex: normalizedCompetitionIndex,
