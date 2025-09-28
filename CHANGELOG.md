@@ -12,13 +12,13 @@ All notable changes to this project will be documented in this file. Releases no
 - Documented the fork's stability, security, and performance improvements at the top of the README for quick comparison with upstream SerpBear.
 
 ### Bug Fixes
+- Clarified regression coverage to assert the camelCase `mapPackTop3` keyword property rather than the legacy snake_case flag.
 - Ensured keyword refresh cleanup always persists `updating` resets even when Sequelize instances still hold stale values after bulk updates, so failed scrapes no longer leave rows stuck in a loading state.
 - Cleared ESLint warnings by wiring width/min-width props into UI components, surfacing settings errors inline, sanitising SMTP TLS hostnames, and logging caught exceptions throughout Ads/Search Console utilities and API handlers.
 - Fixed the Google Ads keyword ideas mutation so successful requests no longer throw a runtime reference error and now properly invalidate the cached query for the active domain.
 - Tracker email summary now falls back to live keyword data to compute average position and map-pack totals, preventing those counters from showing 0 when domain aggregates are unavailable.
 - Tracker email summary now respects persisted Map Pack totals when available while still deriving a fallback from live keyword data for domains without the stored value.
 - Domain stats retrieval now omits average position and map-pack counts unless persisted values exist, avoiding stale recalculations from keyword snapshots.
-- Promoted keyword `mapPackTop3` and domain `scrapeEnabled` as the canonical booleans, removing their legacy snake_case columns via the `1737426000000-rename-legacy-boolean-columns` migration so downstream code only sees the camelCase identifiers. Run `npm run db:migrate` before restarting services.
 
 # [3.0.0](https://github.com/djav1985/v-serpbear/compare/v2.0.7...v3.0.0) (2025-09-24)
 

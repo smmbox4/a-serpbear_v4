@@ -296,7 +296,7 @@ export function useFetchSingleKeyword(keywordID:number) {
          throw new Error('Error Loading Keyword Details');
       }
    }, {
-      onError: (error) => {
+      onError: (_error) => {
          console.log('Error Loading Keyword Data!!!');
          toast('Error Loading Keyword Details.', { icon: '⚠️' });
       },

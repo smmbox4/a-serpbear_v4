@@ -67,7 +67,7 @@ describe('fetchKeywords normalisation', () => {
       expect(typeof keyword.updating).toBe('boolean');
       expect(keyword.sticky).toBe(false);
       expect(keyword.mapPackTop3).toBe(true);
-      expect(Object.prototype.hasOwnProperty.call(keyword, 'map_pack_top3')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(keyword, 'mapPackTop3')).toBe(true);
    });
 
    it('returns consistent object structure when domain is falsy', async () => {
