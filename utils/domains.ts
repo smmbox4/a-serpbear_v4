@@ -38,7 +38,7 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
          domainWithStat.avgPosition = positionCount > 0 ? Math.round(keywordPositions / positionCount) : 0;
       }
       
-      if (typeof domain.mapPackKeywords === 'number' && domain.mapPackKeywords >= 0) {
+      if (typeof domain.mapPackKeywords === 'number' && domain.mapPackKeywords > 0) {
          domainWithStat.mapPackKeywords = domain.mapPackKeywords;
       } else {
          // Fallback calculation

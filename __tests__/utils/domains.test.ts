@@ -195,4 +195,65 @@ describe('getdomainStats', () => {
     expect(result[0].avgPosition).toBe(10); // Calculated: Math.round((8+12)/2) = 10
     expect(result[0].mapPackKeywords).toBe(5); // Uses persisted value from domain
   });
+
+  it('falls back to calculation when domain mapPackKeywords is 0 (post-migration issue)', async () => {
+    const parsedKeywords = [
+      { ID: 1, position: 5, lastUpdated: '2023-01-01', mapPackTop3: true },
+      { ID: 2, position: 15, lastUpdated: '2023-01-02', mapPackTop3: true },
+      { ID: 3, position: 8, lastUpdated: '2023-01-03', mapPackTop3: false },
+    ];
+
+    mockFindAll.mockResolvedValue([]);
+    mockParseKeywords.mockReturnValue(parsedKeywords);
+    mockReadLocalSCData.mockResolvedValue(null);
+
+    const domain = {
+      ID: 1,
+      domain: 'post-migration.com',
+      slug: 'post-migration-com',
+      notification: false,
+      notification_interval: '',
+      notification_emails: '',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      avgPosition: 8, // Valid persisted value
+      mapPackKeywords: 0, // Should trigger fallback calculation - post-migration domains start with 0
+    } as any;
+
+    const result = await getdomainStats([domain]);
+
+    expect(result[0].keywordsTracked).toBe(3);
+    expect(result[0].avgPosition).toBe(8); // Uses persisted value from domain
+    expect(result[0].mapPackKeywords).toBe(2); // Should calculate from keywords: 2 have mapPackTop3 = true
+  });
+
+  it('correctly calculates 0 map pack keywords when no keywords have mapPackTop3=true', async () => {
+    const parsedKeywords = [
+      { ID: 1, position: 5, lastUpdated: '2023-01-01', mapPackTop3: false },
+      { ID: 2, position: 15, lastUpdated: '2023-01-02', mapPackTop3: false },
+    ];
+
+    mockFindAll.mockResolvedValue([]);
+    mockParseKeywords.mockReturnValue(parsedKeywords);
+    mockReadLocalSCData.mockResolvedValue(null);
+
+    const domain = {
+      ID: 1,
+      domain: 'no-map-pack.com',
+      slug: 'no-map-pack-com',
+      notification: false,
+      notification_interval: '',
+      notification_emails: '',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      avgPosition: 10, // Valid persisted value
+      mapPackKeywords: 0, // Should trigger fallback calculation and result in 0
+    } as any;
+
+    const result = await getdomainStats([domain]);
+
+    expect(result[0].keywordsTracked).toBe(2);
+    expect(result[0].avgPosition).toBe(10); // Uses persisted value from domain
+    expect(result[0].mapPackKeywords).toBe(0); // Should calculate from keywords: 0 have mapPackTop3 = true
+  });
 });
