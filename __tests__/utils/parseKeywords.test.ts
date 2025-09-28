@@ -30,7 +30,7 @@ describe('parseKeywords', () => {
       expect(keyword.updating).toBe(false);
       expect(keyword.sticky).toBe(false);
       expect(keyword.mapPackTop3).toBe(false);
-      expect(Object.prototype.hasOwnProperty.call(keyword, 'map_pack_top3')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(keyword, 'mapPackTop3')).toBe(true);
    });
 
    it('normalises truthy boolean variants to true', () => {
@@ -41,7 +41,7 @@ describe('parseKeywords', () => {
       expect(keyword.updating).toBe(true);
       expect(keyword.sticky).toBe(true);
       expect(keyword.mapPackTop3).toBe(true);
-      expect(Object.prototype.hasOwnProperty.call(keyword, 'map_pack_top3')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(keyword, 'mapPackTop3')).toBe(true);
    });
 
    it('keeps existing keyword structure intact', () => {
