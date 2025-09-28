@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file. Releases no
 - Cleared ESLint warnings by wiring width/min-width props into UI components, surfacing settings errors inline, sanitising SMTP TLS hostnames, and logging caught exceptions throughout Ads/Search Console utilities and API handlers.
 - Fixed the Google Ads keyword ideas mutation so successful requests no longer throw a runtime reference error and now properly invalidate the cached query for the active domain.
 - Tracker email summary now falls back to live keyword data to compute average position and map-pack totals, preventing those counters from showing 0 when domain aggregates are unavailable.
+- Tracker email summary now respects persisted Map Pack totals when available while still deriving a fallback from live keyword data for domains without the stored value.
 - Domain stats retrieval now omits average position and map-pack counts unless persisted values exist, avoiding stale recalculations from keyword snapshots.
 - Renamed keyword `map_pack_top3` → `mapPackTop3` and domain `scrape_enabled` → `scrapeEnabled`, updating API responses and models accordingly. Run `npm run db:migrate` to apply the `1737426000000-rename-legacy-boolean-columns` migration before restarting services.
 
