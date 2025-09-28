@@ -80,7 +80,7 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          sticky,
          updating,
          mapPackTop3: normalisedMapPackTop3,
-      };
+      } as KeywordType;
    });
    return parsedItems;
 };

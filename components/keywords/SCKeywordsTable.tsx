@@ -104,7 +104,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
 
    const addSCKeywordsToTracker = () => {
       const selectedkeywords:KeywordAddPayload[] = [];
-      keywords.forEach((kitem:SCKeywordType) => {
+      finalKeywords[device].forEach((kitem:SCKeywordType) => {
          if (selectedKeywords.includes(kitem.uid)) {
             const { keyword, country } = kitem;
             selectedkeywords.push({
