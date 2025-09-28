@@ -11,7 +11,7 @@ import { logger } from '../../utils/logger';
 import { trimStringProperties } from '../../utils/security';
 import { getBranding } from '../../utils/branding';
 
-const { platformName, whiteLabelEnabled } = getBranding();
+const { platformName } = getBranding();
 
 const SETTINGS_DEFAULTS: SettingsType = {
    scraper_type: 'none',
