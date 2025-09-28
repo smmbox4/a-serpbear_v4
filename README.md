@@ -247,8 +247,6 @@ Every feature available in the UI is backed by authenticated API routes. Authent
 - `POST /api/refresh` – queue immediate re-scrapes for selected keywords.
 - `GET /api/settings` – fetch the current scraper, cron, and notification settings.
 
-Keyword responses now expose only the camelCase `mapPackTop3` flag alongside the other normalised booleans. Ensure the `1737426000000-rename-legacy-boolean-columns` migration has been applied so API consumers and integrations receive the consolidated field.
-
 Refer to the [official documentation](https://docs.serpbear.com/) for the complete endpoint catalogue and payload schemas.
 
 ---
@@ -268,7 +266,6 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
   - `npm run test:cv -- --runInBand` generates serialised coverage when debugging.
   - Regression specs assert the camelCase `mapPackTop3` keyword flag—update fixtures to keep that property present when adding new cases.
 - **Database scripts:** `npm run db:migrate` / `npm run db:revert`.
-- **Schema rename:** Apply the `1737426000000-rename-legacy-boolean-columns` migration after pulling this update so keywords expose the `mapPackTop3` flag and domains surface the `scrapeEnabled` setting before running the app.
 - **Production build:** `npm run build` followed by `npm run start`.
 - **UI patterns:** Add new icons through the `ICON_RENDERERS` map in `components/common/Icon.tsx` and rely on the exported keyword filtering helpers when building new table views to keep predicates shared and complexity low.
 - **Side panels & dropdowns:** The `SidePanel` component now honours its `width` prop (`small`, `medium`, `large`) and `SelectField` respects `minWidth`, making it easier to tune layouts without hand-editing Tailwind classes.

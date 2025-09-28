@@ -22,7 +22,7 @@ describe('Map Pack Top3 Migration', () => {
     }
   });
 
-  test('migration adds map_pack_top3 column with proper constraints', async () => {
+  test('migration adds mapPackTop3 column with proper constraints', async () => {
     const migration = require('../../database/migrations/1737307000000-add-keyword-map-pack-flag');
     const { DataTypes } = require('sequelize');
     
@@ -34,7 +34,7 @@ describe('Map Pack Top3 Migration', () => {
         query: jest.fn().mockResolvedValue(undefined),
       },
       describeTable: jest.fn().mockResolvedValue({
-        // Simulate table without the 'map_pack_top3' field initially
+        // Simulate table without the 'mapPackTop3' field initially
       }),
       addColumn: jest.fn().mockResolvedValue(undefined),
       changeColumn: jest.fn().mockResolvedValue(undefined),
@@ -46,7 +46,7 @@ describe('Map Pack Top3 Migration', () => {
     // Verify the column is added as nullable first
     expect(mockQueryInterface.addColumn).toHaveBeenCalledWith(
       'keyword',
-      'map_pack_top3',
+      'mapPackTop3',
       {
         type: DataTypes.BOOLEAN,
         allowNull: true,
@@ -54,17 +54,17 @@ describe('Map Pack Top3 Migration', () => {
       },
       { transaction: { transaction: 'mock' } }
     );
-    
+
     // Verify backfill UPDATE query is executed
     expect(mockQueryInterface.sequelize.query).toHaveBeenCalledWith(
-      'UPDATE keyword SET map_pack_top3 = 0 WHERE map_pack_top3 IS NULL',
+      'UPDATE keyword SET mapPackTop3 = 0 WHERE mapPackTop3 IS NULL',
       { transaction: { transaction: 'mock' } }
     );
-    
+
     // Verify column is changed to NOT NULL after backfill
     expect(mockQueryInterface.changeColumn).toHaveBeenCalledWith(
       'keyword',
-      'map_pack_top3',
+      'mapPackTop3',
       {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -86,8 +86,8 @@ describe('Map Pack Top3 Migration', () => {
         query: jest.fn().mockResolvedValue(undefined),
       },
       describeTable: jest.fn().mockResolvedValue({
-        // Simulate table WITH the 'map_pack_top3' field already present
-        map_pack_top3: { type: 'BOOLEAN', allowNull: false, defaultValue: false }
+        // Simulate table WITH the 'mapPackTop3' field already present
+        mapPackTop3: { type: 'BOOLEAN', allowNull: false, defaultValue: false }
       }),
       addColumn: jest.fn().mockResolvedValue(undefined),
       changeColumn: jest.fn().mockResolvedValue(undefined),
@@ -102,7 +102,7 @@ describe('Map Pack Top3 Migration', () => {
     expect(mockQueryInterface.changeColumn).not.toHaveBeenCalled();
   });
 
-  test('migration down removes map_pack_top3 column correctly', async () => {
+  test('migration down removes mapPackTop3 column correctly', async () => {
     const migration = require('../../database/migrations/1737307000000-add-keyword-map-pack-flag');
     
     // Create a mock queryInterface for rollback
@@ -111,7 +111,7 @@ describe('Map Pack Top3 Migration', () => {
         transaction: jest.fn(async (callback) => await callback({ transaction: 'mock' })),
       },
       describeTable: jest.fn().mockResolvedValue({
-        map_pack_top3: { type: 'BOOLEAN', allowNull: false, defaultValue: false }
+        mapPackTop3: { type: 'BOOLEAN', allowNull: false, defaultValue: false }
       }),
       removeColumn: jest.fn().mockResolvedValue(undefined),
     };
@@ -120,11 +120,9 @@ describe('Map Pack Top3 Migration', () => {
     await expect(migration.down({ context: mockQueryInterface })).resolves.not.toThrow();
     
     // Verify column is removed
-    expect(mockQueryInterface.removeColumn).toHaveBeenCalledWith(
-      'keyword',
-      'map_pack_top3',
-      { transaction: { transaction: 'mock' } }
-    );
+    expect(mockQueryInterface.removeColumn).toHaveBeenCalledWith('keyword', 'mapPackTop3', {
+      transaction: { transaction: 'mock' },
+    });
   });
 
   test('migration handles errors and re-throws them', async () => {
