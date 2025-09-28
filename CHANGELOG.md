@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. Releases no
 - Adopted `@stylistic/stylelint-plugin` and upgraded Stylelint tooling to v16 so indentation rules continue working under the plugin namespace.
 
 ### Bug Fixes
+- Expanded the notification email template container so digest tables render wider in supporting clients.
 - Search Console digest tables now scope tracker-specific keyword column styles and apply dedicated widths so the label column stays left-aligned while Clicks, Views, and Position stack neatly.
 - Clarified regression coverage to assert the camelCase `mapPackTop3` keyword property rather than the legacy snake_case flag.
 - Ensured keyword refresh cleanup always persists `updating` resets even when Sequelize instances still hold stale values after bulk updates, so failed scrapes no longer leave rows stuck in a loading state.
