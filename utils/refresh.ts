@@ -154,9 +154,7 @@ const refreshAndUpdateKeyword = async (keyword: Keyword, settings: SettingsType)
          }
 
          await Keyword.update(updateData, { where: { ID: keyword.ID } });
-         if (typeof keyword.set === 'function') {
-            keyword.set(updateData);
-         }
+         keyword.set(updateData);
       } catch (updateError) {
          console.log('[ERROR] Failed to update keyword updating status:', updateError);
       }
