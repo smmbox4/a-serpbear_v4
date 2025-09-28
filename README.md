@@ -277,6 +277,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 ## Troubleshooting & tips
 
 - **Keyword rows stuck on the loading spinner:** The API and dashboard now normalise legacy `'0'`/`'false'` flags returned by SQLite/MySQL responses, so refreshed keywords flip their `updating` state back to `false` and the position column stops rendering spinners once scraping finishes. Trigger another keyword refresh after deploying to clear any previously stuck rows.
+- **Bulk refresh cleanup when scrapes fail:** Sequential refresh jobs now force the database to clear `updating` even when the Sequelize instance still shows the old value from a bulk flip, so failed scrapes no longer leave keywords spinning indefinitely.
 - **Missing screenshots:** If dashboard thumbnails show the fallback favicon, confirm `SCREENSHOT_API` is set and `NEXT_PUBLIC_SCREENSHOTS=true`.
 - **Screenshot refresh skips:** Manual thumbnail updates now always hit the screenshot service with the stored host, so investigate provider logs if a toast reports a failure instead of assuming the button silently ignored the request.
 - **Corrupted screenshot cache:** If thumbnail reloads stop responding after local `domainThumbs` storage is edited or damaged, the app now clears the cache automatically and fetches a fresh image the next time you open the modal.

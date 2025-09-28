@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import Domain from '../../database/models/domain';
 import Keyword from '../../database/models/keyword';
 import refreshAndUpdateKeywords, { updateKeywordPosition } from '../../utils/refresh';
-import { removeFromRetryQueue } from '../../utils/scraper';
+import { removeFromRetryQueue, scrapeKeywordFromGoogle } from '../../utils/scraper';
 import type { RefreshResult } from '../../utils/scraper';
 
 // Mock the dependencies
@@ -29,6 +29,43 @@ describe('refreshAndUpdateKeywords', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('forces updating reset when scrape fails before updateKeywordPosition', async () => {
+    const mockKeywordModel = {
+      ID: 101,
+      domain: 'example.com',
+      keyword: 'example keyword',
+      updating: false,
+      get: jest.fn().mockReturnValue({
+        ID: 101,
+        domain: 'example.com',
+        keyword: 'example keyword',
+      }),
+      set: jest.fn(),
+      update: jest.fn(),
+    };
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      { get: () => ({ domain: 'example.com', scrape_enabled: true }) },
+    ]);
+
+    (Keyword.update as jest.Mock).mockResolvedValue([1]);
+    (scrapeKeywordFromGoogle as jest.Mock).mockRejectedValue(new Error('network boom'));
+
+    const mockSettings = {
+      scraper_type: 'custom-scraper',
+      scrape_retry: false,
+    } as SettingsType;
+
+    await refreshAndUpdateKeywords([mockKeywordModel as unknown as Keyword], mockSettings);
+
+    expect(Keyword.update).toHaveBeenCalledTimes(1);
+    expect(Keyword.update).toHaveBeenCalledWith(
+      expect.objectContaining({ updating: false }),
+      { where: { ID: mockKeywordModel.ID } },
+    );
+    expect(mockKeywordModel.set).toHaveBeenCalledWith(expect.objectContaining({ updating: false }));
   });
 
   it('uses batched retry queue removal for improved performance', async () => {
