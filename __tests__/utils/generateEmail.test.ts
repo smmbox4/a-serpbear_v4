@@ -152,7 +152,7 @@ describe('generateEmail', () => {
     expect(html).toContain('<span class="mini_stats__label">Keywords</span>');
     expect(html).toContain('<span class="mini_stats__value">15</span>');
     expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">7<\/span>/);
-    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">0<\/span>/);
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">4<\/span>/);
   });
 
   it('omits the map pack column when the active scraper does not support it', async () => {
@@ -401,7 +401,7 @@ describe('generateEmail', () => {
     expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">1<\/span>/);
   });
 
-  it('ignores incorrect domain-level stats and calculates from keywords (fixes bug where 0 values were used)', async () => {
+  it('prefers persisted map pack stat when available even if zero', async () => {
     mockReadFile.mockResolvedValue('<html>{{domainStats}}</html>');
 
     const keywords = [
@@ -445,23 +445,82 @@ describe('generateEmail', () => {
       },
     ] as any;
 
-    // Domain with incorrect/stale stats (would happen with non-persisted domain-level stats)
+    // Domain with persisted stats: keywordsTracked should be respected, avgPosition recalculated,
+    // and mapPackKeywords should use the persisted value even if zero.
     const domainWithStaleStats = {
       domain: 'example.com',
       keywordsTracked: 50, // This is kept as-is (keywords count uses domain stat when available)
-      avgPosition: 0,      // BUG: This 0 value should not override the calculated average
-      mapPackKeywords: 0,  // BUG: This 0 value should not override the calculated count
+      avgPosition: 0,
+      mapPackKeywords: 0,
     } as any;
 
     const settings = createSettings();
 
     const html = await generateEmail(domainWithStaleStats, keywords, settings);
 
-    // Should calculate avgPosition and mapPack from keywords, but keep keywordsTracked from domain
+    // Should calculate avgPosition from keywords, but keep keywordsTracked and map pack from domain
     expect(html).toMatch(/<span class="mini_stats__label">Keywords<\/span>\s*<span class="mini_stats__value">50<\/span>/);
     // Average should be (5+15)/2 = 10, NOT the domain's avgPosition: 0
     expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">10<\/span>/);
-    // Map pack should be 2 (both keywords have mapPackTop3: true), NOT the domain's mapPackKeywords: 0
-    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">2<\/span>/);
+    // Map pack should use persisted domain value of 0 despite keywords suggesting 2
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">0<\/span>/);
+  });
+
+  it('falls back to keyword-derived map pack count when persisted value is not finite', async () => {
+    mockReadFile.mockResolvedValue('<html>{{domainStats}}</html>');
+
+    const keywords = [
+      {
+        ID: 1,
+        keyword: 'invalid persisted stat keyword',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 6,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+      {
+        ID: 2,
+        keyword: 'second keyword',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 9,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: false,
+      },
+    ] as any;
+
+    const domainWithInvalidPersistedStat = {
+      domain: 'example.com',
+      keywordsTracked: 2,
+      avgPosition: 7.5,
+      mapPackKeywords: Number.NaN,
+    } as any;
+
+    const settings = createSettings();
+
+    const html = await generateEmail(domainWithInvalidPersistedStat, keywords, settings);
+
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">1<\/span>/);
   });
 });
