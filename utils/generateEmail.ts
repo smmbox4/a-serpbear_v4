@@ -181,8 +181,10 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       ? computedAvgPosition
       : 0;
    const keywordsTrackedStat = resolveStatNumber(domain.keywordsTracked, keywordsCount);
-   const avgPositionStat = resolveStatNumber(domain.avgPosition, avgPositionFallback);
-   const mapPackKeywordsStat = resolveStatNumber(domain.mapPackKeywords, keywordSummary.mapPackKeywords);
+   // Always calculate avgPosition and mapPack from keywords to ensure accuracy
+   // Domain-level stats are not persisted in DB and may be stale or incorrect
+   const avgPositionStat = avgPositionFallback;
+   const mapPackKeywordsStat = keywordSummary.mapPackKeywords;
    const availableScrapers = Array.isArray(settings.available_scapers) ? settings.available_scapers : [];
    const activeScraper = availableScrapers.find((scraper) => scraper.value === settings.scraper_type);
    const showMapPackStat = activeScraper?.supportsMapPack === true;

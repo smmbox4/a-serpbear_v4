@@ -151,8 +151,8 @@ describe('generateEmail', () => {
     expect(html).toContain('colspan="3"');
     expect(html).toContain('<span class="mini_stats__label">Keywords</span>');
     expect(html).toContain('<span class="mini_stats__value">15</span>');
-    expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">5<\/span>/);
-    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">4<\/span>/);
+    expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">7<\/span>/);
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">0<\/span>/);
   });
 
   it('omits the map pack column when the active scraper does not support it', async () => {
@@ -399,5 +399,69 @@ describe('generateEmail', () => {
     expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">10<\/span>/);
     // Map pack should be 1 (only first keyword has mapPackTop3: true)
     expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">1<\/span>/);
+  });
+
+  it('ignores incorrect domain-level stats and calculates from keywords (fixes bug where 0 values were used)', async () => {
+    mockReadFile.mockResolvedValue('<html>{{domainStats}}</html>');
+
+    const keywords = [
+      {
+        ID: 1,
+        keyword: 'good position keyword 1',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 5,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+      {
+        ID: 2,
+        keyword: 'good position keyword 2',
+        device: 'desktop',
+        country: 'US',
+        domain: 'example.com',
+        lastUpdated: new Date().toISOString(),
+        added: new Date().toISOString(),
+        position: 15,
+        volume: 0,
+        sticky: false,
+        history: {},
+        lastResult: [],
+        url: '',
+        tags: [],
+        updating: false,
+        lastUpdateError: false,
+        mapPackTop3: true,
+      },
+    ] as any;
+
+    // Domain with incorrect/stale stats (would happen with non-persisted domain-level stats)
+    const domainWithStaleStats = {
+      domain: 'example.com',
+      keywordsTracked: 50, // This is kept as-is (keywords count uses domain stat when available)
+      avgPosition: 0,      // BUG: This 0 value should not override the calculated average
+      mapPackKeywords: 0,  // BUG: This 0 value should not override the calculated count
+    } as any;
+
+    const settings = createSettings();
+
+    const html = await generateEmail(domainWithStaleStats, keywords, settings);
+
+    // Should calculate avgPosition and mapPack from keywords, but keep keywordsTracked from domain
+    expect(html).toMatch(/<span class="mini_stats__label">Keywords<\/span>\s*<span class="mini_stats__value">50<\/span>/);
+    // Average should be (5+15)/2 = 10, NOT the domain's avgPosition: 0
+    expect(html).toMatch(/<span class="mini_stats__label">Avg position<\/span>\s*<span class="mini_stats__value">10<\/span>/);
+    // Map pack should be 2 (both keywords have mapPackTop3: true), NOT the domain's mapPackKeywords: 0
+    expect(html).toMatch(/<span class="mini_stats__label">Map Pack<\/span>\s*<span class="mini_stats__value">2<\/span>/);
   });
 });
