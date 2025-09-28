@@ -1,4 +1,4 @@
-// Migration: Renames legacy snake_case boolean columns to camelCase equivalents while preserving constraints
+// Migration: Ensures camelCase boolean columns are authoritative and removes legacy snake_case boolean identifiers
 
 module.exports = {
    up: async function up(params = {}, legacySequelize) {
@@ -14,14 +14,9 @@ module.exports = {
             const keywordTableDefinition = await queryInterface.describeTable('keyword');
             const domainTableDefinition = await queryInterface.describeTable('domain');
 
-            const hasLegacyKeywordFlag = Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'map_pack_top3');
             const hasCamelKeywordFlag = Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'mapPackTop3');
 
-            if (hasLegacyKeywordFlag) {
-               await queryInterface.renameColumn('keyword', 'map_pack_top3', 'mapPackTop3', { transaction });
-            }
-
-            if (hasLegacyKeywordFlag || hasCamelKeywordFlag) {
+            if (hasCamelKeywordFlag) {
                await queryInterface.changeColumn(
                   'keyword',
                   'mapPackTop3',
@@ -34,14 +29,9 @@ module.exports = {
                );
             }
 
-            const hasLegacyDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrape_enabled');
             const hasCamelDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrapeEnabled');
 
-            if (hasLegacyDomainFlag) {
-               await queryInterface.renameColumn('domain', 'scrape_enabled', 'scrapeEnabled', { transaction });
-            }
-
-            if (hasLegacyDomainFlag || hasCamelDomainFlag) {
+            if (hasCamelDomainFlag) {
                await queryInterface.changeColumn(
                   'domain',
                   'scrapeEnabled',
@@ -52,6 +42,14 @@ module.exports = {
                   },
                   { transaction }
                );
+            }
+
+            if (Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'map_pack_top3')) {
+               await queryInterface.removeColumn('keyword', 'map_pack_top3', { transaction });
+            }
+
+            if (Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrape_enabled')) {
+               await queryInterface.removeColumn('domain', 'scrape_enabled', { transaction });
             }
          } catch (error) {
             console.log('Migration error:', error);
@@ -75,13 +73,12 @@ module.exports = {
 
             const hasCamelKeywordFlag = Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'mapPackTop3');
             if (hasCamelKeywordFlag) {
-               await queryInterface.renameColumn('keyword', 'mapPackTop3', 'map_pack_top3', { transaction });
                await queryInterface.changeColumn(
                   'keyword',
-                  'map_pack_top3',
+                  'mapPackTop3',
                   {
                      type: SequelizeLib.DataTypes.BOOLEAN,
-                     allowNull: false,
+                     allowNull: true,
                      defaultValue: false,
                   },
                   { transaction }
@@ -90,13 +87,12 @@ module.exports = {
 
             const hasCamelDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrapeEnabled');
             if (hasCamelDomainFlag) {
-               await queryInterface.renameColumn('domain', 'scrapeEnabled', 'scrape_enabled', { transaction });
                await queryInterface.changeColumn(
                   'domain',
-                  'scrape_enabled',
+                  'scrapeEnabled',
                   {
                      type: SequelizeLib.DataTypes.BOOLEAN,
-                     allowNull: false,
+                     allowNull: true,
                      defaultValue: true,
                   },
                   { transaction }

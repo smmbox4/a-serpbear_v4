@@ -1,4 +1,4 @@
-// Migration: Adds map_pack_top3 field to keyword table to track whether a keyword appears in top 3 map pack results
+// Migration: Adds mapPackTop3 field to keyword table to track whether a keyword appears in top 3 map pack results
 
 module.exports = {
    up: async function up(params = {}, legacySequelize) {
@@ -12,10 +12,10 @@ module.exports = {
          try {
             const keywordTableDefinition = await queryInterface.describeTable('keyword');
 
-            if (!keywordTableDefinition?.map_pack_top3) {
+            if (!keywordTableDefinition?.mapPackTop3) {
                await queryInterface.addColumn(
                   'keyword',
-                  'map_pack_top3',
+                  'mapPackTop3',
                   {
                      type: SequelizeLib.DataTypes.BOOLEAN,
                      allowNull: true, // Add as nullable first to avoid table locks
@@ -27,8 +27,8 @@ module.exports = {
                await queryInterface.sequelize.query(
                   [
                      'UPDATE keyword',
-                     'SET map_pack_top3 = 0',
-                     'WHERE map_pack_top3 IS NULL',
+                     'SET mapPackTop3 = 0',
+                     'WHERE mapPackTop3 IS NULL',
                   ].join(' '),
                   { transaction }
                );
@@ -36,7 +36,7 @@ module.exports = {
                // Now that values are backfilled, enforce NOT NULL
                await queryInterface.changeColumn(
                   'keyword',
-                  'map_pack_top3',
+                  'mapPackTop3',
                   {
                      type: SequelizeLib.DataTypes.BOOLEAN,
                      allowNull: false,
@@ -59,8 +59,8 @@ module.exports = {
          try {
             const keywordTableDefinition = await queryInterface.describeTable('keyword');
 
-            if (keywordTableDefinition?.map_pack_top3) {
-               await queryInterface.removeColumn('keyword', 'map_pack_top3', { transaction });
+            if (keywordTableDefinition?.mapPackTop3) {
+               await queryInterface.removeColumn('keyword', 'mapPackTop3', { transaction });
             }
          } catch (error) {
             console.log('Migration rollback error:', error);
