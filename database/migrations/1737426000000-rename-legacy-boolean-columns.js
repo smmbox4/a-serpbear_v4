@@ -15,8 +15,34 @@ module.exports = {
             const domainTableDefinition = await queryInterface.describeTable('domain');
 
             const hasCamelKeywordFlag = Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'mapPackTop3');
+            const hasSnakeKeywordFlag = Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'map_pack_top3');
 
-            if (hasCamelKeywordFlag) {
+            if (!hasCamelKeywordFlag && hasSnakeKeywordFlag) {
+               await queryInterface.renameColumn('keyword', 'map_pack_top3', 'mapPackTop3', { transaction });
+            } else if (hasCamelKeywordFlag && hasSnakeKeywordFlag) {
+               await queryInterface.sequelize.query(
+                  'UPDATE "keyword" SET "mapPackTop3" = COALESCE("map_pack_top3", "mapPackTop3")',
+                  { transaction }
+               );
+               await queryInterface.removeColumn('keyword', 'map_pack_top3', { transaction });
+            }
+
+            const hasCamelDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrapeEnabled');
+            const hasSnakeDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrape_enabled');
+
+            if (!hasCamelDomainFlag && hasSnakeDomainFlag) {
+               await queryInterface.renameColumn('domain', 'scrape_enabled', 'scrapeEnabled', { transaction });
+            } else if (hasCamelDomainFlag && hasSnakeDomainFlag) {
+               await queryInterface.sequelize.query(
+                  'UPDATE "domain" SET "scrapeEnabled" = COALESCE("scrape_enabled", "scrapeEnabled")',
+                  { transaction }
+               );
+               await queryInterface.removeColumn('domain', 'scrape_enabled', { transaction });
+            }
+
+            const keywordHasCamelAfterMigration =
+               hasCamelKeywordFlag || (!hasCamelKeywordFlag && hasSnakeKeywordFlag);
+            if (keywordHasCamelAfterMigration) {
                await queryInterface.changeColumn(
                   'keyword',
                   'mapPackTop3',
@@ -29,9 +55,9 @@ module.exports = {
                );
             }
 
-            const hasCamelDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrapeEnabled');
-
-            if (hasCamelDomainFlag) {
+            const domainHasCamelAfterMigration =
+               hasCamelDomainFlag || (!hasCamelDomainFlag && hasSnakeDomainFlag);
+            if (domainHasCamelAfterMigration) {
                await queryInterface.changeColumn(
                   'domain',
                   'scrapeEnabled',
@@ -42,14 +68,6 @@ module.exports = {
                   },
                   { transaction }
                );
-            }
-
-            if (Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'map_pack_top3')) {
-               await queryInterface.removeColumn('keyword', 'map_pack_top3', { transaction });
-            }
-
-            if (Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrape_enabled')) {
-               await queryInterface.removeColumn('domain', 'scrape_enabled', { transaction });
             }
          } catch (error) {
             console.log('Migration error:', error);
@@ -72,10 +90,37 @@ module.exports = {
             const domainTableDefinition = await queryInterface.describeTable('domain');
 
             const hasCamelKeywordFlag = Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'mapPackTop3');
-            if (hasCamelKeywordFlag) {
+            const hasSnakeKeywordFlag = Object.prototype.hasOwnProperty.call(keywordTableDefinition, 'map_pack_top3');
+
+            if (!hasSnakeKeywordFlag && hasCamelKeywordFlag) {
+               await queryInterface.renameColumn('keyword', 'mapPackTop3', 'map_pack_top3', { transaction });
+            } else if (hasSnakeKeywordFlag && hasCamelKeywordFlag) {
+               await queryInterface.sequelize.query(
+                  'UPDATE "keyword" SET "map_pack_top3" = COALESCE("mapPackTop3", "map_pack_top3")',
+                  { transaction }
+               );
+               await queryInterface.removeColumn('keyword', 'mapPackTop3', { transaction });
+            }
+
+            const hasCamelDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrapeEnabled');
+            const hasSnakeDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrape_enabled');
+
+            if (!hasSnakeDomainFlag && hasCamelDomainFlag) {
+               await queryInterface.renameColumn('domain', 'scrapeEnabled', 'scrape_enabled', { transaction });
+            } else if (hasSnakeDomainFlag && hasCamelDomainFlag) {
+               await queryInterface.sequelize.query(
+                  'UPDATE "domain" SET "scrape_enabled" = COALESCE("scrapeEnabled", "scrape_enabled")',
+                  { transaction }
+               );
+               await queryInterface.removeColumn('domain', 'scrapeEnabled', { transaction });
+            }
+
+            const keywordHasSnakeAfterRollback =
+               hasSnakeKeywordFlag || (!hasSnakeKeywordFlag && hasCamelKeywordFlag);
+            if (keywordHasSnakeAfterRollback) {
                await queryInterface.changeColumn(
                   'keyword',
-                  'mapPackTop3',
+                  'map_pack_top3',
                   {
                      type: SequelizeLib.DataTypes.BOOLEAN,
                      allowNull: true,
@@ -85,11 +130,12 @@ module.exports = {
                );
             }
 
-            const hasCamelDomainFlag = Object.prototype.hasOwnProperty.call(domainTableDefinition, 'scrapeEnabled');
-            if (hasCamelDomainFlag) {
+            const domainHasSnakeAfterRollback =
+               hasSnakeDomainFlag || (!hasSnakeDomainFlag && hasCamelDomainFlag);
+            if (domainHasSnakeAfterRollback) {
                await queryInterface.changeColumn(
                   'domain',
-                  'scrapeEnabled',
+                  'scrape_enabled',
                   {
                      type: SequelizeLib.DataTypes.BOOLEAN,
                      allowNull: true,
