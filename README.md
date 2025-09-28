@@ -261,7 +261,7 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 - **Install dependencies:** `npm install`
 - **Code quality:**
   - `npm run lint` for ESLint (JavaScript/TypeScript).
-  - `npm run lint:css` for Stylelint (global styles).
+  - `npm run lint:css` for Stylelint (global styles). The configuration now registers `@stylistic/stylelint-plugin`, so run `npx stylelint "**/*.{css,scss}"` when you need to lint additional component styles or verify indentation fixes.
   - Follow the repository's no-trailing-commas rule for object and array literals so configuration changes pass linting.
   - ESLint now caps line length warnings at 200 characters and reports function complexity over 60 as a warning; prefix unused arguments or errors with `_` to silence the new TypeScript-aware unused-variable checks.
 - **Testing:**

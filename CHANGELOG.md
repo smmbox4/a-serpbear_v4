@@ -13,6 +13,9 @@ All notable changes to this project will be documented in this file. Releases no
 - Documented the fork's stability, security, and performance improvements at the top of the README for quick comparison with upstream SerpBear.
 - Clarified that local development must use Node.js 20.18.1+ to align with the `.nvmrc` pin and dependency requirements.
 
+### Build
+- Adopted `@stylistic/stylelint-plugin` and upgraded Stylelint tooling to v16 so indentation rules continue working under the plugin namespace.
+
 ### Bug Fixes
 - Clarified regression coverage to assert the camelCase `mapPackTop3` keyword property rather than the legacy snake_case flag.
 - Ensured keyword refresh cleanup always persists `updating` resets even when Sequelize instances still hold stale values after bulk updates, so failed scrapes no longer leave rows stuck in a loading state.
