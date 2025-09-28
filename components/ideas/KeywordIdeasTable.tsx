@@ -3,6 +3,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery } from 'react-query';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { useAddKeywords, useFetchKeywords } from '../../services/keywords';
+import { useEmailKeywordIdeas } from '../../services/ideas';
 import { formatLocation } from '../../utils/location';
 import Icon from '../common/Icon';
 import SpinnerMessage from '../common/SpinnerMessage';
@@ -15,6 +16,7 @@ import { useMutateFavKeywordIdeas } from '../../services/adwords';
 import IdeaDetails from './IdeaDetails';
 import { fetchDomains } from '../../services/domains';
 import SelectField from '../common/SelectField';
+import toast from 'react-hot-toast';
 
 // Extended IdeaKeyword type that includes precomputed tracking status
 type IdeaKeywordWithTracking = IdeaKeyword & {
@@ -44,6 +46,7 @@ const IdeasKeywordsTable = ({
    const [addKeywordDevice, setAddKeywordDevice] = useState<'desktop'|'mobile'>('desktop');
    const [addKeywordDomain, setAddKeywordDomain] = useState('');
    const { mutate: addKeywords } = useAddKeywords(() => { if (domain && domain.slug) router.push(`/domain/${domain.slug}`); });
+   const { mutate: emailKeywordIdeas, isLoading: isEmailing } = useEmailKeywordIdeas(() => setSelectedKeywords([]));
    const { mutate: faveKeyword, isLoading: isFaving } = useMutateFavKeywordIdeas(router);
    const [isMobile] = useIsMobile();
    const isResearchPage = router.pathname === '/research';
@@ -139,9 +142,13 @@ const IdeasKeywordsTable = ({
    };
 
    const addKeywordIdeasToTracker = () => {
+      if (isResearchPage && !addKeywordDomain) {
+         toast('Please select a domain before adding keywords.', { icon: '⚠️' });
+         return;
+      }
       const selectedkeywords:KeywordAddPayload[] = [];
-      keywords.forEach((kitem:IdeaKeyword) => {
-         if (selectedKeywords.includes(kitem.uid)) {
+      finalKeywords.forEach((kitem:IdeaKeywordWithTracking) => {
+         if (!kitem.isTracked && selectedKeywords.includes(kitem.uid)) {
             const { keyword, country } = kitem;
             selectedkeywords.push({
                keyword,
@@ -157,7 +164,36 @@ const IdeasKeywordsTable = ({
       setSelectedKeywords([]);
    };
 
+   const sendKeywordIdeasEmail = () => {
+      const targetDomain = isResearchPage ? addKeywordDomain : (domain?.domain || '');
+      if (!targetDomain) {
+         toast('Please select a domain before emailing keywords.', { icon: '⚠️' });
+         return;
+      }
+      const selectedIdeas = finalKeywords.filter((keyword) => selectedKeywords.includes(keyword.uid) && !keyword.isTracked);
+      if (selectedIdeas.length === 0) {
+         toast('Select at least one keyword idea to email.', { icon: '⚠️' });
+         return;
+      }
+      emailKeywordIdeas({
+         domain: targetDomain,
+         keywords: selectedIdeas.map((idea) => ({
+            keyword: idea.keyword,
+            avgMonthlySearches: idea.avgMonthlySearches,
+            monthlySearchVolumes: idea.monthlySearchVolumes,
+            competition: idea.competition,
+            competitionIndex: idea.competitionIndex,
+         })),
+      });
+   };
+
    const selectedAllItems = selectableKeywordIds.length > 0 && selectedKeywords.length === selectableKeywordIds.length;
+
+   const isDomainSelectionRequired = isResearchPage && !addKeywordDomain;
+   const addButtonDisabled = isDomainSelectionRequired;
+   const emailButtonDisabled = isEmailing;
+   const emailButtonAriaDisabled = isDomainSelectionRequired;
+   const selectionBannerText = isResearchPage ? 'Select Domain For Action' : 'Add Keywords to Tracker';
 
    const Row = ({ data, index, style }:ListChildComponentProps) => {
       const keyword: IdeaKeywordWithTracking = data[index];
@@ -244,7 +280,7 @@ const IdeasKeywordsTable = ({
          <div className='domKeywords flex flex-col bg-[white] rounded-md text-sm border mb-5'>
             {selectedKeywords.length > 0 && (
                <div className='font-semibold text-sm py-4 px-8 text-gray-500 '>
-                  <div className={`inline-block ${isResearchPage ? ' mr-2' : ''}`}>Add Keywords to Tracker</div>
+                  <div className={`inline-block ${isResearchPage ? ' mr-2' : ''}`}>{selectionBannerText}</div>
                   {isResearchPage && (
                      <SelectField
                      selected={[]}
@@ -259,7 +295,7 @@ const IdeasKeywordsTable = ({
                   )}
                   <div className='inline-block ml-2'>
                      <button
-                     className={`inline-block px-2 py-1 rounded-s 
+                     className={`inline-block px-2 py-1 rounded-s
                      ${addKeywordDevice === 'desktop' ? 'bg-indigo-100 text-blue-700' : 'bg-indigo-50 '}`}
                      onClick={() => setAddKeywordDevice('desktop')}>
                         {addKeywordDevice === 'desktop' ? '◉' : '○'} Desktop
@@ -270,12 +306,27 @@ const IdeasKeywordsTable = ({
                         {addKeywordDevice === 'mobile' ? '◉' : '○'} Mobile
                      </button>
                   </div>
-                  <a
-                  className='inline-block px-2 py-2 cursor-pointer hover:text-indigo-600'
-                  onClick={() => addKeywordIdeasToTracker()}
-                  >
-                     <span className=' text-white bg-blue-700 px-2 py-1 rounded font-semibold'>+ Add Keywords</span>
-                  </a>
+                     <div className='inline-flex flex-wrap gap-2 items-center ml-4 mt-2 sm:mt-0'>
+                        <button
+                        type='button'
+                     className={`text-white bg-blue-700 px-3 py-1 rounded font-semibold transition-colors ${addButtonDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
+                        onClick={addKeywordIdeasToTracker}
+                     aria-disabled={addButtonDisabled}
+                     tabIndex={addButtonDisabled ? -1 : 0}
+                        >
+                           + Add Keywords
+                        </button>
+                        <button
+                        type='button'
+                     className={`text-white bg-indigo-600 px-3 py-1 rounded font-semibold transition-colors ${(emailButtonDisabled || emailButtonAriaDisabled) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-500'}`}
+                        onClick={sendKeywordIdeasEmail}
+                     disabled={emailButtonDisabled}
+                     aria-disabled={emailButtonAriaDisabled}
+                     tabIndex={emailButtonAriaDisabled ? -1 : 0}
+                        >
+                           Email Keywords
+                        </button>
+                     </div>
                </div>
             )}
             {selectedKeywords.length === 0 && (

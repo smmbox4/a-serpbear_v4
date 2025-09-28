@@ -5,13 +5,13 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { QueryClient, QueryClientProvider } from 'react-query';
 import KeywordIdeasTable from '../../components/ideas/KeywordIdeasTable';
 import { useFetchKeywords } from '../../services/keywords';
+import { useEmailKeywordIdeas } from '../../services/ideas';
 
-jest.mock('next/router', () => ({
-   useRouter: () => ({
-      pathname: '/domain/ideas/example-domain',
-      push: jest.fn(),
-      query: { slug: 'example-domain' },
-   }),
+const toastMock = jest.fn();
+
+jest.mock('react-hot-toast', () => ({
+   __esModule: true,
+   default: (...args: unknown[]) => toastMock(...args),
 }));
 
 jest.mock('../../hooks/useIsMobile', () => jest.fn(() => [true]));
@@ -30,14 +30,30 @@ jest.mock('../../services/domains', () => ({
    fetchDomains: jest.fn().mockResolvedValue({ domains: [] }),
 }));
 
+jest.mock('../../services/ideas', () => ({
+   useEmailKeywordIdeas: jest.fn(),
+}));
+
 jest.mock('react-chartjs-2', () => ({
    Line: () => null,
 }));
 
 const useFetchKeywordsMock = useFetchKeywords as jest.MockedFunction<typeof useFetchKeywords>;
+const useEmailKeywordIdeasMock = useEmailKeywordIdeas as jest.MockedFunction<typeof useEmailKeywordIdeas>;
+
+const mockRouter = {
+   pathname: '/domain/ideas/example-domain',
+   push: jest.fn(),
+   query: { slug: 'example-domain' },
+};
+
+jest.mock('next/router', () => ({
+   useRouter: () => mockRouter,
+}));
 
 describe('KeywordIdeasTable DRY Principle Implementation', () => {
    let queryClient: QueryClient;
+   let emailMutateMock: jest.Mock;
 
    const domain: DomainType = {
       ID: 1,
@@ -116,6 +132,7 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
       );
 
    beforeEach(() => {
+      emailMutateMock = jest.fn();
       queryClient = new QueryClient({
          defaultOptions: {
             queries: { retry: false },
@@ -127,6 +144,9 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
          keywordsData: { keywords: trackedKeywords },
          keywordsLoading: false,
       } as any);
+      useEmailKeywordIdeasMock.mockReturnValue({ mutate: emailMutateMock, isLoading: false } as any);
+      toastMock.mockClear();
+      Object.assign(mockRouter, { pathname: '/domain/ideas/example-domain' });
    });
 
    afterEach(() => {
@@ -161,5 +181,46 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
          expect(untrackedRow).toHaveClass('keyword--selected');
       });
       expect(await screen.findByText('Add Keywords to Tracker')).toBeInTheDocument();
+
+      const emailButton = screen.getByRole('button', { name: 'Email Keywords' });
+      expect(emailButton).toBeInTheDocument();
+
+      fireEvent.click(emailButton);
+      expect(emailMutateMock).toHaveBeenCalledWith({
+         domain: 'example.com',
+         keywords: [
+            {
+               keyword: 'new term',
+               avgMonthlySearches: 50,
+               monthlySearchVolumes: { '2024-01': '50' },
+               competition: 'LOW',
+               competitionIndex: 21,
+            },
+         ],
+      });
+      expect(toastMock).not.toHaveBeenCalled();
+   });
+
+   it('requires domain selection on the research page before triggering actions', async () => {
+      mockRouter.pathname = '/research';
+      renderTable();
+
+      const untrackedRow = screen.getByText('new term').closest('div.keyword');
+      expect(untrackedRow).toBeInTheDocument();
+
+      const untrackedButton = within(untrackedRow as HTMLElement).getByRole('button', { name: /select keyword idea/i });
+      fireEvent.click(untrackedButton);
+
+      expect(await screen.findByText('Select Domain For Action')).toBeInTheDocument();
+
+      const addButton = screen.getByRole('button', { name: '+ Add Keywords' });
+      expect(addButton).toHaveAttribute('aria-disabled', 'true');
+
+      const emailButton = screen.getByRole('button', { name: 'Email Keywords' });
+      expect(emailButton).toHaveAttribute('aria-disabled', 'true');
+
+      fireEvent.click(emailButton);
+      expect(emailMutateMock).not.toHaveBeenCalled();
+      expect(toastMock).toHaveBeenCalledWith('Please select a domain before emailing keywords.', { icon: '⚠️' });
    });
 });
