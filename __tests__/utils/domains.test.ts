@@ -135,4 +135,64 @@ describe('getdomainStats', () => {
     // Average should only include ranked keywords: (5+15)/2 = 10
     expect(result[0].avgPosition).toBe(10);
   });
+
+  it('uses persisted avgPosition and mapPackKeywords from domain when available', async () => {
+    const parsedKeywords = [
+      { ID: 1, position: 5, lastUpdated: '2023-01-01', mapPackTop3: true },
+      { ID: 2, position: 15, lastUpdated: '2023-01-02', mapPackTop3: false },
+    ];
+
+    mockFindAll.mockResolvedValue([]);
+    mockParseKeywords.mockReturnValue(parsedKeywords);
+    mockReadLocalSCData.mockResolvedValue(null);
+
+    const domain = {
+      ID: 1,
+      domain: 'persisted.com',
+      slug: 'persisted-com',
+      notification: false,
+      notification_interval: '',
+      notification_emails: '',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      avgPosition: 7, // Persisted value
+      mapPackKeywords: 3, // Persisted value
+    } as any;
+
+    const result = await getdomainStats([domain]);
+
+    expect(result[0].keywordsTracked).toBe(2);
+    expect(result[0].avgPosition).toBe(7); // Uses persisted value from domain
+    expect(result[0].mapPackKeywords).toBe(3); // Uses persisted value from domain
+  });
+
+  it('falls back to calculation when domain avgPosition is 0', async () => {
+    const parsedKeywords = [
+      { ID: 1, position: 8, lastUpdated: '2023-01-01', mapPackTop3: true },
+      { ID: 2, position: 12, lastUpdated: '2023-01-02', mapPackTop3: false },
+    ];
+
+    mockFindAll.mockResolvedValue([]);
+    mockParseKeywords.mockReturnValue(parsedKeywords);
+    mockReadLocalSCData.mockResolvedValue(null);
+
+    const domain = {
+      ID: 1,
+      domain: 'fallback.com',
+      slug: 'fallback-com',
+      notification: false,
+      notification_interval: '',
+      notification_emails: '',
+      lastUpdated: '2023-01-01T00:00:00.000Z',
+      added: '2023-01-01T00:00:00.000Z',
+      avgPosition: 0, // Should trigger fallback calculation
+      mapPackKeywords: 5, // Valid value, should be used
+    } as any;
+
+    const result = await getdomainStats([domain]);
+
+    expect(result[0].keywordsTracked).toBe(2);
+    expect(result[0].avgPosition).toBe(10); // Calculated: Math.round((8+12)/2) = 10
+    expect(result[0].mapPackKeywords).toBe(5); // Uses persisted value from domain
+  });
 });

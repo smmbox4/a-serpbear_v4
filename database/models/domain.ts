@@ -41,6 +41,12 @@ class Domain extends Model {
 
    @Column({ type: DataType.STRING, allowNull: true })
    search_console!: string;
+
+   @Column({ type: DataType.INTEGER, allowNull: true, defaultValue: 0 })
+   avgPosition!: number;
+
+   @Column({ type: DataType.INTEGER, allowNull: true, defaultValue: 0 })
+   mapPackKeywords!: number;
 }
 
 export default Domain;

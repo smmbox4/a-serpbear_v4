@@ -18,24 +18,37 @@ const getdomainStats = async (domains:DomainType[]): Promise<DomainType[]> => {
       const allKeywords:Keyword[] = await Keyword.findAll({ where: { domain: domain.domain } });
       const keywords: KeywordType[] = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
       domainWithStat.keywordsTracked = keywords.length;
-      const { mapPackKeywords, keywordPositions, positionCount, KeywordsUpdateDates } = keywords.reduce(
-        (stats, keyword) => {
-          if (keyword.mapPackTop3 === true) {
-            stats.mapPackKeywords++;
-          }
-          if (typeof keyword.position === 'number' && Number.isFinite(keyword.position) && keyword.position > 0) {
-            stats.keywordPositions += keyword.position;
-            stats.positionCount++;
-          }
-          stats.KeywordsUpdateDates.push(new Date(keyword.lastUpdated).getTime());
-          return stats;
-        },
-        { mapPackKeywords: 0, keywordPositions: 0, positionCount: 0, KeywordsUpdateDates: [0] as number[] },
-      );
-      domainWithStat.mapPackKeywords = mapPackKeywords;
-      const lastKeywordUpdateDate = Math.max(...KeywordsUpdateDates);
+      
+      // Use persisted avgPosition and mapPackKeywords from database if available
+      // Fall back to calculation if not set or if avgPosition is 0 (likely uninitialized)
+      if (typeof domain.avgPosition === 'number' && domain.avgPosition > 0) {
+         domainWithStat.avgPosition = domain.avgPosition;
+      } else {
+         // Fallback calculation
+         const { keywordPositions, positionCount } = keywords.reduce(
+           (stats, keyword) => {
+             if (typeof keyword.position === 'number' && Number.isFinite(keyword.position) && keyword.position > 0) {
+               stats.keywordPositions += keyword.position;
+               stats.positionCount++;
+             }
+             return stats;
+           },
+           { keywordPositions: 0, positionCount: 0 },
+         );
+         domainWithStat.avgPosition = positionCount > 0 ? Math.round(keywordPositions / positionCount) : 0;
+      }
+      
+      if (typeof domain.mapPackKeywords === 'number' && domain.mapPackKeywords >= 0) {
+         domainWithStat.mapPackKeywords = domain.mapPackKeywords;
+      } else {
+         // Fallback calculation
+         domainWithStat.mapPackKeywords = keywords.filter(keyword => keyword.mapPackTop3 === true).length;
+      }
+
+      // Get the last updated time from keywords
+      const KeywordsUpdateDates = keywords.map(keyword => new Date(keyword.lastUpdated).getTime());
+      const lastKeywordUpdateDate = Math.max(...KeywordsUpdateDates, 0);
       domainWithStat.keywordsUpdated = new Date(lastKeywordUpdateDate || new Date(domain.lastUpdated).getTime()).toJSON();
-      domainWithStat.avgPosition = positionCount > 0 ? Math.round(keywordPositions / positionCount) : 0;
 
       // Then Load the SC File and read the stats and calculate the Last 7 days stats
       const localSCData = await readLocalSCData(domain.domain);

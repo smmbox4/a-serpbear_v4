@@ -9,6 +9,7 @@ import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
 import Domain from '../database/models/domain';
 import { serializeError } from './errorSerialization';
+import { updateDomainStats } from './updateDomainStats';
 
 /**
  * Refreshes the Keywords position by Scraping Google Search Result by
@@ -101,6 +102,15 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
 
    const end = performance.now();
    console.log(`time taken: ${end - start}ms`);
+   
+   // Update domain stats for all affected domains after keyword updates
+   if (updatedKeywords.length > 0) {
+      const affectedDomains = Array.from(new Set(updatedKeywords.map((k) => k.domain)));
+      for (const domainName of affectedDomains) {
+         await updateDomainStats(domainName);
+      }
+   }
+   
    return updatedKeywords;
 };
 

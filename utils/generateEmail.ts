@@ -181,8 +181,8 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
       ? computedAvgPosition
       : 0;
    const keywordsTrackedStat = resolveStatNumber(domain.keywordsTracked, keywordsCount);
-   // Always calculate avgPosition and mapPack from keywords to ensure accuracy
-   // Domain-level stats are not persisted in DB and may be stale or incorrect
+   // Always calculate avgPosition and mapPack from keywords to ensure accuracy for email
+   // Domain-level persisted stats are for UI performance, but email needs real-time accuracy
    const avgPositionStat = avgPositionFallback;
    const mapPackKeywordsStat = keywordSummary.mapPackKeywords;
    const availableScrapers = Array.isArray(settings.available_scapers) ? settings.available_scapers : [];
