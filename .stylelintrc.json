@@ -1,7 +1,10 @@
 {
    "extends": "stylelint-config-standard",
+   "plugins": [
+      "@stylistic/stylelint-plugin"
+   ],
    "rules": {
-      "indentation": 3,
+      "@stylistic/indentation": 3,
       "declaration-block-single-line-max-declarations": 2,
       "selector-class-pattern":null,
       "selector-pseudo-element-colon-notation": "double",
@@ -23,7 +26,7 @@
           ]
         }
       ],
-      "declaration-block-trailing-semicolon": null,
+      "@stylistic/declaration-block-trailing-semicolon": null,
       "no-descending-specificity": null
     }
  }
