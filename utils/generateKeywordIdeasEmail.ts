@@ -118,7 +118,7 @@ const generateKeywordIdeasEmail = ({ domain, keywords, platformName }: GenerateK
    return `<!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charSet="utf-8" />
+   <meta charset="utf-8" />
    <title>${headerTitle}</title>
 </head>
 <body style="margin:0; padding:0; background-color:#f3f4f6; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#111827;">
