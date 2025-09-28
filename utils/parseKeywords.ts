@@ -62,10 +62,7 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          try { lastUpdateError = JSON.parse(keywrd.lastUpdateError); } catch { lastUpdateError = {}; }
       }
 
-      // Handle both database field (map_pack_top3) and camelCase property (mapPackTop3)
-      // The ORM getter will normally provide mapPackTop3, but handle both for compatibility
-      const rawMapPack = (keywrd as any).mapPackTop3 ?? (keywrd as any).map_pack_top3;
-      const mapPackTop3 = normaliseBoolean(rawMapPack);
+      const mapPackTop3 = normaliseBoolean((keywrd as any).mapPackTop3);
 
       const updating = normaliseBoolean((keywrd as any).updating);
       const sticky = normaliseBoolean((keywrd as any).sticky);
