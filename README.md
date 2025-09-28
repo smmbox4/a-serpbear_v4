@@ -79,11 +79,14 @@ The default compose stack maps `./data` to the container so your SQLite database
 
 ### Option 2 – Node.js runtime
 
-1. Install Node.js **18.18+** (the project ships an `.nvmrc` pinning `20.18.0`).
+1. Install Node.js **20.18.1 or newer**, matching the version pinned in [`.nvmrc`](./.nvmrc).
 2. Install dependencies with `npm install` (or `npm ci`).
 3. Copy `.env.example` to `.env.local` and fill in the required keys.
 4. **Apply database migrations:** `npm run db:migrate` to set up the SQLite database schema.
 5. Start the development server via `npm run dev` or build and serve production assets with `npm run build && npm run start`.
+
+> [!NOTE]
+> Node.js 18 is no longer supported because core dependencies—such as `better-sqlite3`, `happy-dom`, and `cheerio`—now require Node.js 20+ runtime features.
 
 ### Database & migrations
 

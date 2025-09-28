@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. Releases no
 
 ### Documentation
 - Documented the fork's stability, security, and performance improvements at the top of the README for quick comparison with upstream SerpBear.
+- Clarified that local development must use Node.js 20.18.1+ to align with the `.nvmrc` pin and dependency requirements.
 
 ### Bug Fixes
 - Clarified regression coverage to assert the camelCase `mapPackTop3` keyword property rather than the legacy snake_case flag.
