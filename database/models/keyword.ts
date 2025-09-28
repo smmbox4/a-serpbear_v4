@@ -67,6 +67,16 @@ class Keyword extends Model {
 
    @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
    map_pack_top3!: boolean;
+
+   // Getter to provide camelCase property that maps to the DB field
+   get mapPackTop3(): boolean {
+      return this.map_pack_top3;
+   }
+
+   // Setter to allow camelCase assignment to DB field
+   set mapPackTop3(value: boolean) {
+      this.map_pack_top3 = value;
+   }
 }
 
 export default Keyword;

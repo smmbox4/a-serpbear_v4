@@ -62,8 +62,7 @@ const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
          try { lastUpdateError = JSON.parse(keywrd.lastUpdateError); } catch { lastUpdateError = {}; }
       }
 
-      const rawMapPack = (keywrd as any).map_pack_top3 ?? (keywrd as any).mapPackTop3;
-      const mapPackTop3 = normaliseBoolean(rawMapPack);
+      const mapPackTop3 = normaliseBoolean((keywrd as any).mapPackTop3);
 
       const updating = normaliseBoolean((keywrd as any).updating);
       const sticky = normaliseBoolean((keywrd as any).sticky);

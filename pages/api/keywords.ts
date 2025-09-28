@@ -201,7 +201,7 @@ const addKeywords = async (req: NextApiRequest, res: NextApiResponse<KeywordsGet
          sticky: false,
          lastUpdated: new Date().toJSON(),
          added: new Date().toJSON(),
-         map_pack_top3: false,
+         mapPackTop3: false,
       };
       keywordsToAdd.push(newKeyword);
    });
