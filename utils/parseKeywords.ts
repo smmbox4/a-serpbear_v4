@@ -47,29 +47,32 @@ const normaliseBoolean = (value: unknown): boolean => {
 
 const parseKeywords = (allKeywords: Keyword[]) : KeywordType[] => {
    const parsedItems = allKeywords.map((keywrd:Keyword) => {
+      const keywordData = keywrd as unknown as Record<string, any>;
+      const { map_pack_top3, ...keywordWithoutSnakeCase } = keywordData;
+
       let historyRaw: unknown;
-      try { historyRaw = JSON.parse(keywrd.history); } catch { historyRaw = {}; }
+      try { historyRaw = JSON.parse(keywordData.history); } catch { historyRaw = {}; }
       const history = normaliseHistory(historyRaw);
 
       let tags: string[] = [];
-      try { tags = JSON.parse(keywrd.tags); } catch { tags = []; }
+      try { tags = JSON.parse(keywordData.tags); } catch { tags = []; }
 
       let lastResult: any[] = [];
-      try { lastResult = JSON.parse(keywrd.lastResult); } catch { lastResult = []; }
+      try { lastResult = JSON.parse(keywordData.lastResult); } catch { lastResult = []; }
 
       let lastUpdateError: any = false;
-      if (keywrd.lastUpdateError !== 'false' && keywrd.lastUpdateError.includes('{')) {
-         try { lastUpdateError = JSON.parse(keywrd.lastUpdateError); } catch { lastUpdateError = {}; }
+      if (typeof keywordData.lastUpdateError === 'string' && keywordData.lastUpdateError !== 'false' && keywordData.lastUpdateError.includes('{')) {
+         try { lastUpdateError = JSON.parse(keywordData.lastUpdateError); } catch { lastUpdateError = {}; }
       }
 
-      const mapPackTop3 = normaliseBoolean((keywrd as any).mapPackTop3);
+      const mapPackTop3 = normaliseBoolean(keywordData.mapPackTop3 ?? map_pack_top3);
 
-      const updating = normaliseBoolean((keywrd as any).updating);
-      const sticky = normaliseBoolean((keywrd as any).sticky);
+      const updating = normaliseBoolean(keywordData.updating);
+      const sticky = normaliseBoolean(keywordData.sticky);
 
       return {
-         ...keywrd,
-         location: typeof (keywrd as any).location === 'string' ? (keywrd as any).location : '',
+         ...keywordWithoutSnakeCase,
+         location: typeof keywordData.location === 'string' ? keywordData.location : '',
          history,
          tags,
          lastResult,
