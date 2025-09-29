@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file. Releases no
 - Expanded the notification email template container so digest tables render wider in supporting clients.
 - Search Console digest tables now scope tracker-specific keyword column styles and apply dedicated widths so the label column stays left-aligned while Clicks, Views, and Position stack neatly.
 - Clarified regression coverage to assert the camelCase `mapPackTop3` keyword property rather than the legacy snake_case flag.
+- Tracker mini stats in notification emails stay side-by-side on mobile by removing the block layout override while keeping tighter padding for small screens.
 - Ensured keyword refresh cleanup always persists `updating` resets even when Sequelize instances still hold stale values after bulk updates, so failed scrapes no longer leave rows stuck in a loading state.
 - Cleared ESLint warnings by wiring width/min-width props into UI components, surfacing settings errors inline, sanitising SMTP TLS hostnames, and logging caught exceptions throughout Ads/Search Console utilities and API handlers.
 - Fixed the Google Ads keyword ideas mutation so successful requests no longer throw a runtime reference error and now properly invalidate the cached query for the active domain.
