@@ -1,4 +1,4 @@
-import { getCountryInsight, getKeywordsInsight, getPagesInsight } from '../../utils/insight';
+import { getCountryInsight, getKeywordsInsight, getPagesInsight, sortInsightItems } from '../../utils/insight';
 
 describe('Insight Functions', () => {
   const mockSCData: SCDomainDataType = {
@@ -213,6 +213,22 @@ describe('Insight Functions', () => {
       expect(pageResult).toHaveLength(1);
       expect(pageResult[0].clicks).toBe(0); // Should default to 0
       expect(pageResult[0].impressions).toBe(0); // Should default to 0
+    });
+  });
+
+  describe('sortInsightItems', () => {
+    it('sorts position values in ascending order placing undefined at the end', () => {
+      const items: SCInsightItem[] = [
+        { clicks: 0, impressions: 0, ctr: 0, position: 5 },
+        { clicks: 0, impressions: 0, ctr: 0, position: 1 },
+        { clicks: 0, impressions: 0, ctr: 0, position: undefined as unknown as number },
+      ];
+
+      const sorted = sortInsightItems([...items], 'position');
+
+      expect(sorted[0].position).toBe(1);
+      expect(sorted[1].position).toBe(5);
+      expect(sorted[2].position).toBeUndefined();
     });
   });
 });

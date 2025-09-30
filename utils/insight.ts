@@ -15,7 +15,7 @@ export const sortInsightItems = (items:SCInsightItem[], sortBy: string = 'clicks
          sortedItems = items.sort((a, b) => (b.impressions ?? 0) - (a.impressions ?? 0));
          break;
       case 'position':
-         sortedItems = items.sort((a, b) => (b.position ?? 0) - (a.position ?? 0));
+         sortedItems = items.sort((a, b) => (a.position ?? Infinity) - (b.position ?? Infinity));
          break;
       default:
          sortedItems = items;
