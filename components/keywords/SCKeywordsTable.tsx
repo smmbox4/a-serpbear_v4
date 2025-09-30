@@ -77,19 +77,22 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
    }, [finalKeywords]);
 
    const viewSummary: {[key:string] : number } = useMemo(() => {
-         const keyCount = finalKeywords[device].length;
-         const kwSummary = { position: 0, impressions: 0, visits: 0, ctr: 0 };
-         finalKeywords[device].forEach((k) => {
-            kwSummary.position += k.position;
-            kwSummary.impressions += k.impressions;
-            kwSummary.visits += k.clicks;
-            kwSummary.ctr += k.ctr;
-         });
-         return {
-            ...kwSummary,
-            position: Math.round(kwSummary.position / keyCount),
-            ctr: kwSummary.ctr / keyCount,
-         };
+      const keywordsForDevice = finalKeywords[device] || [];
+      const keyCount = keywordsForDevice.length;
+      if (keyCount === 0) {
+         return { position: 0, impressions: 0, visits: 0, ctr: 0 };
+      }
+      const kwSummary = keywordsForDevice.reduce((acc, keyword) => ({
+         position: acc.position + (keyword.position ?? 0),
+         impressions: acc.impressions + (keyword.impressions ?? 0),
+         visits: acc.visits + (keyword.clicks ?? 0),
+         ctr: acc.ctr + (keyword.ctr ?? 0),
+      }), { position: 0, impressions: 0, visits: 0, ctr: 0 });
+      return {
+         ...kwSummary,
+         position: Math.round(kwSummary.position / keyCount),
+         ctr: keyCount ? kwSummary.ctr / keyCount : 0,
+      };
    }, [finalKeywords, device]);
 
    const selectKeyword = (keywordID: string, isTrackedKeyword = false) => {
@@ -219,7 +222,7 @@ const SCKeywordsTable = ({ domain, keywords = [], isLoading = true, isConsoleInt
                            {Row}
                         </List>
                      )}
-                     {!isLoading && finalKeywords[device] && finalKeywords[device].length > 0 && (
+                     {!isLoading && finalKeywords[device] && (
                         <div className={`domKeywords_head hidden lg:flex p-3 px-6 bg-[#FCFCFF]
                            text-gray-600 justify-between items-center font-semibold border-y`}>
                               <span className='domKeywords_head_keyword flex-1 basis-20 w-auto font-semibold'>

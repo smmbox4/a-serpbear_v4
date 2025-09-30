@@ -39,7 +39,18 @@ export const dummyKeywords = [
        },
        url: 'https://compressimage.io/',
        tags: [],
-       lastResult: [],
+       lastResult: [
+         {
+            position: 1,
+            url: 'https://compressimage.io/',
+            title: 'Compress Image Tool',
+         },
+         {
+            position: 2,
+            url: 'https://example.com/alternative',
+            title: 'Alternative Result',
+         },
+       ],
        sticky: false,
        updating: false,
        lastUpdateError: false as false,
@@ -65,7 +76,13 @@ export const dummyKeywords = [
        },
        url: 'https://compressimage.io/',
        tags: ['compressor'],
-       lastResult: [],
+       lastResult: [
+         {
+            position: 1,
+            url: 'https://compressimage.io/',
+            title: 'Compress Image Tool',
+         },
+       ],
        sticky: false,
        updating: false,
        lastUpdateError: false as false,

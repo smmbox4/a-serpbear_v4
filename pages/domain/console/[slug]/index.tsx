@@ -29,10 +29,25 @@ const DiscoverPage: NextPage = () => {
    const [scDateFilter, setSCDateFilter] = useState('thirtyDays');
    const { data: appSettings } = useFetchSettings();
    const { data: domainsData } = useFetchDomains(router, false);
-   const scConnected = !!(appSettings && appSettings?.settings?.search_console_integrated);
-   const { data: keywordsData, isLoading: keywordsLoading, isFetching } = useFetchSCKeywords(router, !!(domainsData?.domains?.length) && scConnected);
-
    const theDomains: DomainType[] = (domainsData && domainsData.domains) || [];
+   const activDomain: DomainType|null = useMemo(() => {
+      if (domainsData?.domains && router.query?.slug) {
+         return domainsData.domains.find((x:DomainType) => x.slug === router.query.slug) || null;
+      }
+      return null;
+   }, [router.query.slug, domainsData]);
+   const domainHasScAPI = useMemo(() => {
+      const domainSc = activDomain?.search_console ? JSON.parse(activDomain.search_console) : {};
+      return !!(domainSc?.client_email && domainSc?.private_key);
+   }, [activDomain]);
+   const scConnected = !!(appSettings && appSettings?.settings?.search_console_integrated);
+   const domainsLoaded = !!(domainsData?.domains?.length);
+   const { data: keywordsData, isLoading: keywordsLoading, isFetching } = useFetchSCKeywords(
+      router,
+      domainsLoaded && scConnected,
+      domainsLoaded && domainHasScAPI,
+   );
+
    const theKeywords: SearchAnalyticsItem[] = useMemo(() => keywordsData?.data && keywordsData.data[scDateFilter] ? keywordsData.data[scDateFilter] : [], [keywordsData, scDateFilter]);
 
    const theKeywordsCount = useMemo(() => theKeywords.reduce<Map<string, number>>((r, o) => {
@@ -69,18 +84,7 @@ const DiscoverPage: NextPage = () => {
          };
       })], [theKeywordsReduced, theKeywordsCount]);
 
-   const activDomain: DomainType|null = useMemo(() => {
-      let active:DomainType|null = null;
-      if (domainsData?.domains && router.query?.slug) {
-         active = domainsData.domains.find((x:DomainType) => x.slug === router.query.slug) || null;
-      }
-      return active;
-   }, [router.query.slug, domainsData]);
-
-   const domainHasScAPI = useMemo(() => {
-      const domainSc = activDomain?.search_console ? JSON.parse(activDomain.search_console) : {};
-      return !!(domainSc?.client_email && domainSc?.private_key);
-   }, [activDomain]);
+   const isConsoleIntegrated = scConnected || domainHasScAPI;
 
    return (
       <div className="Domain ">
@@ -109,8 +113,8 @@ const DiscoverPage: NextPage = () => {
                isLoading={keywordsLoading || isFetching}
                domain={activDomain}
                keywords={theKeywordsGrouped}
-               isConsoleIntegrated={scConnected || domainHasScAPI}
-               />
+               isConsoleIntegrated={isConsoleIntegrated}
+            />
             </div>
          </div>
 

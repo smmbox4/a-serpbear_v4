@@ -23,10 +23,24 @@ interface KeywordIdeasUpdaterProps {
 
 const KeywordIdeasUpdater = ({ onUpdate, settings, domain, searchConsoleConnected = false, adwordsConnected = false }: KeywordIdeasUpdaterProps) => {
    const router = useRouter();
-   const [seedType, setSeedType] = useState(() => settings?.seedType || 'auto');
-   const [language, setLanguage] = useState(() => settings?.language.toString() || '1000');
-   const [countries, setCountries] = useState<string[]>(() => settings?.countries || ['US']);
-   const [keywords, setKeywords] = useState(() => (settings?.keywords && Array.isArray(settings?.keywords) ? settings?.keywords.join(',') : ''));
+   const [seedType, setSeedType] = useState(() => (settings?.seedType ? settings.seedType : 'auto'));
+   const [language, setLanguage] = useState(() => (settings?.language ? settings.language.toString() : '1000'));
+   const [countries, setCountries] = useState<string[]>(() => {
+      if (Array.isArray(settings?.countries) && settings.countries.length > 0) {
+         return settings.countries;
+      }
+      return ['US'];
+   });
+   const [keywords, setKeywords] = useState(() => {
+      if (!settings?.keywords) { return ''; }
+      if (Array.isArray(settings.keywords)) {
+         return settings.keywords.join(',');
+      }
+      if (typeof settings.keywords === 'string') {
+         return settings.keywords;
+      }
+      return '';
+   });
    const { mutate: updateKeywordIdeas, isLoading: isUpdatingIdeas } = useMutateKeywordIdeas(router, () => onUpdate && onUpdate());
 
    const seedTypeOptions = useMemo(() => {

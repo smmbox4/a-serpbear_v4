@@ -8,6 +8,7 @@ import { getKeywordsVolume, updateKeywordsVolumeData } from '../../utils/adwords
 
 type KeywordsRefreshRes = {
    keywords?: KeywordType[]
+   volumes?: Record<number, number>,
    error?: string|null,
 }
 
@@ -30,32 +31,43 @@ const updatekeywordVolume = async (req: NextApiRequest, res: NextApiResponse<Key
    }
 
    try {
-      let keywordsToSend: KeywordType[] = [];
+      let foundKeywords: Keyword[] = [];
       if (keywords.length > 0) {
-         const allKeywords:Keyword[] = await Keyword.findAll({ where: { ID: { [Op.in]: keywords } } });
-         keywordsToSend = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
+         foundKeywords = await Keyword.findAll({ where: { ID: { [Op.in]: keywords } } });
       }
       if (domain) {
          const allDomain = domain === 'all';
-         const allKeywords:Keyword[] = allDomain ? await Keyword.findAll() : await Keyword.findAll(allDomain ? {} : { where: { domain } });
-         keywordsToSend = parseKeywords(allKeywords.map((e) => e.get({ plain: true })));
+         const scope = allDomain ? {} : { where: { domain } };
+         foundKeywords = await Keyword.findAll(scope);
       }
 
-      if (keywordsToSend.length > 0) {
-         const keywordsVolumeData = await getKeywordsVolume(keywordsToSend);
-         if (keywordsVolumeData.error) {
-            return res.status(400).json({ keywords: [], error: keywordsVolumeData.error });
-         }
-         if (keywordsVolumeData.volumes !== false) {
-            if (update) {
-               const updated = await updateKeywordsVolumeData(keywordsVolumeData.volumes);
-               if (updated) {
-                  return res.status(200).json({ keywords });
-               }
-            }
-         } else {
-            return res.status(400).json({ error: 'Error Fetching Keywords Volume Data from Google Ads' });
-         }
+      const keywordsToSend = parseKeywords(foundKeywords.map((e) => e.get({ plain: true })));
+
+      if (keywordsToSend.length === 0) {
+         return res.status(400).json({ keywords: [], error: 'Error Updating Keywords Volume data' });
+      }
+
+      const keywordsVolumeData = await getKeywordsVolume(keywordsToSend);
+      if (keywordsVolumeData.error) {
+         return res.status(400).json({ keywords: [], error: keywordsVolumeData.error });
+      }
+
+      if (keywordsVolumeData.volumes === false) {
+         return res.status(400).json({ error: 'Error Fetching Keywords Volume Data from Google Ads' });
+      }
+
+      const enrichedKeywords = keywordsToSend.map((keywordItem) => ({
+         ...keywordItem,
+         volume: keywordsVolumeData.volumes?.[keywordItem.ID] ?? keywordItem.volume ?? 0,
+      }));
+
+      if (!update) {
+         return res.status(200).json({ keywords: enrichedKeywords, volumes: keywordsVolumeData.volumes });
+      }
+
+      const updated = await updateKeywordsVolumeData(keywordsVolumeData.volumes);
+      if (updated) {
+         return res.status(200).json({ keywords: enrichedKeywords, volumes: keywordsVolumeData.volumes });
       }
 
       return res.status(400).json({ keywords: [], error: 'Error Updating Keywords Volume data' });

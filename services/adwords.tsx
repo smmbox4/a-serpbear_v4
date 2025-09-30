@@ -72,10 +72,10 @@ export async function fetchAdwordsKeywordIdeas(router: NextRouter, domainSlug: s
 }
 
 // React hook; should be used within a React component or another hook
-export function useFetchKeywordIdeas(router: NextRouter, adwordsConnected = false) {
+export function useFetchKeywordIdeas(router: NextRouter, _adwordsConnected = false) {
    const isResearch = router.pathname === '/research';
    const domainSlug = isResearch ? 'research' : (router.query.slug as string);
-   const enabled = !!(adwordsConnected && domainSlug);
+   const enabled = !!domainSlug;
    return useQuery(`keywordIdeas-${domainSlug}`, () => domainSlug && fetchAdwordsKeywordIdeas(router, domainSlug), { enabled, retry: false });
 }
 
