@@ -23,21 +23,26 @@ interface KeywordIdeasUpdaterProps {
 
 const KeywordIdeasUpdater = ({ onUpdate, settings, domain, searchConsoleConnected = false, adwordsConnected = false }: KeywordIdeasUpdaterProps) => {
    const router = useRouter();
-   const [seedType, setSeedType] = useState(() => (settings?.seedType ? settings.seedType : 'auto'));
-   const [language, setLanguage] = useState(() => (settings?.language ? settings.language.toString() : '1000'));
+   const seedTypeSetting = settings?.seedType;
+   const languageSetting = settings?.language;
+   const countriesSetting = settings?.countries;
+   const keywordsSetting = settings?.keywords;
+
+   const [seedType, setSeedType] = useState(() => (seedTypeSetting ? seedTypeSetting : 'auto'));
+   const [language, setLanguage] = useState(() => (languageSetting ? languageSetting.toString() : '1000'));
    const [countries, setCountries] = useState<string[]>(() => {
-      if (Array.isArray(settings?.countries) && settings.countries.length > 0) {
-         return settings.countries;
+      if (Array.isArray(countriesSetting) && countriesSetting.length > 0) {
+         return countriesSetting;
       }
       return ['US'];
    });
    const [keywords, setKeywords] = useState(() => {
-      if (!settings?.keywords) { return ''; }
-      if (Array.isArray(settings.keywords)) {
-         return settings.keywords.join(',');
+      if (!keywordsSetting) { return ''; }
+      if (Array.isArray(keywordsSetting)) {
+         return keywordsSetting.join(',');
       }
-      if (typeof settings.keywords === 'string') {
-         return settings.keywords;
+      if (typeof keywordsSetting === 'string') {
+         return keywordsSetting;
       }
       return '';
    });
