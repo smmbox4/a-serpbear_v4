@@ -140,10 +140,11 @@ const updateSettings = async (req: NextApiRequest, res: NextApiResponse<Settings
 };
 
 export const getAppSettings = async () : Promise<SettingsType> => {
+   const settingsPath = `${process.cwd()}/data/settings.json`;
+   const failedQueuePath = `${process.cwd()}/data/failed_queue.json`;
+
    try {
-      const settingsRaw = await readFile(`${process.cwd()}/data/settings.json`, { encoding: 'utf-8' });
-      const failedQueueRaw = await readFile(`${process.cwd()}/data/failed_queue.json`, { encoding: 'utf-8' });
-      const failedQueue: string[] = failedQueueRaw ? JSON.parse(failedQueueRaw) : [];
+      const settingsRaw = await readFile(settingsPath, { encoding: 'utf-8' });
       const settings: Partial<SettingsType> = settingsRaw ? JSON.parse(settingsRaw) : {};
       const baseSettings: SettingsType = { ...SETTINGS_DEFAULTS, ...settings };
       let decryptedSettings: SettingsType = baseSettings;
@@ -179,6 +180,21 @@ export const getAppSettings = async () : Promise<SettingsType> => {
          notification_email_from_name: decryptedSettings.notification_email_from_name || platformName,
       };
 
+      let failedQueue: string[] = [];
+      try {
+         const failedQueueRaw = await readFile(failedQueuePath, { encoding: 'utf-8' });
+         failedQueue = failedQueueRaw ? JSON.parse(failedQueueRaw) : [];
+      } catch (failedQueueError) {
+         const err = failedQueueError as NodeJS.ErrnoException;
+         console.log('[SETTINGS] Failed to read failed queue file, recreating...', err?.message || err);
+         try {
+            await writeFile(failedQueuePath, JSON.stringify([]), { encoding: 'utf-8' });
+         } catch (writeError) {
+            console.log('[SETTINGS] Failed to recreate failed queue file:', writeError);
+         }
+         failedQueue = [];
+      }
+
       return {
          ...normalizedSettings,
          search_console_integrated:
@@ -195,8 +211,8 @@ export const getAppSettings = async () : Promise<SettingsType> => {
    } catch (error) {
       console.log('[ERROR] Getting App Settings. ', error);
       const defaults = { ...SETTINGS_DEFAULTS };
-      await writeFile(`${process.cwd()}/data/settings.json`, JSON.stringify(defaults), { encoding: 'utf-8' });
-      await writeFile(`${process.cwd()}/data/failed_queue.json`, JSON.stringify([]), { encoding: 'utf-8' });
+      await writeFile(settingsPath, JSON.stringify(defaults), { encoding: 'utf-8' });
+      await writeFile(failedQueuePath, JSON.stringify([]), { encoding: 'utf-8' });
       return {
          ...defaults,
          available_scapers: allScrapers.map((scraper) => ({

@@ -233,4 +233,25 @@ describe('GET /api/settings and configuration requirements', () => {
     }));
     expect(writeFileMock).toHaveBeenCalled();
   });
+
+  it('recreates failed queue without overwriting settings', async () => {
+    const settingsPayload = JSON.stringify({ scraper_type: 'serpapi' });
+    const missingQueueError = Object.assign(new Error('missing failed queue'), { code: 'ENOENT' });
+
+    readFileMock
+      .mockResolvedValueOnce(settingsPayload)
+      .mockRejectedValueOnce(missingQueueError);
+
+    writeFileMock.mockResolvedValue(undefined);
+
+    const settings = await settingsApi.getAppSettings();
+
+    expect(settings.scraper_type).toBe('serpapi');
+    expect(writeFileMock).toHaveBeenCalledTimes(1);
+    expect(writeFileMock).toHaveBeenCalledWith(
+      `${process.cwd()}/data/failed_queue.json`,
+      JSON.stringify([]),
+      { encoding: 'utf-8' },
+    );
+  });
 });

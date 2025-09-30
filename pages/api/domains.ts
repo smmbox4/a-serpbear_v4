@@ -10,6 +10,7 @@ import verifyUser from '../../utils/verifyUser';
 import { checkSearchConsoleIntegration, removeLocalSCData } from '../../utils/searchConsole';
 import { withApiLogging } from '../../utils/apiLogging';
 import { logger } from '../../utils/logger';
+import { validateHostname } from '../../utils/validators/hostname';
 
 type DomainsGetRes = {
    domains: DomainType[]
@@ -81,18 +82,40 @@ export const getDomains = async (req: NextApiRequest, res: NextApiResponse<Domai
 const addDomain = async (req: NextApiRequest, res: NextApiResponse<DomainsAddResponse>) => {
    const { domains } = req.body;
    if (domains && Array.isArray(domains) && domains.length > 0) {
-      const domainsToAdd: any = [];
+      const invalidDomains: string[] = [];
+      const uniqueHosts = new Map<string, string>();
 
       domains.forEach((domain: string) => {
-         domainsToAdd.push({
-            domain: domain.trim(),
-            slug: domain.trim().replaceAll('-', '_').replaceAll('.', '-').replaceAll('/', '-'),
-            lastUpdated: new Date().toJSON(),
-            added: new Date().toJSON(),
-            scrapeEnabled: true,
-            notification: true,
-         });
+         const validation = validateHostname(domain);
+         if (!validation.isValid) {
+            invalidDomains.push(typeof domain === 'string' ? domain : '');
+            return;
+         }
+
+         if (!uniqueHosts.has(validation.hostname)) {
+            uniqueHosts.set(validation.hostname, validation.hostname);
+         }
       });
+
+      if (invalidDomains.length > 0) {
+         const formatted = invalidDomains.filter(Boolean).join(', ') || 'blank domain';
+         return res.status(400).json({ domains: [], error: `Invalid domain(s): ${formatted}` });
+      }
+
+      const now = new Date().toJSON();
+      const domainsToAdd: any = Array.from(uniqueHosts.values()).map((hostname) => ({
+         domain: hostname,
+         slug: hostname.replaceAll('-', '_').replaceAll('.', '-').replaceAll('/', '-'),
+         lastUpdated: now,
+         added: now,
+         scrapeEnabled: true,
+         notification: true,
+      }));
+
+      if (domainsToAdd.length === 0) {
+         return res.status(400).json({ domains: [], error: 'No valid domains provided.' });
+      }
+
       try {
          const newDomains:Domain[] = await Domain.bulkCreate(domainsToAdd);
          const formattedDomains = newDomains.map((el) => el.get({ plain: true }));

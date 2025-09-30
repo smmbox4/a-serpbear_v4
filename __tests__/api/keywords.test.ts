@@ -165,6 +165,56 @@ describe('PUT /api/keywords error handling', () => {
     });
     expect(keywordMock.bulkCreate).not.toHaveBeenCalled();
   });
+
+  it('deduplicates keyword tags before persistence', async () => {
+    const now = new Date().toJSON();
+    const bulkCreateResult = [{
+      get: () => ({
+        ID: 10,
+        keyword: 'alpha',
+        history: '{}',
+        tags: JSON.stringify(['Primary', 'secondary']),
+        lastResult: '[]',
+        lastUpdateError: 'false',
+        device: 'desktop',
+        domain: 'example.com',
+        country: 'US',
+        added: now,
+        lastUpdated: now,
+      }),
+    }];
+
+    keywordMock.bulkCreate.mockResolvedValue(bulkCreateResult);
+    getKeywordsVolumeMock.mockResolvedValue({ volumes: false });
+
+    const req = {
+      method: 'POST',
+      body: {
+        keywords: [{
+          keyword: 'alpha',
+          device: 'desktop',
+          country: 'US',
+          domain: 'example.com',
+          tags: 'Primary, secondary, primary, SECONDARY',
+        }],
+      },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as NextApiResponse;
+
+    await handler(req, res);
+
+    expect(keywordMock.bulkCreate).toHaveBeenCalledWith([
+      expect.objectContaining({
+        tags: JSON.stringify(['Primary', 'secondary']),
+      }),
+    ]);
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
 });
 
 describe('PUT /api/keywords tags updates', () => {

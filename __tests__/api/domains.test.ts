@@ -13,7 +13,7 @@ jest.mock('../../database/database', () => ({
 
 jest.mock('../../database/models/domain', () => ({
   __esModule: true,
-  default: { findOne: jest.fn(), destroy: jest.fn() },
+  default: { findOne: jest.fn(), destroy: jest.fn(), bulkCreate: jest.fn(), findAll: jest.fn() },
 }));
 
 jest.mock('../../database/models/keyword', () => ({
@@ -39,7 +39,7 @@ jest.mock('../../utils/apiLogging', () => ({
 
 const verifyUserMock = verifyUser as unknown as jest.Mock;
 const dbMock = db as unknown as { sync: jest.Mock };
-const DomainMock = Domain as unknown as { findOne: jest.Mock; destroy: jest.Mock };
+const DomainMock = Domain as unknown as { findOne: jest.Mock; destroy: jest.Mock; bulkCreate: jest.Mock; findAll: jest.Mock };
 const KeywordMock = Keyword as unknown as { destroy: jest.Mock };
 const removeLocalSCDataMock = removeLocalSCData as unknown as jest.Mock;
 
@@ -47,6 +47,60 @@ const createMockResponse = () => ({
   status: jest.fn().mockReturnThis(),
   json: jest.fn(),
 }) as unknown as NextApiResponse;
+
+describe('POST /api/domains', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    verifyUserMock.mockReturnValue('authorized');
+    dbMock.sync.mockResolvedValue(undefined);
+  });
+
+  it('rejects invalid or blank hostnames', async () => {
+    const req = {
+      method: 'POST',
+      body: { domains: ['valid.com', '', 'bad host'] },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(DomainMock.bulkCreate).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ domains: [], error: expect.stringContaining('Invalid domain') });
+  });
+
+  it('normalises and deduplicates hostnames before insert', async () => {
+    const bulkCreateResult = [
+      { get: jest.fn().mockReturnValue({ domain: 'example.com', slug: 'example-com' }) },
+      { get: jest.fn().mockReturnValue({ domain: 'sub.domain.com', slug: 'sub-domain-com' }) },
+    ];
+
+    DomainMock.bulkCreate.mockResolvedValue(bulkCreateResult);
+
+    const req = {
+      method: 'POST',
+      body: { domains: ['Example.com ', 'example.COM', 'sub.domain.com'] },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(DomainMock.bulkCreate).toHaveBeenCalledWith([
+      expect.objectContaining({ domain: 'example.com', slug: 'example-com' }),
+      expect.objectContaining({ domain: 'sub.domain.com', slug: 'sub-domain-com' }),
+    ]);
+    expect(res.status).toHaveBeenCalledWith(201);
+    const responsePayload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(responsePayload.domains).toEqual([
+      { domain: 'example.com', slug: 'example-com' },
+      { domain: 'sub.domain.com', slug: 'sub-domain-com' },
+    ]);
+  });
+});
 
 describe('PUT /api/domains', () => {
   let domainState: {

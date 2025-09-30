@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Icon from '../common/Icon';
 import Modal from '../common/Modal';
 import SelectField from '../common/SelectField';
@@ -26,19 +26,31 @@ type KeywordsInput = {
 
 const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCity = false }: AddKeywordsProps) => {
    const inputRef = useRef(null);
-   const defCountry = localStorage.getItem('default_country') || 'US';
-
    const [error, setError] = useState<string>('');
    const [showTagSuggestions, setShowTagSuggestions] = useState(false);
    const [newKeywordsData, setNewKeywordsData] = useState<KeywordsInput>({
       keywords: '',
       device: 'desktop',
-      country: defCountry,
+      country: 'US',
       domain,
       tags: '',
       city: '',
       state: '',
    });
+   useEffect(() => {
+      if (typeof window === 'undefined') {
+         return;
+      }
+
+      try {
+         const storedCountry = window.localStorage.getItem('default_country');
+         if (storedCountry) {
+            setNewKeywordsData((prev) => ({ ...prev, country: storedCountry }));
+         }
+      } catch (_error) {
+         // Ignore storage access errors during SSR/tests
+      }
+   }, []);
    const { mutate: addMutate, isLoading: isAdding } = useAddKeywords(() => closeModal(false));
 
    const existingTags: string[] = useMemo(() => {
@@ -139,8 +151,15 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
                      options={Object.keys(countries).map((countryISO:string) => ({ label: countries[countryISO][0], value: countryISO }))}
                      defaultLabel='All Countries'
                      updateField={(updated:string[]) => {
-                        setNewKeywordsData({ ...newKeywordsData, country: updated[0] });
-                        localStorage.setItem('default_country', updated[0]);
+                        const nextCountry = updated[0];
+                        setNewKeywordsData({ ...newKeywordsData, country: nextCountry });
+                        if (typeof window !== 'undefined') {
+                           try {
+                              window.localStorage.setItem('default_country', nextCountry);
+                           } catch (_error) {
+                              // Ignore storage access errors during SSR/tests
+                           }
+                        }
                      }}
                      rounded='rounded'
                      maxHeight={48}
