@@ -313,7 +313,8 @@ const updateKeywords = async (req: NextApiRequest, res: NextApiResponse<Keywords
                ? tagsForKeywordRaw
                : [];
             const sanitizedTags = tagsForKeyword
-               .map((tag) => (typeof tag === 'string' ? tag.trim() : ''))
+               .filter((tag): tag is string => typeof tag === 'string')
+               .map((tag) => tag.trim())
                .filter((tag) => tag.length > 0);
 
             const selectedKeyword = await Keyword.findOne({ where: { ID: numericId } });
