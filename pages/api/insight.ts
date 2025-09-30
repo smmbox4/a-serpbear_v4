@@ -55,7 +55,10 @@ const getDomainSearchConsoleInsight = async (req: NextApiRequest, res: NextApiRe
    try {
       const query = { domain: domainname };
       const foundDomain:Domain| null = await Domain.findOne({ where: query });
-      const domainObj: DomainType = foundDomain && foundDomain.get({ plain: true });
+      if (!foundDomain) {
+         return res.status(404).json({ data: null, error: 'Domain not found.' });
+      }
+      const domainObj: DomainType = foundDomain.get({ plain: true });
       const scDomainAPI = domainObj?.search_console ? await getSearchConsoleApiInfo(domainObj) : { client_email: '', private_key: '' };
       const scGlobalAPI = await getSearchConsoleApiInfo({} as DomainType);
       if (!(scDomainAPI.client_email && scDomainAPI.private_key)

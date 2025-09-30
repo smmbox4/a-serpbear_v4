@@ -292,14 +292,25 @@ const updateKeywords = async (req: NextApiRequest, res: NextApiResponse<Keywords
       if (tags) {
          const tagsKeywordIDs = Object.keys(tags);
          const multipleKeywords = tagsKeywordIDs.length > 1;
+         const updatedKeywordIDs = new Set<number>();
          for (const keywordID of tagsKeywordIDs) {
-            const selectedKeyword = await Keyword.findOne({ where: { ID: keywordID } });
+            const numericId = Number(keywordID);
+            if (!Number.isFinite(numericId)) {
+               continue;
+            }
+            const selectedKeyword = await Keyword.findOne({ where: { ID: numericId } });
             const currentTags = selectedKeyword && selectedKeyword.tags ? JSON.parse(selectedKeyword.tags) : [];
             const mergedTags = Array.from(new Set([...currentTags, ...tags[keywordID]])).sort();
             if (selectedKeyword) {
                const tagsToSave = multipleKeywords ? mergedTags : [...tags[keywordID]].sort();
                await selectedKeyword.update({ tags: JSON.stringify(tagsToSave) });
+               updatedKeywordIDs.add(numericId);
             }
+         }
+         if (updatedKeywordIDs.size > 0) {
+            const updatedKeywords:Keyword[] = await Keyword.findAll({ where: { ID: { [Op.in]: Array.from(updatedKeywordIDs) } } });
+            const formattedKeywords = updatedKeywords.map((el) => el.get({ plain: true }));
+            keywords = parseKeywords(formattedKeywords);
          }
          return res.status(200).json({ keywords });
       }

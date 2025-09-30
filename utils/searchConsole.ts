@@ -126,12 +126,16 @@ const fetchSearchConsoleData = async (domain:DomainType, days:number, type?:stri
  * @returns {Promise<SCDomainDataType|null>}
  */
 export const fetchDomainSCData = async (
-   domain:DomainType,
+   domain:DomainType | null,
    scDomainAPI?: SCAPISettings,
    scGlobalAPI?: SCAPISettings,
 ): Promise<SCDomainDataType | null> => {
+   if (!domain) {
+      return null;
+   }
    const days = [3, 7, 30];
-   const existingData = await readLocalSCData(domain.domain) || {
+   const domainName = domain.domain;
+   const existingData = await readLocalSCData(domainName) || {
       threeDays: [], sevenDays: [], thirtyDays: [], lastFetched: '', lastFetchError: '', stats: [],
    } as SCDomainDataType;
    const scDomainData:SCDomainDataType = {
@@ -162,7 +166,7 @@ export const fetchDomainSCData = async (
       if (Array.isArray(stats) && stats.length > 0) {
          scDomainData.stats = stats as SearchAnalyticsStat[];
       }
-      const writeRes = await updateLocalSCData(domain.domain, scDomainData);
+      const writeRes = await updateLocalSCData(domainName, scDomainData);
       if (!writeRes) {
          return null;
       }
