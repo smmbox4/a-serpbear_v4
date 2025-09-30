@@ -40,6 +40,6 @@ describe('exportCSV', () => {
       expect(() => exportCSV(keywords, 'example.com')).not.toThrow();
       expect(blobParts).toHaveLength(1);
       const csvContent = String(blobParts[0][0]);
-      expect(csvContent).toContain(', Unknown,');
+      expect(csvContent).toMatch(/,"Unknown",/);
    });
 });

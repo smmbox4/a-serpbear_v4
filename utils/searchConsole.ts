@@ -185,7 +185,33 @@ export const parseSearchConsoleItem = (SCItem: SearchAnalyticsRawItem, domainNam
    const keyword = SCItem.keys[0];
    const device = SCItem.keys[1] ? SCItem.keys[1].toLowerCase() : 'desktop';
    const country = SCItem.keys[2] ? (getCountryCodeFromAlphaThree(SCItem.keys[2].toUpperCase()) || SCItem.keys[2]) : 'ZZ';
-   const page = SCItem.keys[3] ? SCItem.keys[3].replace('https://', '').replace('http://', '').replace('www', '').replace(domainName, '') : '';
+   const rawPage = SCItem.keys[3] || '';
+   const normalizedDomain = domainName.toLowerCase();
+   let page = '';
+
+   if (rawPage) {
+      try {
+         const url = new URL(rawPage);
+         const hostLower = url.host.toLowerCase();
+         const isRootDomain = hostLower === normalizedDomain || hostLower === `www.${normalizedDomain}`;
+         const hostWithoutWWW = url.host.startsWith('www.') ? url.host.slice(4) : url.host;
+         const suffix = `${url.pathname}${url.search}${url.hash}`;
+
+         page = isRootDomain ? suffix : `${hostWithoutWWW}${suffix}`;
+      } catch {
+         const protoRegex = /^https?:\/\/(?:www\.)?/i;
+         const withoutProtocol = rawPage.replace(protoRegex, '');
+         const escapedDomain = normalizedDomain.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+         const domainRegex = new RegExp(`^(?:${escapedDomain}|www\\.${escapedDomain})`, 'i');
+         page = withoutProtocol.replace(domainRegex, '');
+      }
+   }
+
+   if (page === '/' || page === '') {
+      page = '';
+   } else if (!page.startsWith('/')) {
+      page = `/${page}`;
+   }
    const uid = `${country.toLowerCase()}:${device}:${keyword.replaceAll(' ', '_')}`;
 
    return { keyword, uid, device, country, clicks, impressions, ctr: ctr * 100, position, page };
