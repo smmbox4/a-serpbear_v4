@@ -7,6 +7,7 @@ import {
   fetchDomainSCData,
   getSearchConsoleApiInfo,
   isSearchConsoleDataFreshForToday,
+  parseSearchConsoleItem,
   readLocalSCData,
 } from '../../utils/searchConsole';
 
@@ -107,5 +108,48 @@ describe('Search Console caching helpers', () => {
 
     expect(mockFetchDomainSCData).not.toHaveBeenCalled();
     expect(html).toContain('Google Search Console Stats');
+  });
+});
+
+describe('parseSearchConsoleItem', () => {
+  const baseItem = {
+    clicks: 1,
+    impressions: 2,
+    ctr: 0.5,
+    position: 3,
+    keys: ['keyword', 'DESKTOP', 'USA', ''],
+  } as any;
+
+  const buildItem = (page: string) => ({
+    ...baseItem,
+    keys: [...baseItem.keys.slice(0, 3), page],
+  });
+
+  it('removes protocol and optional www prefix for the root domain', () => {
+    const item = buildItem('https://www.example.com/about');
+    const parsed = parseSearchConsoleItem(item, 'example.com');
+
+    expect(parsed.page).toBe('/about');
+  });
+
+  it('keeps the root domain path when no www prefix is present', () => {
+    const item = buildItem('http://example.com/team');
+    const parsed = parseSearchConsoleItem(item, 'example.com');
+
+    expect(parsed.page).toBe('/team');
+  });
+
+  it('returns an empty string for the homepage', () => {
+    const item = buildItem('https://example.com/');
+    const parsed = parseSearchConsoleItem(item, 'example.com');
+
+    expect(parsed.page).toBe('');
+  });
+
+  it('preserves non-www subdomains while ensuring a leading slash', () => {
+    const item = buildItem('https://www2.example.com/path');
+    const parsed = parseSearchConsoleItem(item, 'example.com');
+
+    expect(parsed.page).toBe('/www2.example.com/path');
   });
 });
