@@ -7,15 +7,30 @@ const getCountryLabel = (countryCode?: string) => {
    return countryCode || 'Unknown';
 };
 
-  /**
-   * Generates CSV File form the given domain & keywords, and automatically downloads it.
-   * @param {KeywordType[]}  keywords - The keywords of the domain
-   * @param {string} domain - The domain name.
-   * @returns {void}
-   */
-const exportCSV = (keywords: KeywordType[] | SCKeywordType[], domain:string, scDataDuration = 'lastThreeDays') => {
-   if (!keywords || (keywords && Array.isArray(keywords) && keywords.length === 0)) { return; }
-   const isSCKeywords = !!(keywords && keywords[0] && keywords[0].uid);
+const escapeCsvValue = (value: unknown): string => {
+   if (value === null || value === undefined) {
+      return '""';
+   }
+   const stringValue = String(value);
+   return `"${stringValue.replace(/"/g, '""')}"`;
+};
+
+const buildCsvRow = (values: unknown[]): string => `${values.map(escapeCsvValue).join(',')}\r\n`;
+
+type CsvPayload = {
+   header: string,
+   body: string,
+   fileName: string,
+};
+
+export const createKeywordCsvPayload = (
+   keywords: KeywordType[] | SCKeywordType[],
+   domain: string,
+   scDataDuration = 'lastThreeDays',
+): CsvPayload | null => {
+   if (!keywords || (Array.isArray(keywords) && keywords.length === 0)) { return null; }
+
+   const isSCKeywords = !!(keywords && keywords[0] && (keywords[0] as SCKeywordType).uid);
    let csvHeader = 'ID,Keyword,Position,URL,Country,State,City,Device,Updated,Added,Tags\r\n';
    let csvBody = '';
    let fileName = `${domain}-keywords_serp.csv`;
@@ -23,41 +38,46 @@ const exportCSV = (keywords: KeywordType[] | SCKeywordType[], domain:string, scD
    if (isSCKeywords) {
       csvHeader = 'ID,Keyword,Position,Impressions,Clicks,CTR,Country,Device\r\n';
       fileName = `${domain}-search-console-${scDataDuration}.csv`;
-      keywords.forEach((keywordData, index) => {
-         const { keyword, position, country, device, clicks, impressions, ctr } = keywordData as SCKeywordType;
-         const row = [
-            index,
-            keyword,
-            position === 0 ? '-' : position,
-            impressions,
-            clicks,
-            ctr,
-            getCountryLabel(country),
-            device,
-         ].join(', ');
-         csvBody += `${row}\r\n`;
-      });
+      csvBody = (keywords as SCKeywordType[]).map((keywordData, index) => buildCsvRow([
+         index,
+         keywordData.keyword,
+         keywordData.position === 0 ? '-' : keywordData.position,
+         keywordData.impressions,
+         keywordData.clicks,
+         keywordData.ctr,
+         getCountryLabel(keywordData.country),
+         keywordData.device,
+      ])).join('');
    } else {
-      keywords.forEach((keywordData) => {
-         const { ID, keyword, position, url, country, state, city, device, lastUpdated, added, tags } = keywordData as KeywordType;
-         const row = [
-            ID,
-            keyword,
-            position === 0 ? '-' : position,
-            url || '-',
-            getCountryLabel(country),
-            state || '-',
-            city || '-',
-            device,
-            lastUpdated,
-            added,
-            tags.join(','),
-         ].join(', ');
-         csvBody += `${row}\r\n`;
-      });
+      csvBody = (keywords as KeywordType[]).map((keywordData) => buildCsvRow([
+         keywordData.ID,
+         keywordData.keyword,
+         keywordData.position === 0 ? '-' : keywordData.position,
+         keywordData.url || '-',
+         getCountryLabel(keywordData.country),
+         keywordData.state || '-',
+         keywordData.city || '-',
+         keywordData.device,
+         keywordData.lastUpdated,
+         keywordData.added,
+         Array.isArray(keywordData.tags) ? keywordData.tags.join(',') : '',
+      ])).join('');
    }
 
-   downloadCSV(csvHeader, csvBody, fileName);
+   return { header: csvHeader, body: csvBody, fileName };
+};
+
+  /**
+   * Generates CSV File form the given domain & keywords, and automatically downloads it.
+   * @param {KeywordType[]}  keywords - The keywords of the domain
+   * @param {string} domain - The domain name.
+   * @returns {void}
+   */
+const exportCSV = (keywords: KeywordType[] | SCKeywordType[], domain:string, scDataDuration = 'lastThreeDays') => {
+   const payload = createKeywordCsvPayload(keywords, domain, scDataDuration);
+   if (!payload) { return; }
+
+   downloadCSV(payload.header, payload.body, payload.fileName);
 };
 
 /**
@@ -66,15 +86,15 @@ const exportCSV = (keywords: KeywordType[] | SCKeywordType[], domain:string, scD
 * @param {string} domainName - The domain name.
 * @returns {void}
 */
-export const exportKeywordIdeas = (keywords: IdeaKeyword[], domainName:string) => {
-   if (!keywords || (keywords && Array.isArray(keywords) && keywords.length === 0)) { return; }
+export const createKeywordIdeasCsvPayload = (keywords: IdeaKeyword[], domainName:string): CsvPayload | null => {
+   if (!keywords || (Array.isArray(keywords) && keywords.length === 0)) { return null; }
+
    const csvHeader = 'Keyword,Volume,Competition,CompetitionScore,Country,Added\r\n';
-   let csvBody = '';
    const fileName = `${domainName}-keyword_ideas.csv`;
-   keywords.forEach((keywordData) => {
+   const csvBody = keywords.map((keywordData) => {
       const { keyword, competition, country, competitionIndex, avgMonthlySearches, added } = keywordData;
       const addedDate = new Intl.DateTimeFormat('en-US').format(new Date(added));
-      csvBody += formatKeywordIdeaRow({
+      return formatKeywordIdeaRow({
          keyword,
          competition,
          country,
@@ -82,11 +102,19 @@ export const exportKeywordIdeas = (keywords: IdeaKeyword[], domainName:string) =
          avgMonthlySearches,
          addedDate,
       });
-   });
-   downloadCSV(csvHeader, csvBody, fileName);
+   }).join('');
+
+   return { header: csvHeader, body: csvBody, fileName };
 };
 
-const formatKeywordIdeaRow = ({
+export const exportKeywordIdeas = (keywords: IdeaKeyword[], domainName:string) => {
+   const payload = createKeywordIdeasCsvPayload(keywords, domainName);
+   if (!payload) { return; }
+
+   downloadCSV(payload.header, payload.body, payload.fileName);
+};
+
+export const formatKeywordIdeaRow = ({
    keyword,
    competition,
    country,
@@ -100,7 +128,14 @@ const formatKeywordIdeaRow = ({
    competitionIndex: number,
    avgMonthlySearches: number,
    addedDate: string,
-}) => `${keyword}, ${avgMonthlySearches}, ${competition}, ${competitionIndex}, ${getCountryLabel(country)}, ${addedDate}\r\n`;
+}) => buildCsvRow([
+   keyword,
+   avgMonthlySearches,
+   competition,
+   competitionIndex,
+   getCountryLabel(country),
+   addedDate,
+]);
 
 /**
  * generates a CSV file with a specified header and body content and automatically downloads it.

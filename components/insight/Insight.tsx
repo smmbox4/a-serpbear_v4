@@ -107,7 +107,7 @@ const SCInsight = ({ insight, isLoading = true, isConsoleIntegrated = true, doma
                            && (activeTab === 'stats' ? [...insightItems].reverse() : sortInsightItems(insightItems)).map(
                               (item:SCInsightItem, index: number) => {
                               const insightItemCount = insight ? insightItems : [];
-                              const lastItem = !!(insightItemCount && (index === insightItemCount.length));
+                              const lastItem = !!(insightItemCount && (index === insightItemCount.length - 1));
                               return <InsightItem key={index} item={item} type={activeTab} lastItem={lastItem} domain={domain?.domain || ''} />;
                            },
                         )
