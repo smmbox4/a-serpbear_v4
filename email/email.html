@@ -286,6 +286,7 @@
          border: 1px solid #e7e9f5;
          border-radius: 6px;
          width: 100%;
+         table-layout: fixed;
       }
       .mini_stats__header{
          padding: 14px 18px 12px;
@@ -312,6 +313,10 @@
       .mini_stats__row td{
          padding: 18px 14px;
          text-align: center;
+      }
+      .mini_stats__cell{
+         width: 33.333%;
+         display: table-cell;
       }
       .mini_stats__row td + td{
          border-left: 1px solid #e7e9f5;
@@ -458,12 +463,19 @@
           max-width: 100% !important;
           width: auto !important;
         }
-        .mini_stats { 
+        .mini_stats {
            margin: 20px 0 28px !important;
+           table-layout: fixed !important;
+        }
+        .mini_stats__cell {
+           width: 33.333% !important;
+           display: table-cell !important;
         }
         .mini_stats__row td {
            padding: 14px 8px !important;
            border-top: 1px solid #e7e9f5;
+           display: table-cell !important;
+           width: 33.333% !important;
         }
         .mini_stats__row:first-child td {
            border-top: 0;
