@@ -593,10 +593,10 @@ export const updateLocalKeywordIdeas = async (domain: string, data: IdeaDatabase
          throw new Error('Invalid domain value for file access');
       }
       const fileContent = { ...existingIdeas, updated: new Date().getTime() };
-      if (data.keywords && Array.isArray(data.keywords) && data.keywords.length > 0) {
+      if (Array.isArray(data.keywords)) {
          fileContent.keywords = data.keywords;
       }
-      if (data.favorites && Array.isArray(data.favorites) && data.favorites.length > 0) {
+      if (Array.isArray(data.favorites)) {
          fileContent.favorites = data.favorites;
       }
       if (data.settings) {
