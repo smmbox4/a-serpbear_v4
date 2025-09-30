@@ -20,11 +20,6 @@ const isRequestSecure = (req: NextApiRequest): boolean => {
       return true;
    }
 
-   const connection = req.connection as { encrypted?: boolean } | undefined;
-   if (connection?.encrypted) {
-      return true;
-   }
-
    const socket = req.socket as { encrypted?: boolean } | undefined;
    return socket?.encrypted === true;
 };
