@@ -116,12 +116,12 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
       },
    ];
 
-   const renderTable = () => render(
+   const renderTable = (keywords: IdeaKeyword[] = ideaKeywords, favorites: IdeaKeyword[] = []) => render(
          <QueryClientProvider client={queryClient}>
             <KeywordIdeasTable
                domain={domain}
-               keywords={ideaKeywords}
-               favorites={[]}
+               keywords={keywords}
+               favorites={favorites}
                isLoading={false}
                noIdeasDatabase={false}
                isAdwordsIntegrated={true}
@@ -222,5 +222,45 @@ describe('KeywordIdeasTable DRY Principle Implementation', () => {
       fireEvent.click(emailButton);
       expect(emailMutateMock).not.toHaveBeenCalled();
       expect(toastMock).toHaveBeenCalledWith('Please select a domain before emailing keywords.', { icon: '⚠️' });
+   });
+
+   it('renders duplicate keyword ideas with distinct rows', async () => {
+      const duplicateKeywords: IdeaKeyword[] = [
+         {
+            ...ideaKeywords[0],
+            uid: 'duplicate-1',
+            keyword: 'duplicate term',
+         },
+         {
+            ...ideaKeywords[0],
+            uid: 'duplicate-2',
+            keyword: 'duplicate term',
+         },
+      ];
+
+      useFetchKeywordsMock.mockReturnValue({
+         keywordsData: { keywords: [] },
+         keywordsLoading: false,
+      } as any);
+
+      renderTable(duplicateKeywords);
+
+      const keywordLabels = screen.getAllByText('duplicate term');
+      expect(keywordLabels).toHaveLength(2);
+
+      const firstRow = keywordLabels[0].closest('div.keyword');
+      const secondRow = keywordLabels[1].closest('div.keyword');
+      expect(firstRow).not.toBeNull();
+      expect(secondRow).not.toBeNull();
+      expect(firstRow).not.toBe(secondRow);
+
+      const secondRowButton = within(secondRow as HTMLElement).getByRole('button', { name: /select keyword idea/i });
+      fireEvent.click(secondRowButton);
+
+      await waitFor(() => {
+         expect(secondRow).toHaveClass('keyword--selected');
+      });
+
+      expect(firstRow).not.toHaveClass('keyword--selected');
    });
 });

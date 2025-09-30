@@ -45,7 +45,7 @@ const KeywordIdea = (props: KeywordIdeaProps) => {
 
    return (
       <div
-      key={keyword}
+      key={uid}
       style={style}
       className={`keyword relative py-5 px-4 text-gray-600 border-b-[1px] border-gray-200 lg:py-4 lg:px-6 lg:border-0
       lg:flex lg:justify-between lg:items-center ${selected ? ' bg-indigo-50 keyword--selected' : ''} ${lastItem ? 'border-b-0' : ''}`}>
