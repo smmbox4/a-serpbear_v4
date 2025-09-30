@@ -89,4 +89,71 @@ describe('/api/refresh', () => {
       { where: { ID: { [Op.in]: [1] } } },
     );
   });
+
+  it('returns multi keyword refresh response with updating flag set to true', async () => {
+    req.query = { id: '1,2', domain: 'example.com' };
+
+    const createKeywordRecord = (id: number, overrides: Record<string, any> = {}) => {
+      const baseRecord = {
+        ID: id,
+        domain: 'example.com',
+        keyword: `keyword-${id}`,
+        device: 'desktop',
+        country: 'US',
+        lastUpdated: '',
+        volume: 0,
+        added: '',
+        position: id,
+        sticky: 0,
+        history: '{}',
+        lastResult: '[]',
+        url: '',
+        tags: '[]',
+        updating: 0,
+        lastUpdateError: 'false',
+        mapPackTop3: 0,
+        ...overrides,
+      };
+
+      return {
+        ...baseRecord,
+        get: jest.fn().mockReturnValue(baseRecord),
+      };
+    };
+
+    const keywordRecord1 = createKeywordRecord(1);
+    const keywordRecord2 = createKeywordRecord(2, { domain: 'example.org', country: 'GB' });
+
+    (Keyword.findAll as jest.Mock)
+      .mockResolvedValueOnce([keywordRecord1, keywordRecord2])
+      .mockResolvedValueOnce([
+        createKeywordRecord(1),
+        createKeywordRecord(2, { domain: 'example.org', country: 'GB' }),
+      ]);
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      { get: () => ({ domain: 'example.com', scrapeEnabled: true }) },
+      { get: () => ({ domain: 'example.org', scrapeEnabled: true }) },
+    ]);
+    (refreshAndUpdateKeywords as jest.Mock).mockResolvedValue([]);
+
+    await handler(req, res);
+
+    expect(Keyword.update).toHaveBeenCalledWith(
+      { updating: true },
+      { where: { ID: { [Op.in]: [1, 2] } } },
+    );
+    expect(Keyword.findAll).toHaveBeenCalledTimes(2);
+    expect(refreshAndUpdateKeywords).toHaveBeenCalledWith([
+      keywordRecord1,
+      keywordRecord2,
+    ], { scraper_type: 'serpapi' });
+    expect(res.status).toHaveBeenCalledWith(200);
+    const jsonResponse = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonResponse.keywords).toHaveLength(2);
+    expect(jsonResponse.keywords).toEqual(expect.arrayContaining([
+      expect.objectContaining({ ID: 1, updating: true }),
+      expect.objectContaining({ ID: 2, updating: true }),
+    ]));
+  });
 });

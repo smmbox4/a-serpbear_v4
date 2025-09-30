@@ -113,8 +113,24 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
             const refreshed: KeywordType[] = await refreshAndUpdateKeywords(keywordsToRefresh, settings);
             keywords = refreshed;
          } else {
-            refreshAndUpdateKeywords(keywordsToRefresh, settings);
-            keywords = parseKeywords(keywordsToRefresh.map((el) => el.get({ plain: true })));
+            const refreshPromise = refreshAndUpdateKeywords(keywordsToRefresh, settings);
+            const refreshedKeywordRecords = await Keyword.findAll({
+               where: { ID: { [Op.in]: keywordIdsToRefresh } },
+            });
+            const plainKeywords = refreshedKeywordRecords.map((keyword) => {
+               const keywordPlain = typeof keyword.get === 'function'
+                  ? keyword.get({ plain: true })
+                  : keyword;
+               return {
+                  ...keywordPlain,
+                  updating: true,
+               } as Keyword;
+            });
+            keywords = parseKeywords(plainKeywords);
+            refreshPromise.catch((refreshError) => {
+               const message = serializeError(refreshError);
+               console.log('[REFRESH] ERROR refreshAndUpdateKeywords: ', message);
+            });
          }
       } catch (refreshError) {
          const message = serializeError(refreshError);
