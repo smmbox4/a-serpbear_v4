@@ -47,13 +47,25 @@ describe('fetchDomain', () => {
       const payload = { domain: null };
       mockSuccessfulFetch(payload);
 
-      const response = await fetchDomain(router, '');
+   const response = await fetchDomain(router, '');
 
-      const fetchMock = global.fetch as unknown as jest.Mock;
-      expect(fetchMock).toHaveBeenCalledWith(
-         `${window.location.origin}/api/domain?domain=`,
-         { method: 'GET' },
-      );
-      expect(response).toBe(payload);
-   });
+   const fetchMock = global.fetch as unknown as jest.Mock;
+   expect(fetchMock).toHaveBeenCalledWith(
+      `${window.location.origin}/api/domain?domain=`,
+      { method: 'GET' },
+   );
+   expect(response).toBe(payload);
+ });
+
+  it('throws a descriptive error when the API returns 404', async () => {
+    const fetchMock = global.fetch as unknown as jest.Mock;
+    fetchMock.mockResolvedValueOnce({
+      status: 404,
+      headers: { get: jest.fn().mockReturnValue('application/json') },
+      json: jest.fn().mockResolvedValue({ error: 'Domain not found' }),
+    });
+
+    await expect(fetchDomain(router, 'unknown.example.com')).rejects.toThrow('Domain not found');
+    expect(pushMock).not.toHaveBeenCalled();
+  });
 });

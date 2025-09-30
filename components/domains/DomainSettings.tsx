@@ -6,6 +6,7 @@ import { useDeleteDomain, useFetchDomain, useUpdateDomain } from '../../services
 import InputField from '../common/InputField';
 import SelectField from '../common/SelectField';
 import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
+import { isValidEmail } from '../../utils/client/validators';
 
 type DomainSettingsProps = {
    domain:DomainType|null,
@@ -64,15 +65,16 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    const updateDomain = () => {
       let error: DomainSettingsError | null = null;
       if (domainSettings.notification_emails) {
-         const notification_emails = domainSettings.notification_emails.split(',');
-         const invalidEmails = notification_emails.find((x) => /^\w+(?:[.-]\w+)*@\w+(?:[.-]\w+)*(\.\w{2,15})+$/.test(x) === false);
-         console.log('invalidEmails: ', invalidEmails);
+         const emailList = domainSettings.notification_emails
+            .split(',')
+            .map((email) => email.trim())
+            .filter((email) => email.length > 0);
+         const invalidEmails = emailList.find((email) => !isValidEmail(email));
          if (invalidEmails) {
             error = { type: 'email', msg: 'Invalid Email' };
          }
       }
       if (error && error.type) {
-         console.log('Error!!!!!');
          setSettingsError(error);
          setTimeout(() => {
             setSettingsError({ type: '', msg: '' });

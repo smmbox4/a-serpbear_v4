@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 import Cookies from 'cookies';
 import { logger } from '../../utils/logger';
+import isRequestSecure from '../../utils/api/isRequestSecure';
 
 type loginResponse = {
    success?: boolean
@@ -77,11 +78,15 @@ const loginUser = async (req: NextApiRequest, res: NextApiResponse<loginResponse
          const sessionDurationMs = sessionDurationHours * 60 * 60 * 1000;
          const expiryDate = new Date(Date.now() + sessionDurationMs);
          
+         const secureCookie = isRequestSecure(req);
+
          cookies.set('token', token, {
             httpOnly: true,
             sameSite: 'lax',
             maxAge: sessionDurationMs,
             expires: expiryDate,
+            secure: secureCookie,
+            path: '/',
          });
 
          logger.info('Login successful', {

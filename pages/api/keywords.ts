@@ -289,29 +289,51 @@ const updateKeywords = async (req: NextApiRequest, res: NextApiResponse<Keywords
          keywords = parseKeywords(formattedKeywords);
          return res.status(200).json({ keywords });
       }
-      if (tags) {
+      if (tags !== undefined) {
+         if (!tags || typeof tags !== 'object' || Array.isArray(tags)) {
+            return res.status(400).json({ error: 'Invalid Payload!' });
+         }
+
          const tagsKeywordIDs = Object.keys(tags);
+         if (tagsKeywordIDs.length === 0) {
+            return res.status(200).json({ keywords: [] });
+         }
+
          const multipleKeywords = tagsKeywordIDs.length > 1;
          const updatedKeywordIDs = new Set<number>();
+
          for (const keywordID of tagsKeywordIDs) {
             const numericId = Number(keywordID);
             if (!Number.isFinite(numericId)) {
                continue;
             }
+
+            const tagsForKeywordRaw = tags[keywordID];
+            const tagsForKeyword = Array.isArray(tagsForKeywordRaw)
+               ? tagsForKeywordRaw
+               : [];
+            const sanitizedTags = tagsForKeyword
+               .filter((tag): tag is string => typeof tag === 'string')
+               .map((tag) => tag.trim())
+               .filter((tag) => tag.length > 0);
+
             const selectedKeyword = await Keyword.findOne({ where: { ID: numericId } });
             const currentTags = selectedKeyword && selectedKeyword.tags ? JSON.parse(selectedKeyword.tags) : [];
-            const mergedTags = Array.from(new Set([...currentTags, ...tags[keywordID]])).sort();
+            const mergedTags = Array.from(new Set([...currentTags, ...sanitizedTags])).sort();
+
             if (selectedKeyword) {
-               const tagsToSave = multipleKeywords ? mergedTags : [...tags[keywordID]].sort();
+               const tagsToSave = multipleKeywords ? mergedTags : sanitizedTags.sort();
                await selectedKeyword.update({ tags: JSON.stringify(tagsToSave) });
                updatedKeywordIDs.add(numericId);
             }
          }
+
          if (updatedKeywordIDs.size > 0) {
             const updatedKeywords:Keyword[] = await Keyword.findAll({ where: { ID: { [Op.in]: Array.from(updatedKeywordIDs) } } });
             const formattedKeywords = updatedKeywords.map((el) => el.get({ plain: true }));
             keywords = parseKeywords(formattedKeywords);
          }
+
          return res.status(200).json({ keywords });
       }
       return res.status(400).json({ error: 'Invalid Payload!' });

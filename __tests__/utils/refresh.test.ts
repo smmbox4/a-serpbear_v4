@@ -68,6 +68,57 @@ describe('refreshAndUpdateKeywords', () => {
     expect(mockKeywordModel.set).toHaveBeenCalledWith(expect.objectContaining({ updating: false }));
   });
 
+  it('clears updating state when parallel scraping rejects for a keyword', async () => {
+    const keywordPlain = {
+      ID: 55,
+      keyword: 'parallel failure',
+      domain: 'example.com',
+      device: 'desktop',
+      country: 'US',
+      location: '',
+      position: 4,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdateError: 'false',
+      lastUpdated: '2024-01-01T00:00:00.000Z',
+      added: '2024-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      mapPackTop3: 0,
+    };
+
+    const keywordModel = {
+      ID: keywordPlain.ID,
+      keyword: keywordPlain.keyword,
+      domain: keywordPlain.domain,
+      get: jest.fn().mockReturnValue(keywordPlain),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      { get: () => ({ domain: 'example.com', scrapeEnabled: true }) },
+    ]);
+
+    (scrapeKeywordFromGoogle as jest.Mock).mockRejectedValueOnce(new Error('parallel boom'));
+
+    const settings = {
+      scraper_type: 'serpapi',
+      scrape_retry: false,
+    } as SettingsType;
+
+    const results = await refreshAndUpdateKeywords([keywordModel], settings);
+
+    expect(scrapeKeywordFromGoogle).toHaveBeenCalledWith(expect.objectContaining({ keyword: 'parallel failure' }), settings);
+    expect(keywordModel.update).toHaveBeenCalledWith(expect.objectContaining({
+      updating: 0,
+      lastUpdateError: expect.stringContaining('parallel boom'),
+    }));
+    expect(results[0].updating).toBe(false);
+  });
+
   it('uses batched retry queue removal for improved performance', async () => {
     // Setup mock data with disabled domains
     const mockKeywords = [

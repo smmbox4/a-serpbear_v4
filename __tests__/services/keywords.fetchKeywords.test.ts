@@ -49,6 +49,7 @@ describe('fetchKeywords normalisation', () => {
       } as unknown as KeywordType;
 
       fetchMock.mockResolvedValue({
+         status: 200,
          json: jest.fn().mockResolvedValue({ keywords: [keywordPayload] }),
       });
 
@@ -72,11 +73,37 @@ describe('fetchKeywords normalisation', () => {
 
    it('returns consistent object structure when domain is falsy', async () => {
       const response = await fetchKeywords({} as any, '');
-      
+
       expect(response).toBeTruthy();
       expect(typeof response).toBe('object');
       expect(response.keywords).toBeDefined();
       expect(Array.isArray(response.keywords)).toBe(true);
       expect(response.keywords.length).toBe(0);
+   });
+
+   it('redirects to login and throws when the API responds with 401', async () => {
+      const pushMock = jest.fn();
+      const headers = { get: jest.fn().mockReturnValue('application/json') };
+      fetchMock.mockResolvedValueOnce({
+         status: 401,
+         headers,
+         json: jest.fn().mockResolvedValue({ error: 'Unauthorized' }),
+      });
+
+      await expect(fetchKeywords({ push: pushMock } as any, 'example.com')).rejects.toThrow('Unauthorized');
+      expect(pushMock).toHaveBeenCalledWith('/login');
+   });
+
+   it('throws descriptive errors for non-JSON error responses', async () => {
+      const textMock = jest.fn().mockResolvedValue('<html></html>');
+      fetchMock.mockResolvedValueOnce({
+         status: 500,
+         headers: { get: jest.fn().mockReturnValue('text/html') },
+         json: jest.fn(),
+         text: textMock,
+      });
+
+      await expect(fetchKeywords({ push: jest.fn() } as any, 'example.com')).rejects.toThrow('Server error (500): Please try again later');
+      expect(textMock).toHaveBeenCalled();
    });
 });

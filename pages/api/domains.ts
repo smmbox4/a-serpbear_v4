@@ -113,6 +113,9 @@ export const deleteDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
    try {
       const { domain } = req.query || {};
       const removedDomCount: number = await Domain.destroy({ where: { domain } });
+      if (removedDomCount === 0) {
+         return res.status(404).json({ domainRemoved: 0, keywordsRemoved: 0, SCDataRemoved: false, error: 'Domain not found' });
+      }
       const removedKeywordCount: number = await Keyword.destroy({ where: { domain } });
       const SCDataRemoved = await removeLocalSCData(domain as string);
       return res.status(200).json({ domainRemoved: removedDomCount, keywordsRemoved: removedKeywordCount, SCDataRemoved });
@@ -137,8 +140,13 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
 
    try {
       const domainToUpdate: Domain|null = await Domain.findOne({ where: { domain } });
+
+      if (!domainToUpdate) {
+         return res.status(404).json({ domain: null, error: 'Domain not found' });
+      }
+
       // Validate Search Console API Data
-      if (domainToUpdate && search_console?.client_email && search_console?.private_key) {
+      if (search_console?.client_email && search_console?.private_key) {
          const theDomainObj = domainToUpdate.get({ plain: true });
          const isSearchConsoleAPIValid = await checkSearchConsoleIntegration({ ...theDomainObj, search_console: JSON.stringify(search_console) });
          if (!isSearchConsoleAPIValid.isValid) {
@@ -148,21 +156,21 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
          search_console.client_email = search_console.client_email ? cryptr.encrypt(search_console.client_email.trim()) : '';
          search_console.private_key = search_console.private_key ? cryptr.encrypt(search_console.private_key.trim()) : '';
       }
-      if (domainToUpdate) {
-         const updates: Partial<Domain> = {};
-         if (typeof notification_interval === 'string') { updates.notification_interval = notification_interval; }
-         if (typeof notification_emails === 'string') { updates.notification_emails = notification_emails; }
-         if (typeof scrapeEnabled === 'boolean') {
-            updates.scrapeEnabled = scrapeEnabled;
-            // Update the legacy notification field to match scrapeEnabled
-            updates.notification = scrapeEnabled;
-         }
-         if (search_console) {
-            updates.search_console = JSON.stringify(search_console);
-         }
-         domainToUpdate.set(updates);
-         await domainToUpdate.save();
+
+      const updates: Partial<Domain> = {};
+      if (typeof notification_interval === 'string') { updates.notification_interval = notification_interval; }
+      if (typeof notification_emails === 'string') { updates.notification_emails = notification_emails; }
+      if (typeof scrapeEnabled === 'boolean') {
+         updates.scrapeEnabled = scrapeEnabled;
+         // Update the legacy notification field to match scrapeEnabled
+         updates.notification = scrapeEnabled;
       }
+      if (search_console) {
+         updates.search_console = JSON.stringify(search_console);
+      }
+      domainToUpdate.set(updates);
+      await domainToUpdate.save();
+
       return res.status(200).json({ domain: domainToUpdate });
    } catch (error) {
       console.log('[ERROR] Updating Domain: ', req.query.domain, error);

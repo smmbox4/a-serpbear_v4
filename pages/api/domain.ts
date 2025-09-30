@@ -28,9 +28,14 @@ const getDomain = async (req: NextApiRequest, res: NextApiResponse<DomainGetResp
    try {
       const query = { domain: req.query.domain as string };
       const foundDomain:Domain| null = await Domain.findOne({ where: query });
-      const parsedDomain = foundDomain?.get({ plain: true }) || false;
 
-      if (parsedDomain && parsedDomain.search_console) {
+      if (!foundDomain) {
+         return res.status(404).json({ domain: null, error: 'Domain not found' });
+      }
+
+      const parsedDomain = foundDomain.get({ plain: true }) as DomainType;
+
+      if (parsedDomain.search_console) {
          try {
             const cryptr = new Cryptr(process.env.SECRET as string);
             const scData = JSON.parse(parsedDomain.search_console);

@@ -24,10 +24,17 @@ const AddTags = ({ keywords = [], existingTags = [], closeModal }: AddTagsProps)
          return;
       }
 
-      const tagsArray = tagInput.split(',').map((t) => t.trim());
+      const tagsArray = Array.from(new Set(
+         tagInput
+            .split(',')
+            .map((t) => t.trim())
+            .filter((tag) => tag.length > 0),
+      ));
       const tagsPayload:any = {};
       keywords.forEach((keyword:KeywordType) => {
-         tagsPayload[keyword.ID] = keywords.length === 1 ? tagsArray : [...(new Set([...keyword.tags, ...tagsArray]))];
+         tagsPayload[keyword.ID] = keywords.length === 1
+            ? tagsArray
+            : Array.from(new Set([...keyword.tags, ...tagsArray]));
       });
       updateMutate({ tags: tagsPayload });
    };
