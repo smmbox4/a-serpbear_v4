@@ -1,5 +1,12 @@
 import countries from '../countries';
 
+const getCountryLabel = (countryCode?: string) => {
+   if (!countryCode) { return 'Unknown'; }
+   const countryData = countries[countryCode];
+   if (countryData && countryData[0]) { return countryData[0]; }
+   return countryCode || 'Unknown';
+};
+
   /**
    * Generates CSV File form the given domain & keywords, and automatically downloads it.
    * @param {KeywordType[]}  keywords - The keywords of the domain
@@ -25,7 +32,7 @@ const exportCSV = (keywords: KeywordType[] | SCKeywordType[], domain:string, scD
             impressions,
             clicks,
             ctr,
-            countries[country][0],
+            getCountryLabel(country),
             device,
          ].join(', ');
          csvBody += `${row}\r\n`;
@@ -38,7 +45,7 @@ const exportCSV = (keywords: KeywordType[] | SCKeywordType[], domain:string, scD
             keyword,
             position === 0 ? '-' : position,
             url || '-',
-            countries[country][0],
+            getCountryLabel(country),
             state || '-',
             city || '-',
             device,
@@ -67,10 +74,33 @@ export const exportKeywordIdeas = (keywords: IdeaKeyword[], domainName:string) =
    keywords.forEach((keywordData) => {
       const { keyword, competition, country, competitionIndex, avgMonthlySearches, added } = keywordData;
       const addedDate = new Intl.DateTimeFormat('en-US').format(new Date(added));
-      csvBody += `${keyword}, ${avgMonthlySearches}, ${competition}, ${competitionIndex}, ${countries[country][0]}, ${addedDate}\r\n`;
+      csvBody += formatKeywordIdeaRow({
+         keyword,
+         competition,
+         country,
+         competitionIndex,
+         avgMonthlySearches,
+         addedDate,
+      });
    });
    downloadCSV(csvHeader, csvBody, fileName);
 };
+
+const formatKeywordIdeaRow = ({
+   keyword,
+   competition,
+   country,
+   competitionIndex,
+   avgMonthlySearches,
+   addedDate,
+}:{
+   keyword: string,
+   competition: IdeaKeyword['competition'],
+   country: string,
+   competitionIndex: number,
+   avgMonthlySearches: number,
+   addedDate: string,
+}) => `${keyword}, ${avgMonthlySearches}, ${competition}, ${competitionIndex}, ${getCountryLabel(country)}, ${addedDate}\r\n`;
 
 /**
  * generates a CSV file with a specified header and body content and automatically downloads it.
