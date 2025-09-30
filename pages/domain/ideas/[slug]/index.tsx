@@ -28,9 +28,12 @@ const DiscoverPage: NextPage = () => {
 
    const { data: appSettings } = useFetchSettings();
    const { data: domainsData } = useFetchDomains(router, false);
-   const adwordsConnected = !!(appSettings && appSettings?.settings?.adwords_refresh_token
-      && appSettings?.settings?.adwords_developer_token, appSettings?.settings?.adwords_account_id);
-   const searchConsoleConnected = !!(appSettings && appSettings?.settings?.search_console_integrated);
+   const adwordsConnected = Boolean(
+      appSettings?.settings?.adwords_refresh_token
+      && appSettings?.settings?.adwords_developer_token
+      && appSettings?.settings?.adwords_account_id,
+   );
+   const globalSearchConsoleConnected = Boolean(appSettings?.settings?.search_console_integrated);
    const { data: keywordIdeasData, isLoading: isLoadingIdeas, isError: errorLoadingIdeas } = useFetchKeywordIdeas(router, adwordsConnected);
    const theDomains: DomainType[] = (domainsData && domainsData.domains) || [];
    const keywordIdeas:IdeaKeyword[] = keywordIdeasData?.data?.keywords || [];
@@ -44,6 +47,13 @@ const DiscoverPage: NextPage = () => {
       }
       return active;
    }, [router.query.slug, domainsData]);
+
+   const domainHasScAPI = useMemo(() => {
+      const domainSc = activDomain?.search_console ? JSON.parse(activDomain.search_console) : {};
+      return !!(domainSc?.client_email && domainSc?.private_key);
+   }, [activDomain]);
+
+   const searchConsoleConnected = globalSearchConsoleConnected || domainHasScAPI;
 
    return (
       <div className="Domain ">

@@ -27,10 +27,10 @@ export async function fetchSCKeywords(router: NextRouter, slugOverride?: string)
    return res.json();
 }
 
-export function useFetchSCKeywords(router: NextRouter, domainLoaded: boolean = false) {
-   // console.log('ROUTER: ', router);
+export function useFetchSCKeywords(router: NextRouter, domainLoaded: boolean = false, domainHasCredentials: boolean = false) {
    const slug = getActiveSlug(router) || '';
-   return useQuery(['sckeywords', slug], () => fetchSCKeywords(router, slug), { enabled: domainLoaded && !!slug });
+   const enabled = !!slug && (domainLoaded || domainHasCredentials);
+   return useQuery(['sckeywords', slug], () => fetchSCKeywords(router, slug), { enabled });
 }
 
 export async function fetchSCInsight(router: NextRouter, slugOverride?: string) {
@@ -50,10 +50,10 @@ export async function fetchSCInsight(router: NextRouter, slugOverride?: string) 
    return res.json();
 }
 
-export function useFetchSCInsight(router: NextRouter, domainLoaded: boolean = false) {
-   // console.log('ROUTER: ', router);
+export function useFetchSCInsight(router: NextRouter, domainLoaded: boolean = false, domainHasCredentials: boolean = false) {
    const slug = getActiveSlug(router) || '';
-   return useQuery(['scinsight', slug], () => fetchSCInsight(router, slug), { enabled: domainLoaded && !!slug });
+   const enabled = !!slug && (domainLoaded || domainHasCredentials);
+   return useQuery(['scinsight', slug], () => fetchSCInsight(router, slug), { enabled });
 }
 
 export const refreshSearchConsoleData = async () => {

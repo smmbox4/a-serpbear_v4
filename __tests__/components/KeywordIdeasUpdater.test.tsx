@@ -23,6 +23,14 @@ jest.mock('../../services/adwords', () => ({
    }),
 }));
 
+jest.mock('../../components/common/SelectField', () => ({ options }: any) => (
+   <ul data-testid="select-field-options">
+      {options.map((option: { label: string, value: string }) => (
+         <li key={option.value}>{option.label}</li>
+      ))}
+   </ul>
+));
+
 const mockDomain: DomainType = {
    ID: 1,
    domain: 'example.com',
@@ -87,5 +95,17 @@ describe('KeywordIdeasUpdater Component', () => {
       );
 
       consoleLogSpy.mockRestore();
+   });
+
+   it('lists the Search Console seed option when the integration is available', () => {
+      renderWithQueryClient(
+         <KeywordIdeasUpdater
+            domain={mockDomain}
+            searchConsoleConnected={true}
+            adwordsConnected={true}
+         />,
+      );
+
+      expect(screen.getAllByTestId('select-field-options')[0]).toHaveTextContent('Based on already ranking keywords (GSC)');
    });
 });

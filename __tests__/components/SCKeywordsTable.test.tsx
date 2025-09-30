@@ -117,11 +117,11 @@ describe('SCKeywordsTable', () => {
       },
    ];
 
-   const renderComponent = () => render(
+   const renderComponent = (keywords = mockSCKeywords) => render(
       <QueryClientProvider client={queryClient}>
          <SCKeywordsTable
             domain={mockDomain}
-            keywords={mockSCKeywords}
+            keywords={keywords}
             isLoading={false}
             isConsoleIntegrated={true}
          />
@@ -204,5 +204,15 @@ describe('SCKeywordsTable', () => {
       
       // This test serves as a regression test to ensure the component still works
       // after the fix that changed from iterating over `keywords` to `finalKeywords[device]`
+   });
+
+   it('displays zeroed summary metrics when no keywords are available', () => {
+      renderComponent([]);
+
+      const summaryRow = screen.getByText('0 desktop Keywords').closest('.domKeywords_head');
+      expect(summaryRow).toBeInTheDocument();
+      expect(summaryRow).toHaveTextContent('0 desktop Keywords');
+      expect(summaryRow).toHaveTextContent('0');
+      expect(summaryRow).toHaveTextContent('0.00%');
    });
 });

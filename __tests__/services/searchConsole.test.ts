@@ -30,7 +30,7 @@ describe('Search Console hooks', () => {
    it('includes the slug in the Search Console keywords query key', () => {
       const routerWithSlug = { ...baseRouter, query: { slug: 'first-slug' } };
 
-      useFetchSCKeywords(routerWithSlug, true);
+      useFetchSCKeywords(routerWithSlug, true, false);
 
       expect(mockUseQuery).toHaveBeenCalledTimes(1);
       expect(mockUseQuery).toHaveBeenCalledWith(
@@ -42,7 +42,7 @@ describe('Search Console hooks', () => {
       mockUseQuery.mockClear();
       const routerWithoutSlug = { ...baseRouter, query: {} };
 
-      useFetchSCKeywords(routerWithoutSlug, true);
+      useFetchSCKeywords(routerWithoutSlug, true, false);
 
       expect(mockUseQuery).toHaveBeenCalledWith(
          ['sckeywords', ''],
@@ -51,10 +51,22 @@ describe('Search Console hooks', () => {
       );
    });
 
+   it('enables keyword queries when only domain-level credentials exist', () => {
+      const routerWithSlug = { ...baseRouter, query: { slug: 'domain-creds' } };
+
+      useFetchSCKeywords(routerWithSlug, false, true);
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+         ['sckeywords', 'domain-creds'],
+         expect.any(Function),
+         expect.objectContaining({ enabled: true }),
+      );
+   });
+
    it('includes the slug in the Search Console insight query key', () => {
       const routerWithSlug = { ...baseRouter, query: { slug: 'insight-slug' } };
 
-      useFetchSCInsight(routerWithSlug, true);
+      useFetchSCInsight(routerWithSlug, true, false);
 
       expect(mockUseQuery).toHaveBeenCalledWith(
          ['scinsight', 'insight-slug'],
@@ -65,7 +77,7 @@ describe('Search Console hooks', () => {
       mockUseQuery.mockClear();
       const routerWithoutSlug = { ...baseRouter, query: {} };
 
-      useFetchSCInsight(routerWithoutSlug, true);
+      useFetchSCInsight(routerWithoutSlug, true, false);
 
       expect(mockUseQuery).toHaveBeenCalledWith(
          ['scinsight', ''],
@@ -74,12 +86,24 @@ describe('Search Console hooks', () => {
       );
    });
 
+   it('enables insight queries when only domain-level credentials exist', () => {
+      const routerWithSlug = { ...baseRouter, query: { slug: 'insight-creds' } };
+
+      useFetchSCInsight(routerWithSlug, false, true);
+
+      expect(mockUseQuery).toHaveBeenCalledWith(
+         ['scinsight', 'insight-creds'],
+         expect.any(Function),
+         expect.objectContaining({ enabled: true }),
+      );
+   });
+
    it('refetches when the slug changes between invocations', () => {
       const firstRouter = { ...baseRouter, query: { slug: 'first' } };
       const secondRouter = { ...baseRouter, query: { slug: 'second' } };
 
-      useFetchSCKeywords(firstRouter, true);
-      useFetchSCKeywords(secondRouter, true);
+      useFetchSCKeywords(firstRouter, true, false);
+      useFetchSCKeywords(secondRouter, true, false);
 
       expect(mockUseQuery).toHaveBeenNthCalledWith(
          1,
@@ -99,8 +123,8 @@ describe('Search Console hooks', () => {
       const firstRouter = { ...baseRouter, query: { slug: 'alpha' } };
       const secondRouter = { ...baseRouter, query: { slug: 'beta' } };
 
-      useFetchSCInsight(firstRouter, true);
-      useFetchSCInsight(secondRouter, true);
+      useFetchSCInsight(firstRouter, true, false);
+      useFetchSCInsight(secondRouter, true, false);
 
       expect(mockUseQuery).toHaveBeenNthCalledWith(
          1,

@@ -5,38 +5,43 @@
  * @returns {KeywordType[]}
  */
 export const sortKeywords = (theKeywords:KeywordType[], sortBy:string, scDataType?: string) : KeywordType[] => {
+   const keywordsWithFallback = theKeywords.map((k) => ({ ...k, position: k.position === 0 ? 111 : k.position }));
+   const baseKeywords = [...theKeywords];
    let sortedItems: KeywordType[] = [];
-   const keywords = theKeywords.map((k) => ({ ...k, position: k.position === 0 ? 111 : k.position }));
    switch (sortBy) {
       case 'date_asc':
-            sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => new Date(b.added).getTime() - new Date(a.added).getTime());
+            sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => new Date(a.added).getTime() - new Date(b.added).getTime());
             break;
       case 'date_desc':
-            sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => new Date(a.added).getTime() - new Date(b.added).getTime());
+            sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => new Date(b.added).getTime() - new Date(a.added).getTime());
             break;
       case 'pos_asc':
-            sortedItems = keywords.sort((a: KeywordType, b: KeywordType) => (b.position > a.position ? 1 : -1));
+            sortedItems = keywordsWithFallback
+               .slice()
+               .sort((a: KeywordType, b: KeywordType) => (a.position > b.position ? 1 : (a.position < b.position ? -1 : 0)));
             sortedItems = sortedItems.map((k) => ({ ...k, position: k.position === 111 ? 0 : k.position }));
             break;
       case 'pos_desc':
-            sortedItems = keywords.sort((a: KeywordType, b: KeywordType) => (a.position > b.position ? 1 : -1));
+            sortedItems = keywordsWithFallback
+               .slice()
+               .sort((a: KeywordType, b: KeywordType) => (b.position > a.position ? 1 : (b.position < a.position ? -1 : 0)));
             sortedItems = sortedItems.map((k) => ({ ...k, position: k.position === 111 ? 0 : k.position }));
             break;
       case 'alpha_asc':
-            sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => (b.keyword > a.keyword ? 1 : -1));
+            sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => a.keyword.localeCompare(b.keyword));
             break;
       case 'alpha_desc':
-            sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => (a.keyword > b.keyword ? 1 : -1));
+            sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => b.keyword.localeCompare(a.keyword));
          break;
       case 'vol_asc':
-            sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => (b.volume - a.volume));
+            sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => (a.volume - b.volume));
             break;
       case 'vol_desc':
-            sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => (a.volume - b.volume));
+            sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => (b.volume - a.volume));
             break;
       case 'imp_desc':
             if (scDataType) {
-                  sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => {
+                  sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => {
                   const bImpressionData = b.scData?.impressions[scDataType as keyof KeywordSCDataChild] || 0;
                   const aImpressionData = a.scData?.impressions[scDataType as keyof KeywordSCDataChild] || 0;
                   return bImpressionData - aImpressionData;
@@ -45,7 +50,7 @@ export const sortKeywords = (theKeywords:KeywordType[], sortBy:string, scDataTyp
             break;
       case 'imp_asc':
             if (scDataType) {
-                  sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => {
+                  sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => {
                   const bImpressionData = b.scData?.impressions[scDataType as keyof KeywordSCDataChild] || 0;
                   const aImpressionData = a.scData?.impressions[scDataType as keyof KeywordSCDataChild] || 0;
                   return aImpressionData - bImpressionData;
@@ -54,7 +59,7 @@ export const sortKeywords = (theKeywords:KeywordType[], sortBy:string, scDataTyp
          break;
       case 'visits_desc':
             if (scDataType) {
-                  sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => {
+                  sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => {
                   const bVisitsData = b.scData?.visits[scDataType as keyof KeywordSCDataChild] || 0;
                   const aVisitsData = a.scData?.visits[scDataType as keyof KeywordSCDataChild] || 0;
                   return bVisitsData - aVisitsData;
@@ -63,7 +68,7 @@ export const sortKeywords = (theKeywords:KeywordType[], sortBy:string, scDataTyp
             break;
       case 'visits_asc':
             if (scDataType) {
-                  sortedItems = theKeywords.sort((a: KeywordType, b: KeywordType) => {
+                  sortedItems = baseKeywords.sort((a: KeywordType, b: KeywordType) => {
                   const bVisitsData = b.scData?.visits[scDataType as keyof KeywordSCDataChild] || 0;
                   const aVisitsData = a.scData?.visits[scDataType as keyof KeywordSCDataChild] || 0;
                   return aVisitsData - bVisitsData;
@@ -75,7 +80,7 @@ export const sortKeywords = (theKeywords:KeywordType[], sortBy:string, scDataTyp
    }
 
    // Stick Favorites item to top
-   sortedItems = sortedItems.sort((a: KeywordType, b: KeywordType) => (b.sticky > a.sticky ? 1 : -1));
+   sortedItems = [...sortedItems].sort((a: KeywordType, b: KeywordType) => (b.sticky === a.sticky ? 0 : (b.sticky ? 1 : -1)));
 
    return sortedItems;
 };

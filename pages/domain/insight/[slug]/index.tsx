@@ -29,24 +29,26 @@ const InsightPage: NextPage = () => {
    const [scDateFilter, setSCDateFilter] = useState('thirtyDays');
    const { data: appSettings } = useFetchSettings();
    const { data: domainsData } = useFetchDomains(router, false);
-   const scConnected = !!(appSettings && appSettings?.settings?.search_console_integrated);
-   const { data: insightData } = useFetchSCInsight(router, !!(domainsData?.domains?.length) && scConnected);
-
    const theDomains: DomainType[] = (domainsData && domainsData.domains) || [];
-   const theInsight: InsightDataType = insightData && insightData.data ? insightData.data : {};
-
    const activDomain: DomainType|null = useMemo(() => {
-      let active:DomainType|null = null;
       if (domainsData?.domains && router.query?.slug) {
-         active = domainsData.domains.find((x:DomainType) => x.slug === router.query.slug) || null;
+         return domainsData.domains.find((x:DomainType) => x.slug === router.query.slug) || null;
       }
-      return active;
+      return null;
    }, [router.query.slug, domainsData]);
-
    const domainHasScAPI = useMemo(() => {
       const domainSc = activDomain?.search_console ? JSON.parse(activDomain.search_console) : {};
       return !!(domainSc?.client_email && domainSc?.private_key);
    }, [activDomain]);
+   const scConnected = !!(appSettings && appSettings?.settings?.search_console_integrated);
+   const domainsLoaded = !!(domainsData?.domains?.length);
+   const { data: insightData } = useFetchSCInsight(
+      router,
+      domainsLoaded && scConnected,
+      domainsLoaded && domainHasScAPI,
+   );
+
+   const theInsight: InsightDataType = insightData && insightData.data ? insightData.data : {};
 
    return (
       <div className="Domain ">
@@ -76,7 +78,7 @@ const InsightPage: NextPage = () => {
                domain={activDomain}
                insight={theInsight}
                isConsoleIntegrated={scConnected || domainHasScAPI}
-               />
+            />
             </div>
          </div>
 

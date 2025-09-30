@@ -20,7 +20,7 @@ const KeywordDetails = ({ keyword, closeDetails }:KeywordDetailsProps) => {
    const searchResultFound = useRef<HTMLDivElement>(null);
    const { data: keywordData } = useFetchSingleKeyword(keyword.ID);
    const keywordHistory: KeywordHistory = keywordData?.history || keyword.history;
-   const keywordSearchResult: KeywordLastResult = keywordData?.searchResult || keyword.history;
+   const keywordSearchResult: KeywordLastResult[] = keywordData?.searchResult || keyword.lastResult || [];
    const mapPackTop3 = (keywordData?.mapPackTop3 ?? keyword.mapPackTop3) === true;
    const dateOptions = [
       { label: 'Last 7 Days', value: '7' },
