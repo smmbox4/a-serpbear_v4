@@ -138,6 +138,72 @@ describe('DomainSettings Component', () => {
       });
    });
 
+   it('accepts RFC compliant notification email formats', async () => {
+      mockUseFetchDomain.mockImplementation(() => {});
+      const mutateMock = jest.fn();
+      mockUseUpdateDomain.mockReturnValue({
+         mutate: mutateMock,
+         error: null,
+         isLoading: false,
+      });
+
+      renderWithQueryClient(
+         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
+      );
+
+      const emailInput = screen.getByDisplayValue('test@example.com');
+      fireEvent.change(emailInput, {
+         target: {
+            value: 'alias+tag@example.co.uk, user.name+filter@example.io',
+         },
+      });
+
+      const updateButton = screen.getByText('Update Settings');
+      fireEvent.click(updateButton);
+
+      await waitFor(() => {
+         expect(mutateMock).toHaveBeenCalled();
+      });
+
+      expect(mutateMock).toHaveBeenCalledWith({
+         domain: mockDomain,
+         domainSettings: expect.objectContaining({
+            notification_emails: 'alias+tag@example.co.uk, user.name+filter@example.io',
+         }),
+      });
+   });
+
+   it('surfaces validation errors for malformed notification emails', async () => {
+      jest.useFakeTimers();
+      mockUseFetchDomain.mockImplementation(() => {});
+      const mutateMock = jest.fn();
+      mockUseUpdateDomain.mockReturnValue({
+         mutate: mutateMock,
+         error: null,
+         isLoading: false,
+      });
+
+      renderWithQueryClient(
+         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
+      );
+
+      const emailInput = screen.getByDisplayValue('test@example.com');
+      fireEvent.change(emailInput, {
+         target: {
+            value: 'invalid-email',
+         },
+      });
+
+      const updateButton = screen.getByText('Update Settings');
+      fireEvent.click(updateButton);
+
+      expect(mutateMock).not.toHaveBeenCalled();
+      expect(await screen.findByText('Invalid Email')).toBeInTheDocument();
+
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+   });
+
    it('preserves user changes to other settings when async fetch completes (functional state update fix)', async () => {
       let capturedCallback: ((_domainObj: DomainType) => void) | null = null;
 

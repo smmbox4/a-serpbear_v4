@@ -2,7 +2,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import handler from '../../pages/api/domains';
 import db from '../../database/database';
 import Domain from '../../database/models/domain';
+import Keyword from '../../database/models/keyword';
 import verifyUser from '../../utils/verifyUser';
+import { removeLocalSCData } from '../../utils/searchConsole';
 
 jest.mock('../../database/database', () => ({
   __esModule: true,
@@ -11,12 +13,23 @@ jest.mock('../../database/database', () => ({
 
 jest.mock('../../database/models/domain', () => ({
   __esModule: true,
-  default: { findOne: jest.fn() },
+  default: { findOne: jest.fn(), destroy: jest.fn() },
+}));
+
+jest.mock('../../database/models/keyword', () => ({
+  __esModule: true,
+  default: { destroy: jest.fn() },
 }));
 
 jest.mock('../../utils/verifyUser', () => ({
   __esModule: true,
   default: jest.fn(),
+}));
+
+jest.mock('../../utils/searchConsole', () => ({
+  __esModule: true,
+  checkSearchConsoleIntegration: jest.fn(() => ({ isValid: true })),
+  removeLocalSCData: jest.fn(),
 }));
 
 jest.mock('../../utils/apiLogging', () => ({
@@ -26,7 +39,9 @@ jest.mock('../../utils/apiLogging', () => ({
 
 const verifyUserMock = verifyUser as unknown as jest.Mock;
 const dbMock = db as unknown as { sync: jest.Mock };
-const DomainMock = Domain as unknown as { findOne: jest.Mock };
+const DomainMock = Domain as unknown as { findOne: jest.Mock; destroy: jest.Mock };
+const KeywordMock = Keyword as unknown as { destroy: jest.Mock };
+const removeLocalSCDataMock = removeLocalSCData as unknown as jest.Mock;
 
 const createMockResponse = () => ({
   status: jest.fn().mockReturnThis(),
@@ -126,5 +141,58 @@ describe('PUT /api/domains', () => {
     expect(domainState.scrapeEnabled).toBe(true);
     expect(domainState.notification).toBe(true);
     expect(persistedSnapshots[1]).toEqual({ scrapeEnabled: 1, notification: 1 });
+  });
+
+  it('returns 404 when attempting to update a non-existent domain', async () => {
+    DomainMock.findOne.mockResolvedValueOnce(null);
+
+    const req = {
+      method: 'PUT',
+      query: { domain: 'missing.example.com' },
+      body: { scrapeEnabled: true },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ domain: null, error: 'Domain not found' });
+  });
+});
+
+describe('DELETE /api/domains', () => {
+  beforeEach(() => {
+    verifyUserMock.mockReturnValue('authorized');
+    dbMock.sync.mockResolvedValue(undefined);
+    DomainMock.destroy.mockResolvedValue(1);
+    KeywordMock.destroy.mockResolvedValue(0);
+    removeLocalSCDataMock.mockResolvedValue(false);
+  });
+
+  it('returns 404 when the target domain is missing', async () => {
+    DomainMock.destroy.mockResolvedValueOnce(0);
+
+    const req = {
+      method: 'DELETE',
+      query: { domain: 'missing.example.com' },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(DomainMock.destroy).toHaveBeenCalledWith({ where: { domain: 'missing.example.com' } });
+    expect(KeywordMock.destroy).not.toHaveBeenCalled();
+    expect(removeLocalSCDataMock).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({
+      domainRemoved: 0,
+      keywordsRemoved: 0,
+      SCDataRemoved: false,
+      error: 'Domain not found',
+    });
   });
 });

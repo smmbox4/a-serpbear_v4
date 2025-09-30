@@ -246,4 +246,70 @@ describe('PUT /api/keywords tags updates', () => {
       ]),
     });
   });
+
+  it('treats an empty tags object as a successful no-op', async () => {
+    const req = {
+      method: 'PUT',
+      query: { id: '1' },
+      body: { tags: {} },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as NextApiResponse;
+
+    await handler(req, res);
+
+    expect(keywordMock.findOne).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ keywords: [] });
+  });
+
+  it('clears persisted tags when provided with empty arrays', async () => {
+    const updateSpy = jest.fn().mockResolvedValue(undefined);
+    keywordMock.findOne.mockResolvedValueOnce({ tags: JSON.stringify(['keep']), update: updateSpy });
+    keywordMock.findAll.mockResolvedValueOnce([
+      {
+        get: () => ({
+          ID: 5,
+          keyword: 'gamma',
+          domain: 'example.com',
+          device: 'desktop',
+          country: 'US',
+          location: '',
+          history: '{}',
+          tags: JSON.stringify([]),
+          lastResult: '[]',
+          lastUpdateError: 'false',
+          sticky: false,
+          updating: false,
+          mapPackTop3: false,
+        }),
+      },
+    ]);
+
+    const req = {
+      method: 'PUT',
+      query: { id: '5' },
+      body: { tags: { 5: [] } },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as NextApiResponse;
+
+    await handler(req, res);
+
+    expect(updateSpy).toHaveBeenCalledWith({ tags: JSON.stringify([]) });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      keywords: expect.arrayContaining([
+        expect.objectContaining({ keyword: 'gamma', tags: [] }),
+      ]),
+    });
+  });
 });

@@ -18,6 +18,29 @@ const normaliseKeywordFlags = (keyword: any): KeywordType => ({
 export const fetchKeywords = async (router: NextRouter, domain: string) => {
    if (!domain) { return { keywords: [] }; }
    const res = await fetch(`${window.location.origin}/api/keywords?domain=${domain}`, { method: 'GET' });
+   if (res.status >= 400 && res.status < 600) {
+      if (res.status === 401) {
+         router.push('/login');
+      }
+
+      let errorMessage = 'Bad response from server';
+      try {
+         const contentType = res.headers.get('content-type');
+         if (contentType && contentType.includes('application/json')) {
+            const errorData = await res.json();
+            errorMessage = errorData?.error ? errorData.error : 'Bad response from server';
+         } else {
+            const textResponse = await res.text();
+            console.warn('Non-JSON error response received:', textResponse.substring(0, 200));
+            errorMessage = `Server error (${res.status}): Please try again later`;
+         }
+      } catch (parseError) {
+         console.warn('Failed to parse error response:', parseError);
+         errorMessage = `Server error (${res.status}): Please try again later`;
+      }
+
+      throw new Error(errorMessage);
+   }
    const data: KeywordsResponse = await res.json();
    if (!data || typeof data !== 'object') { return data; }
    if (!Array.isArray(data.keywords)) { return data; }

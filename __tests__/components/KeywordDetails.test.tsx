@@ -30,4 +30,13 @@ describe('KeywordDetails', () => {
       expect(screen.getByText('1. Compress Image Tool')).toBeInTheDocument();
       expect(screen.getByText('https://compressimage.io/')).toBeInTheDocument();
    });
+
+   it('falls back to keyword.lastResult when fetched data omits search results', () => {
+      useFetchSingleKeywordMock.mockReturnValue({ data: { history: dummyKeywords[0].history } });
+
+      render(<KeywordDetails keyword={dummyKeywords[0] as KeywordType} closeDetails={jest.fn()} />);
+
+      expect(screen.getByText('1. Compress Image Tool')).toBeInTheDocument();
+      expect(screen.getByText('https://compressimage.io/')).toBeInTheDocument();
+   });
 });

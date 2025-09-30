@@ -81,19 +81,20 @@ describe('Authentication cookie handling', () => {
 
       const res = createResponse();
 
-      await loginHandler(req as NextApiRequest, res);
+   await loginHandler(req as NextApiRequest, res);
 
-      expect(setCookieMock).toHaveBeenCalledTimes(1);
-      const [, , options] = setCookieMock.mock.calls[0];
-      expect(options).toMatchObject({
-         httpOnly: true,
-         sameSite: 'lax',
-         maxAge: 12 * 60 * 60 * 1000,
-      });
-      expect(options.expires).toEqual(new Date(baseTime.getTime() + (12 * 60 * 60 * 1000)));
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
+   expect(setCookieMock).toHaveBeenCalledTimes(1);
+   const [, , options] = setCookieMock.mock.calls[0];
+   expect(options).toMatchObject({
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 12 * 60 * 60 * 1000,
    });
+   expect(options.expires).toEqual(new Date(baseTime.getTime() + (12 * 60 * 60 * 1000)));
+   expect(options.secure).toBe(false);
+   expect(res.status).toHaveBeenCalledWith(200);
+   expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
+  });
 
    it('defaults to a 24 hour session when SESSION_DURATION is missing or invalid', async () => {
       (process.env as MutableEnv).SESSION_DURATION = 'not-a-number';
@@ -130,17 +131,55 @@ describe('Authentication cookie handling', () => {
 
       const res = createResponse();
 
-      await logoutHandler(req as NextApiRequest, res);
+   await logoutHandler(req as NextApiRequest, res);
 
-      expect(verifyUser).toHaveBeenCalledWith(req, res);
-      expect(setCookieMock).toHaveBeenCalledWith('token', '', expect.objectContaining({
-         httpOnly: true,
-         sameSite: 'lax',
-         maxAge: 0,
-         path: '/',
-         expires: new Date(0),
-      }));
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
-   });
+   expect(verifyUser).toHaveBeenCalledWith(req, res);
+   expect(setCookieMock).toHaveBeenCalledWith('token', '', expect.objectContaining({
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/',
+      expires: new Date(0),
+      secure: false,
+   }));
+   expect(res.status).toHaveBeenCalledWith(200);
+   expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
+  });
+
+  it('sets secure cookies when requests are served over HTTPS', async () => {
+    (process.env as MutableEnv).SESSION_DURATION = '1';
+
+    const loginReq = {
+      method: 'POST',
+      headers: {
+        'x-forwarded-for': '127.0.0.1',
+        'user-agent': 'secure-test-agent',
+        'x-forwarded-proto': 'https',
+      },
+      body: { username: 'admin', password: 'password' },
+    } as Partial<NextApiRequest>;
+
+    const loginRes = createResponse();
+
+    await loginHandler(loginReq as NextApiRequest, loginRes);
+
+    const [, , loginOptions] = setCookieMock.mock.calls[0];
+    expect(loginOptions.secure).toBe(true);
+
+    const logoutReq = {
+      method: 'POST',
+      headers: {
+        'x-forwarded-for': '127.0.0.1',
+        'user-agent': 'secure-test-agent',
+        'x-forwarded-proto': 'https',
+      },
+    } as Partial<NextApiRequest>;
+
+    const logoutRes = createResponse();
+
+    await logoutHandler(logoutReq as NextApiRequest, logoutRes);
+
+    const logoutOptions = setCookieMock.mock.calls.find((call) => call[0] === 'token' && call[1] === '');
+    expect(logoutOptions?.[2].secure).toBe(true);
+  });
 });

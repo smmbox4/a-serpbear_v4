@@ -15,31 +15,38 @@ const AddDomain = ({ closeModal, domains = [] }: AddDomainProps) => {
 
    const addDomain = () => {
       setNewDomainError('');
-      const existingDomains = domains.map((d) => d.domain);
+      const existingDomains = new Set(domains.map((d) => d.domain));
       const insertedURLs = newDomain.split('\n');
-      const domainsTobeAdded:string[] = [];
+      const domainsTobeAdded = new Set<string>();
       const invalidDomains:string[] = [];
+      let duplicateCount = 0;
       insertedURLs.forEach((url) => {
         const theURL = url.trim();
+        if (!theURL) { return; }
         if (isValidUrl(theURL)) {
          const domURL = new URL(theURL);
          const isDomain = domURL.pathname === '/';
-         if (isDomain && !existingDomains.includes(domURL.host)) {
-            domainsTobeAdded.push(domURL.host);
+         const cleanedURL = isDomain
+            ? domURL.host
+            : domURL.href.replace('https://', '').replace('http://', '').replace(/^\/+|\/+$/g, '');
+
+         if (existingDomains.has(cleanedURL) || domainsTobeAdded.has(cleanedURL)) {
+            duplicateCount += 1;
+            return;
          }
-         if (!isDomain && !existingDomains.includes(domURL.href)) {
-            const cleanedURL = domURL.href.replace('https://', '').replace('http://', '').replace(/^\/+|\/+$/g, '');
-            domainsTobeAdded.push(cleanedURL);
-         }
+
+         domainsTobeAdded.add(cleanedURL);
         } else {
          invalidDomains.push(theURL);
         }
       });
       if (invalidDomains.length > 0) {
          setNewDomainError(`Please Insert Valid Website URL. ${invalidDomains.length > 1 ? `Invalid URLs: ${invalidDomains.join(', ')}` : ''}`);
-      } else if (domainsTobeAdded.length > 0) {
-            console.log('domainsTobeAdded :', domainsTobeAdded);
-         addMutate(domainsTobeAdded);
+      } else if (domainsTobeAdded.size > 0) {
+            const uniqueDomains = Array.from(domainsTobeAdded);
+         addMutate(uniqueDomains);
+      } else if (duplicateCount > 0) {
+         setNewDomainError('All provided domains are already tracked or duplicates.');
       }
    };
 

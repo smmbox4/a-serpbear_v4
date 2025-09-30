@@ -278,16 +278,38 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
  * @param {SettingsType} settings - The App Settings that contain the Scraper settings
  * @returns {Promise}
  */
-const refreshParallel = async (keywords:KeywordType[], settings:SettingsType) : Promise<RefreshResult[]> => {
-   const promises: Promise<RefreshResult>[] = keywords.map((keyword) => scrapeKeywordFromGoogle(keyword, settings));
+const buildErrorResult = (keyword: KeywordType, error: unknown): RefreshResult => ({
+   ID: keyword.ID,
+   keyword: keyword.keyword,
+   position: typeof keyword.position === 'number' ? keyword.position : 0,
+   url: typeof keyword.url === 'string' ? keyword.url : '',
+   result: [],
+   mapPackTop3: keyword.mapPackTop3 === true,
+   error: typeof error === 'string' ? error : serializeError(error),
+});
 
-   return Promise.all(promises).then((promiseData) => {
-      console.log('ALL DONE!!!');
-      return promiseData;
-   }).catch((err) => {
-      console.log(err);
-      return [];
+const refreshParallel = async (keywords:KeywordType[], settings:SettingsType) : Promise<RefreshResult[]> => {
+   const promises = keywords.map(async (keyword) => {
+      try {
+         const result = await scrapeKeywordFromGoogle(keyword, settings);
+         if (result && result !== false) {
+            return result;
+         }
+
+         if (result === false) {
+            return buildErrorResult(keyword, 'Scraper returned no data');
+         }
+
+         return buildErrorResult(keyword, 'Unknown scraper response');
+      } catch (error) {
+         console.log('[ERROR] Parallel scrape failed for keyword:', keyword.keyword, error);
+         return buildErrorResult(keyword, error);
+      }
    });
+
+   const resolvedResults = await Promise.all(promises);
+   console.log('ALL DONE!!!');
+   return resolvedResults;
 };
 
 export default refreshAndUpdateKeywords;

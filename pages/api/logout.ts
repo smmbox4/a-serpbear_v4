@@ -5,6 +5,7 @@ import Cookies from 'cookies';
 import verifyUser from '../../utils/verifyUser';
 import { withApiLogging } from '../../utils/apiLogging';
 import { logger } from '../../utils/logger';
+import isRequestSecure from '../../utils/api/isRequestSecure';
 
 type logoutResponse = {
    success?: boolean
@@ -58,12 +59,15 @@ const logout = async (req: NextApiRequest, res: NextApiResponse<logoutResponse>,
       }
 
       // Clear the token cookie
+      const secureCookie = isRequestSecure(req);
+
       cookies.set('token', '', {
          httpOnly: true,
          sameSite: 'lax',
          maxAge: 0,
          expires: new Date(0),
          path: '/',
+         secure: secureCookie,
       });
 
       logger.info('User logged out successfully', {
