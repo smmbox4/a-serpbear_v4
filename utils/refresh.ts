@@ -313,12 +313,12 @@ const refreshParallel = async (keywords:KeywordType[], settings:SettingsType) : 
    const promises = keywords.map(async (keyword) => {
       try {
          const result = await scrapeKeywordFromGoogle(keyword, settings);
-         if (result && result !== false) {
-            return result;
-         }
-
          if (result === false) {
             return buildErrorResult(keyword, 'Scraper returned no data');
+         }
+
+         if (result) {
+            return result;
          }
 
          return buildErrorResult(keyword, 'Unknown scraper response');

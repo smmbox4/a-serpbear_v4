@@ -187,7 +187,7 @@ const addKeywords = async (req: NextApiRequest, res: NextApiResponse<KeywordsGet
       const tagsArray = tags ? tags.split(',').map((item:string) => item.trim()).filter((tag: string) => tag.length > 0) : [];
       const dedupedTags: string[] = [];
       const seenTags = new Set<string>();
-      tagsArray.forEach((tag) => {
+      tagsArray.forEach((tag: string) => {
          const normalized = tag.toLowerCase();
          if (!seenTags.has(normalized)) {
             seenTags.add(normalized);

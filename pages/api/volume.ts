@@ -56,16 +56,18 @@ const updatekeywordVolume = async (req: NextApiRequest, res: NextApiResponse<Key
          return res.status(400).json({ error: 'Error Fetching Keywords Volume Data from Google Ads' });
       }
 
+      const volumesMap = keywordsVolumeData.volumes as Record<number, number>;
+
       const enrichedKeywords = keywordsToSend.map((keywordItem) => ({
          ...keywordItem,
-         volume: keywordsVolumeData.volumes?.[keywordItem.ID] ?? keywordItem.volume ?? 0,
+         volume: volumesMap[keywordItem.ID] ?? keywordItem.volume ?? 0,
       }));
 
       if (!update) {
-         return res.status(200).json({ keywords: enrichedKeywords, volumes: keywordsVolumeData.volumes });
+         return res.status(200).json({ keywords: enrichedKeywords, volumes: volumesMap });
       }
 
-      const updated = await updateKeywordsVolumeData(keywordsVolumeData.volumes);
+      const updated = await updateKeywordsVolumeData(volumesMap);
       if (updated) {
          return res.status(200).json({ keywords: enrichedKeywords, volumes: keywordsVolumeData.volumes });
       }
