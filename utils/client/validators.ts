@@ -1,37 +1,6 @@
-export const isValidDomain = (domain:string): boolean => {
-   if (typeof domain !== 'string') return false;
-   if (!domain.includes('.')) return false;
-   let value = domain;
-   const validHostnameChars = /^[a-zA-Z0-9-.]{1,253}\.?$/;
-   if (!validHostnameChars.test(value)) {
-     return false;
-   }
+import { isValidHostname } from '../validators/hostname';
 
-   if (value.endsWith('.')) {
-     value = value.slice(0, value.length - 1);
-   }
-
-   if (value.length > 253) {
-     return false;
-   }
-
-   const labels = value.split('.');
-
-   const isValid = labels.every((label) => {
-     const validLabelChars = /^([a-zA-Z0-9-]+)$/;
-
-     const validLabel = (
-       validLabelChars.test(label)
-       && label.length < 64
-       && !label.startsWith('-')
-       && !label.endsWith('-')
-     );
-
-     return validLabel;
-   });
-
-   return isValid;
- };
+export const isValidDomain = (domain:string): boolean => isValidHostname(domain);
 
 export const isValidUrl = (str: string) => {
    let url;

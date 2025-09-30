@@ -23,6 +23,7 @@ type KeywordSearchResultRes = {
       keyword: string,
       position: number,
       country: string,
+      device: string,
    },
    error?: string|null,
 }
@@ -155,10 +156,11 @@ const getKeywordSearchResults = async (req: NextApiRequest, res: NextApiResponse
       if (!settings || (settings && settings.scraper_type === 'none')) {
          return res.status(400).json({ error: 'Scraper has not been set up yet.' });
       }
+      const requestedDevice = typeof req.query.device === 'string' ? req.query.device : 'desktop';
       const dummyKeyword:KeywordType = {
          ID: 99999999999999,
          keyword: req.query.keyword as string,
-         device: 'desktop',
+         device: requestedDevice,
          country: req.query.country as string,
          domain: '',
          lastUpdated: '',
@@ -181,6 +183,7 @@ const getKeywordSearchResults = async (req: NextApiRequest, res: NextApiResponse
             keyword: scrapeResult.keyword,
             position: scrapeResult.position !== 111 ? scrapeResult.position : 0,
             country: req.query.country as string,
+            device: requestedDevice,
          };
          return res.status(200).json({ error: '', searchResult });
       }

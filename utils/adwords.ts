@@ -279,7 +279,13 @@ export const getAdwordsKeywordIdeas = async (credentials: AdwordsCredentials, ad
       try {
          // API: https://developers.google.com/google-ads/api/rest/reference/rest/v21/customers/generateKeywordIdeas
          const customerID = account_id.replaceAll('-', '');
-         const geoTargetConstants = countries[country][3]; // '2840';
+         const countryData = countries[country];
+         const geoTargetConstants = countryData ? countryData[3] : undefined;
+
+         if (!geoTargetConstants || Number(geoTargetConstants) === 0) {
+            console.warn(`[ADWORDS] Skipping keyword idea lookup for ${country}: missing geo target constant.`);
+            return [];
+         }
          const reqPayload: Record<string, any> = {
             geoTargetConstants: [`geoTargetConstants/${geoTargetConstants}`],
             language: `languageConstants/${language}`,
@@ -446,7 +452,13 @@ export const getKeywordsVolume = async (keywords: KeywordType[]): Promise<{ erro
             try {
                // API: https://developers.google.com/google-ads/api/rest/reference/rest/v21/customers/generateKeywordHistoricalMetrics
                const customerID = account_id.replaceAll('-', '');
-               const geoTargetConstants = countries[country][3]; // '2840';
+               const countryData = countries[country];
+               const geoTargetConstants = countryData ? countryData[3] : undefined;
+
+               if (!geoTargetConstants || Number(geoTargetConstants) === 0) {
+                  console.warn(`[ADWORDS] Skipping keyword volume lookup for ${country}: missing geo target constant.`);
+                  continue;
+               }
                const reqKeywords = keywordRequests[country].map((kw) => kw.keyword);
                const reqPayload: Record<string, any> = {
                   keywords: [...new Set(reqKeywords)],

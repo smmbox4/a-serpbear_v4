@@ -7,6 +7,7 @@ import Domain from '../../database/models/domain';
 import verifyUser from '../../utils/verifyUser';
 import refreshAndUpdateKeywords from '../../utils/refresh';
 import { getAppSettings } from '../../pages/api/settings';
+import { scrapeKeywordFromGoogle } from '../../utils/scraper';
 
 jest.mock('../../database/database', () => ({
   __esModule: true,
@@ -155,5 +156,31 @@ describe('/api/refresh', () => {
       expect.objectContaining({ ID: 1, updating: true }),
       expect.objectContaining({ ID: 2, updating: true }),
     ]));
+  });
+
+  it('passes the requested device to keyword preview scrapes', async () => {
+    const previewReq = {
+      method: 'GET',
+      query: { keyword: 'widgets', country: 'US', device: 'mobile' },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const previewRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as NextApiResponse;
+
+    (scrapeKeywordFromGoogle as jest.Mock).mockResolvedValue({
+      keyword: 'widgets',
+      position: 3,
+      result: [],
+      mapPackTop3: false,
+    });
+
+    await handler(previewReq, previewRes);
+
+    expect(scrapeKeywordFromGoogle).toHaveBeenCalledWith(expect.objectContaining({ device: 'mobile' }), { scraper_type: 'serpapi' });
+    expect(previewRes.status).toHaveBeenCalledWith(200);
+    expect(previewRes.json).toHaveBeenCalledWith({ error: '', searchResult: expect.objectContaining({ device: 'mobile' }) });
   });
 });

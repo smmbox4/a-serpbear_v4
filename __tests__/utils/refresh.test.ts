@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import Domain from '../../database/models/domain';
 import Keyword from '../../database/models/keyword';
 import refreshAndUpdateKeywords, { updateKeywordPosition } from '../../utils/refresh';
-import { removeFromRetryQueue, scrapeKeywordFromGoogle } from '../../utils/scraper';
+import { removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from '../../utils/scraper';
 import type { RefreshResult } from '../../utils/scraper';
 
 // Mock the dependencies
@@ -66,6 +66,72 @@ describe('refreshAndUpdateKeywords', () => {
       { where: { ID: mockKeywordModel.ID } },
     );
     expect(mockKeywordModel.set).toHaveBeenCalledWith(expect.objectContaining({ updating: false }));
+  });
+
+  it('queues retries when sequential scraping returns false', async () => {
+    const keywordPlain = {
+      ID: 41,
+      keyword: 'retry-me',
+      domain: 'example.com',
+    };
+
+    const keywordModel = {
+      ...keywordPlain,
+      get: jest.fn().mockReturnValue(keywordPlain),
+      set: jest.fn(),
+      update: jest.fn(),
+    } as unknown as Keyword;
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      { get: () => ({ domain: 'example.com', scrapeEnabled: true }) },
+    ]);
+
+    (Keyword.update as jest.Mock).mockResolvedValue([1]);
+    (scrapeKeywordFromGoogle as jest.Mock).mockResolvedValueOnce(false);
+
+    const settings = {
+      scraper_type: 'custom-scraper',
+      scrape_retry: true,
+    } as SettingsType;
+
+    await refreshAndUpdateKeywords([keywordModel], settings);
+
+    expect(keywordModel.set).toHaveBeenCalledWith(expect.objectContaining({ updating: false }));
+    expect(retryScrape).toHaveBeenCalledWith(41);
+    expect(removeFromRetryQueue).not.toHaveBeenCalled();
+  });
+
+  it('removes keywords from retry queue when sequential scraping is disabled', async () => {
+    const keywordPlain = {
+      ID: 42,
+      keyword: 'no-retry',
+      domain: 'example.com',
+    };
+
+    const keywordModel = {
+      ...keywordPlain,
+      get: jest.fn().mockReturnValue(keywordPlain),
+      set: jest.fn(),
+      update: jest.fn(),
+    } as unknown as Keyword;
+
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      { get: () => ({ domain: 'example.com', scrapeEnabled: true }) },
+    ]);
+
+    (Keyword.update as jest.Mock).mockResolvedValue([1]);
+    (scrapeKeywordFromGoogle as jest.Mock).mockResolvedValueOnce(false);
+
+    const settings = {
+      scraper_type: 'custom-scraper',
+      scrape_retry: false,
+    } as SettingsType;
+
+    await refreshAndUpdateKeywords([keywordModel], settings);
+
+    expect(keywordModel.set).toHaveBeenCalledWith(expect.objectContaining({ updating: false }));
+    expect(removeFromRetryQueue).toHaveBeenCalledWith(42);
+    expect(retryScrape).not.toHaveBeenCalled();
   });
 
   it('clears updating state when parallel scraping rejects for a keyword', async () => {

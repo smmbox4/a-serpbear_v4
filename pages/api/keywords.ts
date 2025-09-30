@@ -185,7 +185,16 @@ const addKeywords = async (req: NextApiRequest, res: NextApiResponse<KeywordsGet
       
       const { keyword, domain, device, country, location, tags } = validation.sanitized!;
       const tagsArray = tags ? tags.split(',').map((item:string) => item.trim()).filter((tag: string) => tag.length > 0) : [];
-      
+      const dedupedTags: string[] = [];
+      const seenTags = new Set<string>();
+      tagsArray.forEach((tag) => {
+         const normalized = tag.toLowerCase();
+         if (!seenTags.has(normalized)) {
+            seenTags.add(normalized);
+            dedupedTags.push(tag);
+         }
+      });
+
       const newKeyword = {
          keyword,
          device,
@@ -197,7 +206,7 @@ const addKeywords = async (req: NextApiRequest, res: NextApiResponse<KeywordsGet
          history: JSON.stringify({}),
          lastResult: JSON.stringify([]),
          url: '',
-         tags: JSON.stringify(tagsArray.slice(0, 10)), // Limit to 10 tags
+         tags: JSON.stringify(dedupedTags.slice(0, 10)), // Limit to 10 tags
          sticky: false,
          lastUpdated: new Date().toJSON(),
          added: new Date().toJSON(),

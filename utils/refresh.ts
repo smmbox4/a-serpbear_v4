@@ -160,8 +160,22 @@ const refreshAndUpdateKeyword = async (keyword: Keyword, settings: SettingsType)
       }
    }
 
-   const updatedkeyword = refreshedkeywordData ? await updateKeywordPosition(keyword, refreshedkeywordData, settings) : currentkeyword;
-   return updatedkeyword;
+   if (refreshedkeywordData) {
+      const updatedkeyword = await updateKeywordPosition(keyword, refreshedkeywordData, settings);
+      return updatedkeyword;
+   }
+
+   try {
+      if (settings?.scrape_retry) {
+         await retryScrape(keyword.ID);
+      } else {
+         await removeFromRetryQueue(keyword.ID);
+      }
+   } catch (queueError) {
+      console.log('[ERROR] Failed to update retry queue for keyword:', keyword.ID, queueError);
+   }
+
+   return currentkeyword;
 };
 
 /**
