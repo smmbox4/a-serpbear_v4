@@ -49,20 +49,20 @@ jest.mock('../../scrapers/index', () => ({
   default: [],
 }));
 
-describe('PUT /api/keywords error handling', () => {
-  const dbMock = db as unknown as { sync: jest.Mock };
-  const keywordMock = Keyword as unknown as {
-    update: jest.Mock;
-    findAll: jest.Mock;
-    findOne: jest.Mock;
-    bulkCreate: jest.Mock;
-    destroy: jest.Mock;
-  };
-  const verifyUserMock = verifyUser as unknown as jest.Mock;
-  const getAppSettingsMock = getAppSettings as unknown as jest.Mock;
-  const getKeywordsVolumeMock = getKeywordsVolume as unknown as jest.Mock;
-  const updateKeywordsVolumeDataMock = updateKeywordsVolumeData as unknown as jest.Mock;
+const dbMock = db as unknown as { sync: jest.Mock };
+const keywordMock = Keyword as unknown as {
+  update: jest.Mock;
+  findAll: jest.Mock;
+  findOne: jest.Mock;
+  bulkCreate: jest.Mock;
+  destroy: jest.Mock;
+};
+const verifyUserMock = verifyUser as unknown as jest.Mock;
+const getAppSettingsMock = getAppSettings as unknown as jest.Mock;
+const getKeywordsVolumeMock = getKeywordsVolume as unknown as jest.Mock;
+const updateKeywordsVolumeDataMock = updateKeywordsVolumeData as unknown as jest.Mock;
 
+describe('PUT /api/keywords error handling', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     dbMock.sync.mockResolvedValue(undefined);
@@ -164,5 +164,86 @@ describe('PUT /api/keywords error handling', () => {
       details: 'Request body must contain a keywords array' 
     });
     expect(keywordMock.bulkCreate).not.toHaveBeenCalled();
+  });
+});
+
+describe('PUT /api/keywords tags updates', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    dbMock.sync.mockResolvedValue(undefined);
+    verifyUserMock.mockReturnValue('authorized');
+  });
+
+  it('returns refreshed keyword data when tags are updated', async () => {
+    const firstUpdate = jest.fn().mockResolvedValue(undefined);
+    const secondUpdate = jest.fn().mockResolvedValue(undefined);
+
+    keywordMock.findOne
+      .mockResolvedValueOnce({ tags: JSON.stringify(['existing']), update: firstUpdate })
+      .mockResolvedValueOnce({ tags: JSON.stringify([]), update: secondUpdate });
+
+    keywordMock.findAll.mockResolvedValueOnce([
+      {
+        get: () => ({
+          ID: 1,
+          keyword: 'alpha',
+          domain: 'example.com',
+          device: 'desktop',
+          country: 'US',
+          location: '',
+          history: '{}',
+          tags: JSON.stringify(['existing', 'new']),
+          lastResult: '[]',
+          lastUpdateError: 'false',
+          sticky: false,
+          updating: false,
+          mapPackTop3: false,
+        }),
+      },
+      {
+        get: () => ({
+          ID: 2,
+          keyword: 'beta',
+          domain: 'example.com',
+          device: 'desktop',
+          country: 'US',
+          location: '',
+          history: '{}',
+          tags: JSON.stringify(['second']),
+          lastResult: '[]',
+          lastUpdateError: 'false',
+          sticky: false,
+          updating: false,
+          mapPackTop3: false,
+        }),
+      },
+    ]);
+
+    const req = {
+      method: 'PUT',
+      query: { id: '1,2' },
+      body: { tags: { 1: ['new'], 2: ['second'] } },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as NextApiResponse;
+
+    await handler(req, res);
+
+    expect(keywordMock.findOne).toHaveBeenNthCalledWith(1, { where: { ID: 1 } });
+    expect(keywordMock.findOne).toHaveBeenNthCalledWith(2, { where: { ID: 2 } });
+    expect(firstUpdate).toHaveBeenCalledWith({ tags: JSON.stringify(['existing', 'new']) });
+    expect(secondUpdate).toHaveBeenCalledWith({ tags: JSON.stringify(['second']) });
+    expect(keywordMock.findAll).toHaveBeenCalledWith({ where: { ID: { [Op.in]: [1, 2] } } });
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      keywords: expect.arrayContaining([
+        expect.objectContaining({ keyword: 'alpha', tags: ['existing', 'new'] }),
+        expect.objectContaining({ keyword: 'beta', tags: ['second'] }),
+      ]),
+    });
   });
 });
