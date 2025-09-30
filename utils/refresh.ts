@@ -278,6 +278,13 @@ export const updateKeywordPosition = async (keywordRaw:Keyword, updatedKeyword: 
  * @param {SettingsType} settings - The App Settings that contain the Scraper settings
  * @returns {Promise}
  */
+/**
+ * Builds an error result object for a keyword that failed to scrape.
+ * Preserves the keyword's existing state while capturing error details.
+ * @param {KeywordType} keyword - The keyword that failed to scrape
+ * @param {unknown} error - The error that occurred during scraping
+ * @returns {RefreshResult} A refresh result object with error details
+ */
 const buildErrorResult = (keyword: KeywordType, error: unknown): RefreshResult => ({
    ID: keyword.ID,
    keyword: keyword.keyword,

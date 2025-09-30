@@ -6,8 +6,12 @@ const isRequestSecure = (req: NextApiRequest): boolean => {
       if (protoHeader.some((value) => value?.toLowerCase() === 'https')) {
          return true;
       }
-   } else if (typeof protoHeader === 'string' && protoHeader.toLowerCase() === 'https') {
-      return true;
+   } else if (typeof protoHeader === 'string') {
+      // Split on commas to handle comma-delimited values from multi-proxy deployments
+      const protocols = protoHeader.split(',').map((p) => p.trim().toLowerCase());
+      if (protocols.includes('https')) {
+         return true;
+      }
    }
 
    const forwardedProtocol = req.headers['x-forwarded-protocol'];
