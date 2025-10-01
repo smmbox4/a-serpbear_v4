@@ -1,10 +1,28 @@
 import { resolveCountryCode } from '../../utils/scraperHelpers';
+import countries from '../../utils/countries';
 
 describe('resolveCountryCode', () => {
-   it('preserves casing for valid country codes', () => {
-      expect(resolveCountryCode('us')).toBe('us');
+   it('returns uppercase for valid country codes', () => {
+      expect(resolveCountryCode('us')).toBe('US');
       expect(resolveCountryCode('US')).toBe('US');
-      expect(resolveCountryCode('Ca')).toBe('Ca');
+      expect(resolveCountryCode('Ca')).toBe('CA');
+   });
+
+   it('returns uppercase that works with countries object lookup', () => {
+      // Test that lowercase input returns uppercase that can be used with countries object
+      const country = resolveCountryCode('de');
+      expect(country).toBe('DE');
+      expect(countries[country]).toBeDefined();
+      expect(countries[country][0]).toBe('Germany');
+
+      // Test with multiple lowercase inputs
+      const frCountry = resolveCountryCode('fr');
+      expect(frCountry).toBe('FR');
+      expect(countries[frCountry]).toBeDefined();
+      
+      const gbCountry = resolveCountryCode('gb');
+      expect(gbCountry).toBe('GB');
+      expect(countries[gbCountry]).toBeDefined();
    });
 
    it('falls back to default for unsupported codes without allowed list', () => {
