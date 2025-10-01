@@ -40,7 +40,7 @@ const valueSerp:ScraperSettings = {
          params.set('device', 'mobile');
       }
 
-      if (locationParts.length) {
+      if ((city || state) && locationParts.length) {
          params.set('location', locationParts.join(','));
       }
 
