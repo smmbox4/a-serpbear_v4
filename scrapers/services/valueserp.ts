@@ -4,6 +4,14 @@ import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
 import { getGoogleDomain } from '../../utils/googleDomains';
 
+const decodeIfEncoded = (value: string): string => {
+   try {
+      return decodeURIComponent(value);
+   } catch (_error) {
+      return value;
+   }
+};
+
 interface ValueSerpResult {
    title: string,
    link: string,
@@ -22,15 +30,20 @@ const valueSerp:ScraperSettings = {
       const country = resolvedCountry;
       const countryInfo = countries[country] ?? countries.US;
       const countryName = countryInfo?.[0] ?? countries.US[0];
-      const { city, state } = parseLocation(keyword.location, keyword.country);
-      const locationParts = [city, state, countryName].filter(Boolean);
+      const decodedLocation = typeof keyword.location === 'string'
+         ? decodeIfEncoded(keyword.location)
+         : keyword.location;
+      const { city, state } = parseLocation(decodedLocation, keyword.country);
+      const locationParts = [city, state, countryName]
+         .filter((part): part is string => Boolean(part))
+         .map((part) => decodeIfEncoded(part));
       const localeInfo = countryData[country] ?? countryData.US ?? Object.values(countryData)[0];
       const lang = localeInfo?.[2] ?? 'en';
       const googleDomain = getGoogleDomain(country);
       const params = new URLSearchParams();
      
       params.set('api_key', settings.scraping_api ?? '');
-      params.set('q', keyword.keyword);
+      params.set('q', decodeIfEncoded(keyword.keyword));
       params.set('gl', resolvedCountry.toLowerCase());
       params.set('hl', lang);
       params.set('output', 'json');
