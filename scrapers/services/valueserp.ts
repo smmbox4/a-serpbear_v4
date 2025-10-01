@@ -19,11 +19,13 @@ const valueSerp:ScraperSettings = {
    timeoutMs: 35000, // ValueSerp responses often take longer, allow 35 seconds
    scrapeURL: (keyword, settings, countryData) => {
       const resolvedCountry = resolveCountryCode(keyword.country);
-      const country = resolvedCountry.toUpperCase();
-      const countryName = countries[country]?.[0] ?? countries.US[0];
+      const country = resolvedCountry;
+      const countryInfo = countries[country] ?? countries.US;
+      const countryName = countryInfo?.[0] ?? countries.US[0];
       const { city, state } = parseLocation(keyword.location, keyword.country);
       const locationParts = [city, state, countryName].filter(Boolean);
-      const lang = (countryData[country] ?? countryData.US)[2];
+      const localeInfo = countryData[country] ?? countryData.US ?? Object.values(countryData)[0];
+      const lang = localeInfo?.[2] ?? 'en';
       const googleDomain = getGoogleDomain(country);
       const params = new URLSearchParams();
      

@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import loginHandler from '../../pages/api/login';
 import logoutHandler from '../../pages/api/logout';
 import verifyUser from '../../utils/verifyUser';
+import Cookies from 'cookies';
 
 // Mock the logger to prevent console output during tests
 jest.mock('../../utils/logger', () => ({
@@ -42,6 +43,7 @@ jest.mock('../../utils/verifyUser', () => ({
 
 describe('Authentication cookie handling', () => {
    const originalEnv = process.env;
+   const CookiesMock = Cookies as unknown as jest.Mock;
 
    const createResponse = () => {
       const res = {
@@ -58,6 +60,7 @@ describe('Authentication cookie handling', () => {
       (process.env as MutableEnv).SECRET = 'shhh';
       (verifyUser as jest.Mock).mockReturnValue('authorized');
       setCookieMock.mockClear();
+      CookiesMock.mockClear();
    });
 
    afterEach(() => {
@@ -81,20 +84,26 @@ describe('Authentication cookie handling', () => {
 
       const res = createResponse();
 
-   await loginHandler(req as NextApiRequest, res);
+      await loginHandler(req as NextApiRequest, res);
 
-   expect(setCookieMock).toHaveBeenCalledTimes(1);
-   const [, , options] = setCookieMock.mock.calls[0];
-   expect(options).toMatchObject({
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 12 * 60 * 60 * 1000,
+      expect(setCookieMock).toHaveBeenCalledTimes(1);
+      const [, , options] = setCookieMock.mock.calls[0];
+      expect(options).toMatchObject({
+         httpOnly: true,
+         sameSite: 'lax',
+         maxAge: 12 * 60 * 60 * 1000,
+      });
+      expect(options.expires).toEqual(new Date(baseTime.getTime() + (12 * 60 * 60 * 1000)));
+      expect(options.secure).toBe(false);
+
+      const [cookiesReq, cookiesRes, cookiesOptions] = CookiesMock.mock.calls[0];
+      expect(cookiesReq).toBe(req);
+      expect(cookiesRes).toBe(res);
+      expect(cookiesOptions).toEqual({ secure: false });
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
    });
-   expect(options.expires).toEqual(new Date(baseTime.getTime() + (12 * 60 * 60 * 1000)));
-   expect(options.secure).toBe(false);
-   expect(res.status).toHaveBeenCalledWith(200);
-   expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
-  });
 
    it('defaults to a 24 hour session when SESSION_DURATION is missing or invalid', async () => {
       (process.env as MutableEnv).SESSION_DURATION = 'not-a-number';
@@ -165,6 +174,9 @@ describe('Authentication cookie handling', () => {
 
     const [, , loginOptions] = setCookieMock.mock.calls[0];
     expect(loginOptions.secure).toBe(true);
+
+    const loginCookieConstructorCall = CookiesMock.mock.calls.find(([reqArg]) => reqArg === loginReq);
+    expect(loginCookieConstructorCall?.[2]).toEqual({ secure: true });
 
     const logoutReq = {
       method: 'POST',

@@ -17,12 +17,14 @@ const spaceSerp:ScraperSettings = {
    allowsCity: true,
    scrapeURL: (keyword, settings, countryData) => {
       const country = resolveCountryCode(keyword.country);
-      const countryName = countries[country][0];
+      const countryInfo = countries[country] ?? countries.US;
+      const countryName = countryInfo?.[0] ?? countries.US[0];
       const { city, state } = parseLocation(keyword.location, keyword.country);
       const locationParts = [city, state, countryName].filter(Boolean);
       const location = city || state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
       const device = keyword.device === 'mobile' ? '&device=mobile' : '';
-      const lang = countryData[country][2];
+      const localeInfo = countryData[country] ?? countryData.US ?? Object.values(countryData)[0];
+      const lang = localeInfo?.[2] ?? 'en';
       return `https://api.spaceserp.com/google/search?apiKey=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&pageSize=100&gl=${country}&hl=${lang}${location}${device}&resultBlocks=`;
    },
    resultObjectKey: 'organic_results',

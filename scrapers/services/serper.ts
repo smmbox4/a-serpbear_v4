@@ -1,4 +1,5 @@
 import { resolveCountryCode } from '../../utils/scraperHelpers';
+import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
 
 interface SerperResult {
@@ -13,10 +14,20 @@ const serper:ScraperSettings = {
    website: 'serper.dev',
    allowsCity: true,
    scrapeURL: (keyword, settings, countryData) => {
-      const country = resolveCountryCode(keyword.country);
-      const lang = countryData[country][2];
-      console.log('Serper URL :', `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}&num=100&apiKey=${settings.scraping_api}`);
-      return `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}&num=100&apiKey=${settings.scraping_api}`;
+      const countryCode = resolveCountryCode(keyword.country);
+      const fallbackInfo = countryData[countryCode]
+         ?? countryData.US
+         ?? Object.values(countryData)[0];
+      const gl = countryCode;
+      const lang = fallbackInfo?.[2] ?? 'en';
+      const countryName = fallbackInfo?.[0];
+      const { city, state } = parseLocation(keyword.location, keyword.country);
+      const hasCityOrState = Boolean(city || state);
+      const location = hasCityOrState && countryName
+         ? `&location=${encodeURIComponent([city, state, countryName].filter(Boolean).join(','))}`
+         : '';
+
+      return `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${gl}&hl=${lang}&num=100${location}&apiKey=${settings.scraping_api}`;
    },
    resultObjectKey: 'organic',
    supportsMapPack: true,
