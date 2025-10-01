@@ -3,6 +3,10 @@ import AdWordsSettings from '../../components/settings/AdWordsSettings';
 
 const toastMock = jest.fn();
 
+jest.mock('../../utils/client/origin', () => ({
+   getClientOrigin: () => (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'),
+}));
+
 jest.mock('react-hot-toast', () => ({
    __esModule: true,
    default: (...args: unknown[]) => toastMock(...args),

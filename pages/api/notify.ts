@@ -73,7 +73,12 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
             const domains = allDomains.map((el) => el.get({ plain: true }));
             for (const domain of domains) {
                if (domain.scrapeEnabled !== false && domain.notification !== false) {
-                  await sendNotificationEmail(domain, normalizedSettings);
+                  try {
+                     await sendNotificationEmail(domain, normalizedSettings);
+                  } catch (error) {
+                     const domainName = domain?.domain || 'unknown domain';
+                     console.error(`[EMAIL] Failed to send notification for ${domainName}:`, error);
+                  }
                }
             }
          }

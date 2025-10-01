@@ -1,4 +1,4 @@
-import { IdeasfilterKeywords, matchesIdeaCountry, matchesIdeaSearch, matchesIdeaTags, normalizeIdeaTag } from '../../../utils/client/IdeasSortFilter';
+import { IdeasfilterKeywords, IdeasSortKeywords, matchesIdeaCountry, matchesIdeaSearch, matchesIdeaTags, normalizeIdeaTag } from '../../../utils/client/IdeasSortFilter';
 
 describe('Ideas keyword filters', () => {
    const createIdeaKeyword = (overrides: Partial<IdeaKeyword> = {}): IdeaKeyword => ({
@@ -50,5 +50,31 @@ describe('Ideas keyword filters', () => {
 
       expect(filtered).toHaveLength(2);
       expect(filtered.map((item) => item.keyword)).toEqual(['Local SEO Tips', 'SEO Local Tips']);
+   });
+
+   it('IdeasSortKeywords returns a new array and sorts competition descending for high competition', () => {
+      const ideas = [
+         createIdeaKeyword({ keyword: 'Low', competitionIndex: 0.1 }),
+         createIdeaKeyword({ keyword: 'Medium', competitionIndex: 0.4 }),
+         createIdeaKeyword({ keyword: 'High', competitionIndex: 0.8 }),
+      ];
+
+      const sorted = IdeasSortKeywords(ideas, 'competition_desc');
+
+      expect(sorted.map((item) => item.keyword)).toEqual(['High', 'Medium', 'Low']);
+      expect(sorted).not.toBe(ideas);
+      expect(ideas[0].keyword).toBe('Low');
+   });
+
+   it('IdeasSortKeywords sorts ascending for low competition', () => {
+      const ideas = [
+         createIdeaKeyword({ keyword: 'Low', competitionIndex: 0.1 }),
+         createIdeaKeyword({ keyword: 'Medium', competitionIndex: 0.4 }),
+         createIdeaKeyword({ keyword: 'High', competitionIndex: 0.8 }),
+      ];
+
+      const sorted = IdeasSortKeywords(ideas, 'competition_asc');
+
+      expect(sorted.map((item) => item.keyword)).toEqual(['Low', 'Medium', 'High']);
    });
 });

@@ -6,25 +6,20 @@
  */
 
 export const IdeasSortKeywords = (theKeywords:IdeaKeyword[], sortBy:string) : IdeaKeyword[] => {
-   let sortedItems = [];
+   const keywordsToSort = [...theKeywords];
+
    switch (sortBy) {
       case 'vol_asc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.avgMonthlySearches ?? 0) - (b.avgMonthlySearches ?? 0));
-            break;
+         return keywordsToSort.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.avgMonthlySearches ?? 0) - (b.avgMonthlySearches ?? 0));
       case 'vol_desc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.avgMonthlySearches ?? 0) - (a.avgMonthlySearches ?? 0));
-            break;
+         return keywordsToSort.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.avgMonthlySearches ?? 0) - (a.avgMonthlySearches ?? 0));
       case 'competition_asc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.competitionIndex ?? 0) - (b.competitionIndex ?? 0));
-            break;
+         return keywordsToSort.sort((a: IdeaKeyword, b: IdeaKeyword) => (a.competitionIndex ?? 0) - (b.competitionIndex ?? 0));
       case 'competition_desc':
-            sortedItems = theKeywords.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.competitionIndex ?? 0) - (a.competitionIndex ?? 0));
-            break;
+         return keywordsToSort.sort((a: IdeaKeyword, b: IdeaKeyword) => (b.competitionIndex ?? 0) - (a.competitionIndex ?? 0));
       default:
-            return theKeywords;
+         return [...theKeywords];
    }
-
-   return sortedItems;
 };
 
 /**

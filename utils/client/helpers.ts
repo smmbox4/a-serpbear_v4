@@ -1,5 +1,5 @@
  
-export const formattedNum = (num:number) => new Intl.NumberFormat('en-IN', { maximumSignificantDigits: 3 }).format(num);
+export const formattedNum = (num:number) => new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 }).format(num);
 
 export const normaliseBooleanFlag = (value: unknown): boolean => {
    if (typeof value === 'boolean') {

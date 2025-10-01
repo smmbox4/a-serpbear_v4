@@ -1,8 +1,10 @@
 import toast from 'react-hot-toast';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { getClientOrigin } from '../utils/client/origin';
 
 export async function fetchSettings() {
-   const res = await fetch(`${window.location.origin}/api/settings`, { method: 'GET' });
+   const origin = getClientOrigin();
+   const res = await fetch(`${origin}/api/settings`, { method: 'GET' });
    return res.json();
 }
 
@@ -18,7 +20,8 @@ export const useUpdateSettings = (onSuccess:Function|undefined) => {
 
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'PUT', headers, body: JSON.stringify({ settings }) };
-      const res = await fetch(`${window.location.origin}/api/settings`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/settings`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          throw new Error('Bad response from server');
       }
@@ -43,7 +46,8 @@ export function useClearFailedQueue(onSuccess:Function) {
    return useMutation(async () => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'PUT', headers };
-      const res = await fetch(`${window.location.origin}/api/clearfailed`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/clearfailed`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          throw new Error('Bad response from server');
       }
@@ -64,7 +68,8 @@ export function useClearFailedQueue(onSuccess:Function) {
 export const useSendNotifications = () => useMutation(async () => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers };
-      const res = await fetch(`${window.location.origin}/api/notify`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/notify`, fetchOpts);
       let data: unknown = null;
 
       try {

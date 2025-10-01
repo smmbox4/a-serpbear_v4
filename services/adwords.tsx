@@ -1,6 +1,7 @@
 import { NextRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { getClientOrigin } from '../utils/client/origin';
 
 const parseJsonResponse = async (res: Response) => {
    const text = await res.text();
@@ -18,7 +19,8 @@ export function useTestAdwordsIntegration(onSuccess?: Function) {
    return useMutation(async (payload:{developer_token:string, account_id:string}) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ ...payload }) };
-      const res = await fetch(`${window.location.origin}/api/adwords`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/adwords`, fetchOpts);
       const responsePayload = await parseJsonResponse(res);
       if (!res.ok) {
          const errorMessage = typeof responsePayload === 'string'
@@ -44,7 +46,8 @@ export function useTestAdwordsIntegration(onSuccess?: Function) {
 
 export async function fetchAdwordsKeywordIdeas(router: NextRouter, domainSlug: string) {
    // if (!router.query.slug) { throw new Error('Invalid Domain Name'); }
-   const res = await fetch(`${window.location.origin}/api/ideas?domain=${domainSlug}`, { method: 'GET' });
+   const origin = getClientOrigin();
+   const res = await fetch(`${origin}/api/ideas?domain=${domainSlug}`, { method: 'GET' });
    if (res.status >= 400 && res.status < 600) {
       if (res.status === 401) {
          console.log('Unauthorized!!');
@@ -75,8 +78,12 @@ export async function fetchAdwordsKeywordIdeas(router: NextRouter, domainSlug: s
 export function useFetchKeywordIdeas(router: NextRouter, _adwordsConnected = false) {
    const isResearch = router.pathname === '/research';
    const domainSlug = isResearch ? 'research' : (router.query.slug as string);
-   const enabled = !!domainSlug;
-   return useQuery(`keywordIdeas-${domainSlug}`, () => domainSlug && fetchAdwordsKeywordIdeas(router, domainSlug), { enabled, retry: false });
+   const enabled = !!domainSlug && _adwordsConnected;
+   return useQuery(
+      `keywordIdeas-${domainSlug}`,
+      () => domainSlug && fetchAdwordsKeywordIdeas(router, domainSlug),
+      { enabled, retry: false },
+   );
 }
 
 // React hook; should be used within a React component or another hook
@@ -86,7 +93,8 @@ export function useMutateKeywordIdeas(router:NextRouter, onSuccess?: Function) {
    return useMutation(async (data:Record<string, any>) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ ...data }) };
-      const res = await fetch(`${window.location.origin}/api/ideas`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/ideas`, fetchOpts);
       const isOk = typeof res.ok === 'boolean' ? res.ok : (res.status >= 200 && res.status < 300);
 
       let responsePayload: any = null;
@@ -143,7 +151,8 @@ export function useMutateFavKeywordIdeas(router:NextRouter, onSuccess?: Function
    return useMutation(async (payload:Record<string, any>) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'PUT', headers, body: JSON.stringify({ ...payload }) };
-      const res = await fetch(`${window.location.origin}/api/ideas`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/ideas`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {
@@ -184,7 +193,8 @@ export function useMutateKeywordsVolume(onSuccess?: Function) {
    return useMutation(async (data:Record<string, any>) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ ...data }) };
-      const res = await fetch(`${window.location.origin}/api/volume`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/volume`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {

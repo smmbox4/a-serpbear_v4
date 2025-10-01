@@ -9,6 +9,23 @@ import Icon from '../common/Icon';
 import { useUpdateDomainToggles } from '../../services/domains';
 import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
 
+const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
+   notation: 'compact',
+   compactDisplay: 'short',
+});
+
+const formatCompactNumber = (value: number) => {
+   const parts = COMPACT_NUMBER_FORMATTER.formatToParts(value);
+   const unit = parts.find((part) => part.type === 'compact')?.value || '';
+   const numeric = parts
+      .filter((part) => part.type !== 'compact')
+      .map((part) => part.value)
+      .join('')
+      .trim() || '0';
+
+   return { numeric, unit };
+};
+
 type DomainItemProps = {
    domain: DomainType,
    selected: boolean,
@@ -42,6 +59,16 @@ const DomainItem = ({
 
    const isDomainActive = (domain.scrapeEnabled !== false)
       && (domain.notification !== false);
+
+   const renderCompactMetric = (value: number) => {
+      const { numeric, unit } = formatCompactNumber(value);
+      return (
+         <span className='whitespace-nowrap'>
+            {numeric}
+            {unit && <span className='ml-1 text-xs font-normal text-gray-500'>{unit}</span>}
+         </span>
+      );
+   };
 
    const handleDomainStatusToggle = async (nextValue: boolean) => {
       const payload: Partial<DomainSettings> = { scrapeEnabled: nextValue };
@@ -135,11 +162,11 @@ const DomainItem = ({
                   <div className='dom_sc_stats flex flex-1 h-full font-semibold text-2xl p-4 pt-5 rounded border border-[#E9EBFF] text-center'>
                      <div className="flex-1 relative">
                         <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Visits</span>
-                        {new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' }).format(scVisits).replace('T', 'K')}
+                        {renderCompactMetric(scVisits)}
                      </div>
                      <div className="flex-1 relative">
                         <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Impressions</span>
-                        {new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' }).format(scImpressions).replace('T', 'K')}
+                        {renderCompactMetric(scImpressions)}
                      </div>
                      <div className="flex-1 relative">
                         <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Avg position</span>

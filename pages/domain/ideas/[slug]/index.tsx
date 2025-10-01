@@ -17,23 +17,27 @@ import { useFetchKeywordIdeas } from '../../../../services/adwords';
 import KeywordIdeasUpdater from '../../../../components/ideas/KeywordIdeasUpdater';
 import Modal from '../../../../components/common/Modal';
 import Footer from '../../../../components/common/Footer';
+import AddKeywords from '../../../../components/keywords/AddKeywords';
+import { useFetchKeywords } from '../../../../services/keywords';
 
 const DiscoverPage: NextPage = () => {
    const router = useRouter();
    const [showDomainSettings, setShowDomainSettings] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
+   const [showAddKeywords, setShowAddKeywords] = useState(false);
    const [showUpdateModal, setShowUpdateModal] = useState(false);
    const [showFavorites, setShowFavorites] = useState(false);
 
    const { data: appSettings } = useFetchSettings();
+   const appSettingsData: SettingsType = appSettings?.settings || {};
    const { data: domainsData } = useFetchDomains(router, false);
    const adwordsConnected = Boolean(
-      appSettings?.settings?.adwords_refresh_token
-      && appSettings?.settings?.adwords_developer_token
-      && appSettings?.settings?.adwords_account_id,
+      appSettingsData?.adwords_refresh_token
+      && appSettingsData?.adwords_developer_token
+      && appSettingsData?.adwords_account_id,
    );
-   const globalSearchConsoleConnected = Boolean(appSettings?.settings?.search_console_integrated);
+   const globalSearchConsoleConnected = Boolean(appSettingsData?.search_console_integrated);
    const { data: keywordIdeasData, isLoading: isLoadingIdeas, isError: errorLoadingIdeas } = useFetchKeywordIdeas(router, adwordsConnected);
    const theDomains: DomainType[] = (domainsData && domainsData.domains) || [];
    const keywordIdeas:IdeaKeyword[] = keywordIdeasData?.data?.keywords || [];
@@ -54,6 +58,13 @@ const DiscoverPage: NextPage = () => {
    }, [activDomain]);
 
    const searchConsoleConnected = globalSearchConsoleConnected || domainHasScAPI;
+   const { keywordsData: trackedKeywordsData } = useFetchKeywords(router, activDomain?.domain || '');
+   const trackedKeywords: KeywordType[] = (trackedKeywordsData?.keywords || []) as KeywordType[];
+   const { scraper_type = '', available_scapers = [] } = appSettingsData;
+   const activeScraper = useMemo(
+      () => available_scapers.find((scraper) => scraper.value === scraper_type),
+      [scraper_type, available_scapers],
+   );
 
    return (
       <div className="Domain ">
@@ -70,7 +81,7 @@ const DiscoverPage: NextPage = () => {
                   <DomainHeader
                   domain={activDomain}
                   domains={theDomains}
-                  showAddModal={() => console.log('XXXXX')}
+                  showAddModal={setShowAddKeywords}
                   showSettingsModal={setShowDomainSettings}
                   exportCsv={() => exportKeywordIdeas(showFavorites ? favorites : keywordIdeas, activDomain.domain)}
                   showIdeaUpdateModal={() => setShowUpdateModal(true)}
@@ -115,7 +126,16 @@ const DiscoverPage: NextPage = () => {
                />
             </Modal>
          )}
-         <Footer currentVersion={appSettings?.settings?.version ? appSettings.settings.version : ''} />
+         <CSSTransition in={showAddKeywords} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter>
+            <AddKeywords
+               domain={activDomain?.domain || ''}
+               scraperName={activeScraper?.label || ''}
+               keywords={trackedKeywords}
+               allowsCity={!!activeScraper?.allowsCity}
+               closeModal={() => setShowAddKeywords(false)}
+            />
+         </CSSTransition>
+         <Footer currentVersion={appSettingsData?.version ? appSettingsData.version : ''} />
       </div>
    );
 };

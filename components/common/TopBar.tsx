@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import Icon from './Icon';
 import { BrandTitle } from './Branding';
+import { getClientOrigin } from '../../utils/client/origin';
 
 type TopbarProps = {
    showSettings: Function,
@@ -18,7 +19,8 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
    const logoutUser = async () => {
       try {
          const fetchOpts = { method: 'POST', headers: new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' }) };
-         const res = await fetch(`${window.location.origin}/api/logout`, fetchOpts).then((result) => result.json());
+         const origin = getClientOrigin();
+         const res = await fetch(`${origin}/api/logout`, fetchOpts).then((result) => result.json());
          console.log(res);
          if (!res.success) {
             toast(res.error, { icon: '⚠️' });
