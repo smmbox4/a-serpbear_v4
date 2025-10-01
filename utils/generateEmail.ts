@@ -32,32 +32,6 @@ type SCStatsObject = {
 }
 
 /**
- * Generate Human readable Time string.
- * @param {number} date - Keywords to scrape
- * @returns {string}
- */
-const timeSince = (date:number) : string => {
-   const seconds = Math.floor(((new Date().getTime() / 1000) - date));
-   let interval = Math.floor(seconds / 31536000);
-
-   if (interval > 1) return `${interval} years ago`;
-
-   interval = Math.floor(seconds / 2592000);
-   if (interval > 1) return `${interval} months ago`;
-
-   interval = Math.floor(seconds / 86400);
-   if (interval >= 1) return `${interval} days ago`;
-
-   interval = Math.floor(seconds / 3600);
-   if (interval >= 1) return `${interval} hrs ago`;
-
-   interval = Math.floor(seconds / 60);
-   if (interval > 1) return `${interval} mins ago`;
-
-   return `${Math.floor(seconds)} secs ago`;
-};
-
-/**
  * Returns a Keyword's position change value by comparing the current position with previous position.
  * @param {KeywordHistory} history - Keywords to scrape
  * @param {number} position - Keywords to scrape
@@ -166,7 +140,6 @@ const generateEmail = async (domain:DomainType, keywords:KeywordType[], settings
                            <td>${locationText ? `(${locationText})` : ''}</td>
                            <td>${keyword.position}${posChangeIcon}</td>
                            <td>${getBestKeywordPosition(keyword.history)}</td>
-                           <td>${timeSince(new Date(keyword.lastUpdated).getTime() / 1000)}</td>
                         </tr>`;
    });
 
