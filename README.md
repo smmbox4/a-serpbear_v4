@@ -166,18 +166,18 @@ All cron expressions are normalised at runtime—quotes and stray whitespace are
 
 SerpBear integrates with several managed APIs in addition to a "bring your own proxy" option. The table below summarises their capabilities as implemented in the current codebase.
 
-| Provider | Pricing snapshot* | Geo targeting | Map Pack coverage | Organic results per request | API key header |
-| --- | --- | --- | --- | --- | --- |
-| Scraping Robot (`scrapingrobot`) | Free tier (~5,000 req/mo) | Country-level (locale + language) | No – organic listings only | ~10 (no official 100) | Query string `token` (or Authorization header) |
-| ScrapingAnt (`scrapingant`) | Pay-as-you-go | Country-level (select markets) | No – organic listings only | Up to 100 | `x-api-key` |
-| SerpApi (`serpapi`) | Plans from $50/mo | City & state (`allowsCity: true`) | **Yes** – extracts local map pack | Up to 100 via `num` | Query string `api_key` |
-| Serply (`serply`) | Plans from $49/mo | City & region (supported markets) | **Yes** – extracts local map pack | Up to 100 | `X-Api-Key` + `X-Proxy-Location` |
-| SpaceSerp (`spaceserp`) | Lifetime + subscription plans | City-level | **Yes** – extracts local map pack | 10 | Query string `apiKey` |
-| SearchApi (`searchapi`) | Plans from $40/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `Authorization: Bearer` or query `api_key` |
-| ValueSerp (`valueserp`) | Pay-as-you-go (~$2.50 / 1K req) | City-level | **Yes** – extracts local map pack | 10 | Query string `api_key` |
-| Serper (`serper`) | Credit-based ($1.00–$0.30 / 1K) | Country + language, city & neighborhood | No | 10 | `X-API-KEY` (header) or query `apiKey` |
-| HasData (`hasdata`) | Plans from $49/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `x-api-key` |
-| Custom proxy (`proxy`) | Bring your own | Google default locale | No – organic listings only | Up to 100 (HTML parsing) | None |
+| Provider | Working | Pricing snapshot* | Geo targeting | Map Pack coverage | Organic results per request | API key header |
+| --- | --- | --- | --- | --- | --- | --- |
+| Scraping Robot (`scrapingrobot`) | ? | Free tier (~5,000 req/mo) | Country-level (locale + language) | No – organic listings only | 10 | Query string `token` (or Authorization header) |
+| ScrapingAnt (`scrapingant`) | ? | Pay-as-you-go | Country-level (select markets) | No – organic listings only | 10 | `x-api-key` |
+| SerpApi (`serpapi`) | ? | Plans from $50/mo | City & state (`allowsCity: true`) | **Yes** – extracts local map pack | Up to 100 via `num` | Query string `api_key` |
+| Serply (`serply`) | ? | Plans from $49/mo | City & region (supported markets) | **Yes** – extracts local map pack | Up to 100 | `X-Api-Key` + `X-Proxy-Location` |
+| SpaceSerp (`spaceserp`) | ? | Lifetime + subscription plans | City-level | **Yes** – extracts local map pack | 10 | Query string `apiKey` |
+| SearchApi (`searchapi`) | ? | Plans from $40/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `Authorization: Bearer` or query `api_key` |
+| ValueSerp (`valueserp`) | ✅ | Pay-as-you-go (~$2.50 / 1K req) | City-level | **Yes** – extracts local map pack | 10 | Query string `api_key` |
+| Serper (`serper`) | ✅ (organic only) | Credit-based ($1.00–$0.30 / 1K) | Country + language, city & neighborhood | ? – organic listings only | 10 | `X-API-KEY` (header) or query `apiKey` |
+| HasData (`hasdata`) | ? | Plans from $49/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `x-api-key` |
+| Custom proxy (`proxy`) | ? | Bring your own | Google default locale | No – organic listings only | 10 | None |
 
 \*Pricing details are indicative; confirm current pricing with each vendor before purchasing. All managed integrations authenticate with the headers or query parameters shown in the final column, exactly as implemented in the `/scrapers/services` directory.
 
