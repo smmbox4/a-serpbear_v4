@@ -17,6 +17,8 @@
 > **6. Error handling & observability** – Descriptive logs, layered retry logic, and adjustable debug levels make diagnosing scraper hiccups or API failures straightforward.
 >
 > **7. Performance & caching** – Smarter SERP caching, batched keyword refreshes, and fewer redundant calls drive faster crawls while reducing API spend.
+>
+> **8. Google Map Pack:** Now marks keywords that show up in the map pack.
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7e7a0030c3f84c6fb56a3ce6273fbc1d)](https://app.codacy.com/gh/djav1985/v-serpbear/dashboard) ![License](https://img.shields.io/github/license/djav1985/v-serpbear) ![Version](https://img.shields.io/github/package-json/v/djav1985/v-serpbear) ![Docker pulls](https://img.shields.io/docker/pulls/vontainment/v-serpbear)
 
@@ -122,14 +124,6 @@ All runtime behaviour is controlled through environment variables. The tables be
 | `NEXT_PUBLIC_WHITE_LABEL` | `false` | Optional | Enables white-label branding. When `true`, the platform name and logo come from the variables below. |
 | `WHITE_LABEL_LOGO_FILE` | `branding-logo.png` | Optional | File name under `/app/data` for the custom logo. Use a 96×96px PNG, SVG, or WEBP asset for best results. |
 | `NEXT_PUBLIC_PLATFORM_NAME` | `SerpBear` | Optional | Display name for the application and notification emails in white-label mode. |
-| `SCREENSHOT_API` | — | ✅ | API key from your screenshot provider (e.g., ScreenshotOne). Without it the app refuses to queue screenshot jobs and surfaces configuration errors. |
-
-### Scraping providers & keyword gathering
-
-| Variable | Default | Required | Description |
-| --- | --- | --- | --- |
-| `SCRAPER_TYPE` | `scrapingrobot` | ✅ | Identifier of the active SERP provider (`scrapingrobot`, `scrapingant`, `serpapi`, `serply`, `spaceserp`, `searchapi`, `valueserp`, `serper`, `hasdata`, or `proxy`). |
-| `SCRAPING_API` | — | ✅ for managed scrapers | API key or token required by the selected provider. Not needed when using the `proxy` option with self-managed IPs. |
 
 ### Google integrations
 
@@ -166,19 +160,6 @@ SerpBear also accepts an optional **SMTP TLS certificate hostname** override fro
 
 All cron expressions are normalised at runtime—quotes and stray whitespace are stripped automatically before scheduling jobs.
 
-### Database, security, and diagnostics
-
-| Variable | Default | Required | Description |
-| --- | --- | --- | --- |
-| `DATABASE_URL` | `sqlite:./data/database.sqlite` | Optional | Override to connect to an external database supported by Sequelize. |
-| `NODE_ENV` | — | Optional | Set to `production` in production deployments to enable framework optimisations. |
-| `FORCE_HTTPS` | — | Optional | When `true`, HTTP requests are redirected to HTTPS. Useful behind TLS-terminating proxies. |
-| `SECURE_COOKIES` | — | Optional | Forces cookies to use the `Secure` flag. Enable in HTTPS environments. |
-| `LOG_LEVEL` | `info` | Optional | Controls server-side log verbosity (`error`, `warn`, `info`, `debug`). |
-| `LOG_SUCCESS_EVENTS` | `true` | Optional | When set to `false`, suppresses INFO-level success logs for authentication and API middleware while leaving warnings/errors untouched. |
-| `SENTRY_DSN` | — | Optional | Enable Sentry monitoring by supplying a DSN. |
-| `NEXT_REMOVE_CONSOLE` | — | Optional | Strip non-error `console.*` statements from the production client bundle when set to `true`. |
-
 ---
 
 ## Supported SERP data providers
@@ -191,10 +172,10 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 | ScrapingAnt (`scrapingant`) | Pay-as-you-go | Country-level (select markets) | No – organic listings only | Up to 100 | `x-api-key` |
 | SerpApi (`serpapi`) | Plans from $50/mo | City & state (`allowsCity: true`) | **Yes** – extracts local map pack | Up to 100 via `num` | Query string `api_key` |
 | Serply (`serply`) | Plans from $49/mo | City & region (supported markets) | **Yes** – extracts local map pack | Up to 100 | `X-Api-Key` + `X-Proxy-Location` |
-| SpaceSerp (`spaceserp`) | Lifetime + subscription plans | City-level | **Yes** – extracts local map pack | 1–100 via `pageSize` | Query string `apiKey` |
+| SpaceSerp (`spaceserp`) | Lifetime + subscription plans | City-level | **Yes** – extracts local map pack | 10 | Query string `apiKey` |
 | SearchApi (`searchapi`) | Plans from $40/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `Authorization: Bearer` or query `api_key` |
-| ValueSerp (`valueserp`) | Pay-as-you-go (~$2.50 / 1K req) | City-level | **Yes** – extracts local map pack | 10 per page (20 for local) | Query string `api_key` |
-| Serper (`serper`) | Credit-based ($1.00–$0.30 / 1K) | Country + language, city & neighborhood | **Yes** – extracts local map pack | ~10 (unspecified) | `X-API-KEY` (header) or query `apiKey` |
+| ValueSerp (`valueserp`) | Pay-as-you-go (~$2.50 / 1K req) | City-level | **Yes** – extracts local map pack | 10 | Query string `api_key` |
+| Serper (`serper`) | Credit-based ($1.00–$0.30 / 1K) | Country + language, city & neighborhood | **Yes** – extracts local map pack | 10 | `X-API-KEY` (header) or query `apiKey` |
 | HasData (`hasdata`) | Plans from $49/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `x-api-key` |
 | Custom proxy (`proxy`) | Bring your own | Google default locale | No – organic listings only | Up to 100 (HTML parsing) | None |
 
@@ -243,19 +224,6 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 
 ---
 
-## REST API overview
-
-Every feature available in the UI is backed by authenticated API routes. Authenticate with the `APIKEY` value and interact with endpoints such as:
-
-- `GET /api/domain` – list tracked domains and their configuration.
-- `POST /api/keyword` – add keywords programmatically.
-- `POST /api/refresh` – queue immediate re-scrapes for selected keywords.
-- `GET /api/settings` – fetch the current scraper, cron, and notification settings.
-
-Refer to the [official documentation](https://docs.serpbear.com/) for the complete endpoint catalogue and payload schemas.
-
----
-
 ## Development workflow
 
 - **Node.js version:** Use `nvm use` to adopt the `20.18.1` runtime pinned in `.nvmrc`.
@@ -278,23 +246,6 @@ Refer to the [official documentation](https://docs.serpbear.com/) for the comple
 
 ---
 
-## Troubleshooting & tips
-
-- **Keyword rows stuck on the loading spinner:** The API and dashboard now normalise legacy `'0'`/`'false'` flags returned by SQLite/MySQL responses, so refreshed keywords flip their `updating` state back to `false` and the position column stops rendering spinners once scraping finishes. Trigger another keyword refresh after deploying to clear any previously stuck rows.
-- **Bulk refresh cleanup when scrapes fail:** Sequential refresh jobs now force the database to clear `updating` even when the Sequelize instance still shows the old value from a bulk flip, so failed scrapes no longer leave keywords spinning indefinitely.
-- **Missing screenshots:** If dashboard thumbnails show the fallback favicon, confirm `SCREENSHOT_API` is set and `NEXT_PUBLIC_SCREENSHOTS=true`.
-- **Screenshot refresh skips:** Manual thumbnail updates now always hit the screenshot service with the stored host, so investigate provider logs if a toast reports a failure instead of assuming the button silently ignored the request.
-- **Corrupted screenshot cache:** If thumbnail reloads stop responding after local `domainThumbs` storage is edited or damaged, the app now clears the cache automatically and fetches a fresh image the next time you open the modal.
-- **Empty domain slugs:** The dashboard now always requests `/api/domain`, even for blank slugs, so the API returns descriptive validation errors instead of the client throwing immediately.
-- **Domain scraping toggle not persisting:** The custom SQLite dialect now coerces boolean bindings to integers so `/api/domains` updates keep `scrapeEnabled` and the legacy `notification` flag aligned.
-- **Scraper misconfiguration:** 500-series API responses often include descriptive JSON (with a `details` field) – surface these logs when opening support tickets.
-- **Redirected SERP links:** The scraper now normalises Google results that route through `/url`, `/interstitial`, or related wrappers, so stored ranks always point at the destination domain. If you capture new HTML fixtures, keep those redirect paths intact so tests continue exercising the normalisation logic.
-- **Cron timing:** Adjust cron expressions and `CRON_TIMEZONE` to align with your reporting cadence; expressions are normalised automatically, so quoting them in `.env` files is safe.
-- **Database errors after upgrades:** For local Node.js development, run `npm run db:migrate` to apply schema changes. Docker deployments handle this automatically. The app logs detailed SQL errors if migrations fail.
-- **Image placeholders in this README:** GitHub caches external images aggressively. When an illustration fails to load, rely on the accompanying description—the UI in your deployment will match those visuals once assets are served locally.
-
----
-
 ## Contributing
 
 We welcome community contributions! Please:
@@ -311,4 +262,3 @@ Check [`AGENTS.md`](./AGENTS.md) for repository-wide contribution guidelines.
 ## License
 
 SerpBear is distributed under the [MIT License](./LICENSE). Commercial support and custom integrations are available—open a discussion if you need help deploying the platform at scale.
-
