@@ -59,12 +59,22 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
          return res.status(400).json({ success: false, error: 'SMTP has not been setup properly!' });
       }
 
+      let successCount = 0;
+      let attemptCount = 0;
+
       if (reqDomain) {
          const theDomain = await Domain.findOne({ where: { domain: reqDomain } });
          if (theDomain) {
             const domainPlain = theDomain.get({ plain: true }) as DomainType;
             if (domainPlain.scrapeEnabled !== false && domainPlain.notification !== false) {
-               await sendNotificationEmail(domainPlain, normalizedSettings);
+               attemptCount++;
+               try {
+                  await sendNotificationEmail(domainPlain, normalizedSettings);
+                  successCount++;
+               } catch (error) {
+                  const domainName = domainPlain?.domain || 'unknown domain';
+                  console.error(`[EMAIL] Failed to send notification for ${domainName}:`, error);
+               }
             }
          }
       } else {
@@ -73,8 +83,10 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
             const domains = allDomains.map((el) => el.get({ plain: true }));
             for (const domain of domains) {
                if (domain.scrapeEnabled !== false && domain.notification !== false) {
+                  attemptCount++;
                   try {
                      await sendNotificationEmail(domain, normalizedSettings);
+                     successCount++;
                   } catch (error) {
                      const domainName = domain?.domain || 'unknown domain';
                      console.error(`[EMAIL] Failed to send notification for ${domainName}:`, error);
@@ -82,6 +94,11 @@ const notify = async (req: NextApiRequest, res: NextApiResponse<NotifyResponse>)
                }
             }
          }
+      }
+
+      // If we attempted to send emails but none succeeded, return an error
+      if (attemptCount > 0 && successCount === 0) {
+         return res.status(500).json({ success: false, error: 'All notification emails failed to send. Please check your SMTP configuration.' });
       }
 
       return res.status(200).json({ success: true, error: null });
