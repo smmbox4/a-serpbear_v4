@@ -38,6 +38,8 @@
 
 SerpBear is a full-stack Next.js application that tracks where your pages rank on Google, enriches those rankings with Google Search Console and Google Ads data, and keeps stakeholders informed with scheduled email digests. The project ships as a production-ready Docker image, a conventional Node.js application, and a programmable REST API so you can integrate SERP intelligence wherever you need it.
 
+I HAVE NOT CHECKED ALL SCRAERS YET! PLEASE LET ME KNOW YOUR EXPERIENCE?
+
 ### Core capabilities
 
 - **Unlimited domains & keywords:** Organise an unrestricted number of tracked keywords across multiple sites.
