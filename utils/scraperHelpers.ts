@@ -30,8 +30,8 @@ export const resolveCountryCode = (
    const countryIsValid = Boolean(normalizedCountry && isSupportedCountry(normalizedCountry));
 
    if (countryIsValid && (!normalizedAllowed || normalizedAllowed.has(normalizedCountry))) {
-      // Preserve original casing when the country code is valid
-      return country;
+      // Return uppercase country code for consistent lookup in countries object
+      return normalizedCountry;
    }
 
    if (normalizedAllowed?.has(safeFallback)) {
