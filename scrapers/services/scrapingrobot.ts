@@ -7,8 +7,9 @@ const scrapingRobot:ScraperSettings = {
    supportsMapPack: false,
    scrapeURL: (keyword, settings, countryData) => {
       const country = resolveCountryCode(keyword.country);
+      const localeInfo = countryData[country] ?? countryData.US ?? Object.values(countryData)[0];
       const device = keyword.device === 'mobile' ? '&mobile=true' : '';
-      const lang = countryData[country][2];
+      const lang = localeInfo?.[2] ?? 'en';
       const googleUrl = new URL('https://www.google.com/search');
       googleUrl.searchParams.set('num', '100');
       googleUrl.searchParams.set('hl', lang);

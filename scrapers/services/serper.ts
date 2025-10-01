@@ -15,11 +15,10 @@ const serper:ScraperSettings = {
    allowsCity: true,
    scrapeURL: (keyword, settings, countryData) => {
       const countryCode = resolveCountryCode(keyword.country);
-      const normalizedCountry = countryCode.toUpperCase();
-      const gl = countryCode || normalizedCountry;
-      const fallbackInfo = countryData[normalizedCountry]
+      const fallbackInfo = countryData[countryCode]
          ?? countryData.US
          ?? Object.values(countryData)[0];
+      const gl = countryCode;
       const lang = fallbackInfo?.[2] ?? 'en';
       const countryName = fallbackInfo?.[0];
       const { city, state } = parseLocation(keyword.location, keyword.country);
