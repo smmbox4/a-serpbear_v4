@@ -88,7 +88,9 @@ export const getScraperClient = (
       axiosConfig.headers = headers;
       
       // Enhanced proxy configuration with timeout and error handling
-      axiosConfig.timeout = Math.min(30000, 15000 + retryAttempt * 5000); // Adjust timeout slightly on retries
+      // Use scraper-specific timeout if provided, otherwise use default with retry adjustment
+      const defaultTimeout = Math.min(30000, 15000 + retryAttempt * 5000);
+      axiosConfig.timeout = scraper?.timeoutMs || defaultTimeout;
       axiosConfig.maxRedirects = 3;
       
       const proxies = settings.proxy.split(/\r?\n|\r|\n/g).filter(proxy => proxy.trim());
@@ -107,7 +109,9 @@ export const getScraperClient = (
    } else {
       // Enhanced fetch configuration with timeout and better error handling
       const controller = new AbortController();
-      const timeoutMs = Math.min(30000, 15000 + retryAttempt * 5000);
+      // Use scraper-specific timeout if provided, otherwise use default with retry adjustment
+      const defaultTimeout = Math.min(30000, 15000 + retryAttempt * 5000);
+      const timeoutMs = scraper?.timeoutMs || defaultTimeout;
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
       client = fetch(apiURL, {
@@ -133,8 +137,15 @@ const hasScraperError = (res: any): boolean => res && (
  * Builds a comprehensive error object from the scraper response
  */
 const buildScraperError = (res: any) => {
-   const statusCode = res.status || 'Unknown Status';
-   const errorInfo = res.request_info?.error || res.error_message || res.detail || res.error || '';
+   // Try to get status code from multiple sources
+   const statusCode = res.status || res.request_info?.status_code || 'Unknown Status';
+   // Try to get error message from multiple sources, including request_info.message
+   const errorInfo = res.request_info?.error 
+      || res.error_message 
+      || res.detail 
+      || res.error 
+      || res.request_info?.message 
+      || '';
    const errorBody = res.body || res.message || '';
 
    return {
