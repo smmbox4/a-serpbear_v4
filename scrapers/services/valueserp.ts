@@ -21,10 +21,27 @@ const valueSerp:ScraperSettings = {
       const countryName = countries[country][0];
       const { city, state } = parseLocation(keyword.location, keyword.country);
       const locationParts = [city, state, countryName].filter(Boolean);
-      const location = city || state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
-      const device = keyword.device === 'mobile' ? '&device=mobile' : '';
       const lang = countryData[country][2];
-      return `https://api.valueserp.com/search?api_key=${settings.scraping_api}&q=${encodeURIComponent(keyword.keyword)}&gl=${country}&hl=${lang}${device}${location}&output=json&include_answer_box=false&include_advertiser_info=false`;
+
+      const params = new URLSearchParams();
+      params.set('api_key', settings.scraping_api ?? '');
+      params.set('q', keyword.keyword);
+      params.set('gl', country.toLowerCase());
+      params.set('hl', lang);
+      params.set('output', 'json');
+      params.set('include_answer_box', 'false');
+      params.set('include_advertiser_info', 'false');
+      params.set('google_domain', 'google.com');
+
+      if (keyword.device === 'mobile') {
+         params.set('device', 'mobile');
+      }
+
+      if (locationParts.length) {
+         params.set('location', locationParts.join(','));
+      }
+
+      return `https://api.valueserp.com/search?${params.toString()}`;
    },
    resultObjectKey: 'organic_results',
    supportsMapPack: true,
