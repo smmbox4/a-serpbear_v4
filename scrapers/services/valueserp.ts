@@ -25,8 +25,8 @@ const valueSerp:ScraperSettings = {
       const locationParts = [city, state, countryName].filter(Boolean);
       const lang = (countryData[country] ?? countryData.US)[2];
       const googleDomain = getGoogleDomain(country);
-
       const params = new URLSearchParams();
+     
       params.set('api_key', settings.scraping_api ?? '');
       params.set('q', keyword.keyword);
       params.set('gl', resolvedCountry.toLowerCase());
