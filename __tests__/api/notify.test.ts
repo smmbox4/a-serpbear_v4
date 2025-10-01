@@ -334,6 +334,65 @@ describe('/api/notify - authentication', () => {
     expect(sendMailMock).toHaveBeenCalled();
   });
 
+  it('returns 500 when single domain notification fails', async () => {
+    (verifyUser as jest.Mock).mockReturnValue('authorized');
+
+    req.query = { domain: 'example.com' };
+
+    const domainRecord = {
+      get: () => ({
+        domain: 'example.com',
+        notification: true,
+        scrapeEnabled: true,
+        notification_emails: 'custom@example.com',
+      }),
+    };
+
+    const keywordRecord = {
+      get: () => ({
+        keyword: 'rank tracker',
+        history: '{}',
+        tags: '[]',
+        lastResult: '[]',
+        lastUpdateError: 'false',
+        position: 5,
+        country: 'US',
+        device: 'desktop',
+        location: 'US',
+        lastUpdated: new Date().toISOString(),
+      }),
+    };
+
+    (Domain.findOne as jest.Mock).mockResolvedValue(domainRecord);
+    (Keyword.findAll as jest.Mock).mockResolvedValue([keywordRecord]);
+    (parseKeywords as jest.Mock).mockReturnValue([
+      {
+        keyword: 'rank tracker',
+        history: {},
+        tags: [],
+        lastResult: [],
+        lastUpdateError: false,
+        position: 5,
+        country: 'US',
+        device: 'desktop',
+        location: 'US',
+        lastUpdated: new Date().toISOString(),
+      },
+    ]);
+
+    sendMailMock.mockRejectedValueOnce(new Error('SMTP connect failed'));
+
+    await handler(req as NextApiRequest, res as NextApiResponse);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ 
+      success: false, 
+      error: 'All notification emails failed to send. Please check your SMTP configuration.' 
+    });
+    expect(sendMailMock).toHaveBeenCalled();
+    expect(Domain.findOne).toHaveBeenCalledWith({ where: { domain: 'example.com' } });
+  });
+
   it('returns 200 with partial success when some notifications succeed and others fail', async () => {
     (verifyUser as jest.Mock).mockReturnValue('authorized');
 
