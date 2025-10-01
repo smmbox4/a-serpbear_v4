@@ -292,6 +292,9 @@
          padding: 14px 18px 12px;
          border-bottom: 1px solid #e7e9f5;
          text-align: left;
+         background: #dee3ff;
+         color: #344dd7;
+         border-radius: 4px 4px 0 0;
       }
       .mini_stats__badge{
          display: inline-block;
@@ -308,7 +311,7 @@
       .mini_stats__title{
          font-size: 13px;
          font-weight: 600;
-         color: #1e293b;
+         color: #344dd7;
       }
       .mini_stats__row td{
          padding: 18px 14px;
@@ -351,9 +354,17 @@
       }
       .keyword_table:not(.keyword_table--sc) th:nth-child(3),
       .keyword_table:not(.keyword_table--sc) th:nth-child(4),
+      .keyword_table:not(.keyword_table--sc) th:nth-child(5),
       .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(3),
-      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(4){
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(4),
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(5){
          text-align: center;
+      }
+      .keyword_table:not(.keyword_table--sc) th:nth-child(4),
+      .keyword_table:not(.keyword_table--sc) th:nth-child(5),
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(4),
+      .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(5){
+         width: 90px;
       }
       .keyword_table:not(.keyword_table--sc) .keyword td:nth-child(4){
          font-size: 12px;
@@ -567,7 +578,6 @@
                                  <th>Location</th>
                                  <th>Position</th>
                                  <th>Best</th>
-                                 <th>Updated</th>
                                </tr>
                                {{keywordsTable}}
                            </tbody>
