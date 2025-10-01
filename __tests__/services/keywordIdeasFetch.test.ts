@@ -13,7 +13,7 @@ describe('useFetchKeywordIdeas', () => {
       useQueryMock.mockReturnValue({ data: null });
    });
 
-   it('enables the query when a slug is present even if Ads is disconnected', () => {
+   it('disables the query when Ads is disconnected', () => {
       const router = { pathname: '/domain/ideas/example', query: { slug: 'example' } } as any;
 
       useFetchKeywordIdeas(router, false);
@@ -21,17 +21,29 @@ describe('useFetchKeywordIdeas', () => {
       expect(useQueryMock).toHaveBeenCalledWith(
          'keywordIdeas-example',
          expect.any(Function),
-         expect.objectContaining({ enabled: true, retry: false }),
+         expect.objectContaining({ enabled: false, retry: false }),
       );
    });
 
-   it('enables the research query based on fixed slug', () => {
+   it('disables the research query when Ads is disconnected', () => {
       const router = { pathname: '/research', query: {} } as any;
 
       useFetchKeywordIdeas(router, false);
 
       expect(useQueryMock).toHaveBeenCalledWith(
          'keywordIdeas-research',
+         expect.any(Function),
+         expect.objectContaining({ enabled: false, retry: false }),
+      );
+   });
+
+   it('enables keyword ideas when Ads is connected', () => {
+      const router = { pathname: '/domain/ideas/example', query: { slug: 'example' } } as any;
+
+      useFetchKeywordIdeas(router, true);
+
+      expect(useQueryMock).toHaveBeenCalledWith(
+         'keywordIdeas-example',
          expect.any(Function),
          expect.objectContaining({ enabled: true, retry: false }),
       );

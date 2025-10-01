@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useMutateKeywordsVolume, useTestAdwordsIntegration } from '../../services/adwords';
+import { getClientOrigin } from '../../utils/client/origin';
 import Icon from '../common/Icon';
 import SecretField from '../common/SecretField';
 
@@ -35,8 +36,10 @@ const AdWordsSettings = ({ settings, settingsError, updateSettings, performUpdat
    useEffect(() => {
       if (typeof window === 'undefined') { return undefined; }
 
+      const expectedOrigin = getClientOrigin();
+
       const handleIntegrationMessage = (event: MessageEvent) => {
-         if (event.origin !== window.location.origin) { return; }
+         if (event.origin !== expectedOrigin) { return; }
          const data = event.data as { type?: string; status?: string; message?: string };
          if (!data || data.type !== 'adwordsIntegrated') { return; }
 
@@ -96,7 +99,8 @@ const AdWordsSettings = ({ settings, settingsError, updateSettings, performUpdat
          if (performUpdate) {
             await performUpdate();
          }
-        const url = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?access_type=offline&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fadwords&response_type=code&client_id=${adwords_client_id}&redirect_uri=${`${encodeURIComponent(window.location.origin)}/api/adwords`}&service=lso&o2v=2&theme=glif&flowName=GeneralOAuthFlow`;
+         const origin = getClientOrigin();
+         const url = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?access_type=offline&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fadwords&response_type=code&client_id=${adwords_client_id}&redirect_uri=${`${encodeURIComponent(origin)}/api/adwords`}&service=lso&o2v=2&theme=glif&flowName=GeneralOAuthFlow`;
          window.open(url, '_blank');
          closeSettings();
       }

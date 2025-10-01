@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { BrandTitle } from '../../components/common/Branding';
 import { getBranding } from '../../utils/branding';
+import { getClientOrigin } from '../../utils/client/origin';
 
 type LoginError = {
    type: string,
@@ -36,7 +37,8 @@ const Login: NextPage = () => {
          try {
             const header = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
             const fetchOpts = { method: 'POST', headers: header, body: JSON.stringify({ username, password }) };
-            const fetchRoute = `${window.location.origin}/api/login`;
+            const origin = getClientOrigin();
+            const fetchRoute = `${origin}/api/login`;
             const res = await fetch(fetchRoute, fetchOpts).then((result) => result.json());
             // console.log(res);
             if (!res.success) {

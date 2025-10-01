@@ -2,6 +2,7 @@ import toast from 'react-hot-toast';
 import { NextRouter } from 'next/router';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { normaliseBooleanFlag } from '../utils/client/helpers';
+import { getClientOrigin } from '../utils/client/origin';
 
 type KeywordsResponse = {
    keywords?: KeywordType[]
@@ -17,7 +18,8 @@ const normaliseKeywordFlags = (keyword: any): KeywordType => ({
 
 export const fetchKeywords = async (router: NextRouter, domain: string) => {
    if (!domain) { return { keywords: [] }; }
-   const res = await fetch(`${window.location.origin}/api/keywords?domain=${domain}`, { method: 'GET' });
+   const origin = getClientOrigin();
+   const res = await fetch(`${origin}/api/keywords?domain=${domain}`, { method: 'GET' });
    if (res.status >= 400 && res.status < 600) {
       if (res.status === 401) {
          router.push('/login');
@@ -86,7 +88,8 @@ export function useAddKeywords(onSuccess:Function) {
    return useMutation(async (keywords:KeywordAddPayload[]) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ keywords }) };
-      const res = await fetch(`${window.location.origin}/api/keywords`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/keywords`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {
@@ -125,7 +128,8 @@ export function useDeleteKeywords(onSuccess:Function) {
    const queryClient = useQueryClient();
    return useMutation(async (keywordIDs:number[]) => {
       const keywordIds = keywordIDs.join(',');
-      const res = await fetch(`${window.location.origin}/api/keywords?id=${keywordIds}`, { method: 'DELETE' });
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/keywords?id=${keywordIds}`, { method: 'DELETE' });
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {
@@ -165,7 +169,8 @@ export function useFavKeywords(onSuccess:Function) {
    return useMutation(async ({ keywordID, sticky }:{keywordID:number, sticky:boolean}) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'PUT', headers, body: JSON.stringify({ sticky }) };
-      const res = await fetch(`${window.location.origin}/api/keywords?id=${keywordID}`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/keywords?id=${keywordID}`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {
@@ -206,7 +211,8 @@ export function useUpdateKeywordTags(onSuccess:Function) {
       const keywordIds = Object.keys(tags).join(',');
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'PUT', headers, body: JSON.stringify({ tags }) };
-      const res = await fetch(`${window.location.origin}/api/keywords?id=${keywordIds}`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/keywords?id=${keywordIds}`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {
@@ -245,8 +251,9 @@ export function useRefreshKeywords(onSuccess:Function) {
    return useMutation(async ({ ids = [], domain = '' } : {ids?: number[], domain?: string}) => {
       const keywordIds = ids.join(',');
       console.log(keywordIds);
-      const query = ids.length === 0 && domain ? `?id=all&domain=${domain}` : `?id=${keywordIds}`;
-      const res = await fetch(`${window.location.origin}/api/refresh${query}`, { method: 'POST' });
+      const origin = getClientOrigin();
+      const query = ids.length === 0 && domain ? `?id=all&domain=${encodeURIComponent(domain)}` : `?id=${keywordIds}`;
+      const res = await fetch(`${origin}/api/refresh${query}`, { method: 'POST' });
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {
@@ -285,7 +292,8 @@ export function useRefreshKeywords(onSuccess:Function) {
 export function useFetchSingleKeyword(keywordID:number) {
    return useQuery(['keyword', keywordID], async () => {
       try {
-         const fetchURL = `${window.location.origin}/api/keyword?id=${keywordID}`;
+         const origin = getClientOrigin();
+         const fetchURL = `${origin}/api/keyword?id=${keywordID}`;
          const res = await fetch(fetchURL, { method: 'GET' });
          if (res.status >= 400 && res.status < 600) {
             let errorMessage = 'Bad response from server';
@@ -328,7 +336,13 @@ export function useFetchSingleKeyword(keywordID:number) {
 
 export async function fetchSearchResults(router:NextRouter, keywordData: Record<string, string>) {
    const { keyword, country, device } = keywordData;
-   const res = await fetch(`${window.location.origin}/api/refresh?keyword=${keyword}&country=${country}&device=${device}`, { method: 'GET' });
+   const origin = getClientOrigin();
+   const params = new URLSearchParams();
+   if (typeof keyword === 'string') { params.set('keyword', keyword); }
+   if (typeof country === 'string') { params.set('country', country); }
+   if (typeof device === 'string') { params.set('device', device); }
+   const queryString = params.toString();
+   const res = await fetch(`${origin}/api/refresh${queryString ? `?${queryString}` : ''}`, { method: 'GET' });
    if (res.status >= 400 && res.status < 600) {
       if (res.status === 401) {
          console.log('Unauthorized!!');

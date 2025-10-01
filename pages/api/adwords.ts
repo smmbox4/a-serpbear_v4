@@ -148,29 +148,44 @@ const validateAdwordsIntegration = async (req: NextApiRequest, res: NextApiRespo
       return res.status(400).json({ valid: false, error: 'Please Provide the Google Ads Developer Token and Test Account ID' });
    }
    try {
-      // Save the Adwords Developer Token & Google Ads Test Account ID in App Settings
       const settingsRaw = await readFile(`${process.cwd()}/data/settings.json`, { encoding: 'utf-8' });
       const settings: SettingsType = settingsRaw ? JSON.parse(settingsRaw) : {};
       const cryptr = new Cryptr(process.env.SECRET as string);
-      const adwords_developer_token = cryptr.encrypt(developer_token.trim());
-      const adwords_account_id = cryptr.encrypt(account_id.trim());
-      const securedSettings = { ...settings, adwords_developer_token, adwords_account_id };
+      const trimmedDeveloperToken = developer_token.trim();
+      const trimmedAccountId = account_id.trim();
+      const encryptedDeveloperToken = cryptr.encrypt(trimmedDeveloperToken);
+      const encryptedAccountId = cryptr.encrypt(trimmedAccountId);
+
+      const adwordsCreds = await getAdwordsCredentials();
+      if (!adwordsCreds || !adwordsCreds.client_id || !adwordsCreds.client_secret || !adwordsCreds.refresh_token) {
+         throw new Error('Missing Google Ads OAuth credentials.');
+      }
+
+      const testCredentials: AdwordsCredentials = {
+         ...adwordsCreds,
+         developer_token: trimmedDeveloperToken,
+         account_id: trimmedAccountId,
+      };
+
+      const keywords = await getAdwordsKeywordIdeas(
+         testCredentials,
+         { country: 'US', language: '1000', keywords: ['compress'], seedType: 'custom' },
+         true,
+      );
+
+      if (!keywords || !Array.isArray(keywords)) {
+         return res.status(400).json({ valid: false, error: errMsg });
+      }
+
+      const securedSettings = {
+         ...settings,
+         adwords_developer_token: encryptedDeveloperToken,
+         adwords_account_id: encryptedAccountId,
+      };
+
       await writeFile(`${process.cwd()}/data/settings.json`, JSON.stringify(securedSettings), { encoding: 'utf-8' });
 
-      // Make a test Request to Google Ads
-      const adwordsCreds = await getAdwordsCredentials();
-      const { client_id, client_secret, refresh_token } = adwordsCreds || {};
-      if (adwordsCreds && client_id && client_secret && developer_token && account_id && refresh_token) {
-         const keywords = await getAdwordsKeywordIdeas(
-            adwordsCreds,
-            { country: 'US', language: '1000', keywords: ['compress'], seedType: 'custom' },
-             true,
-         );
-         if (keywords && Array.isArray(keywords)) {
-            return res.status(200).json({ valid: true });
-         }
-      }
-      return res.status(400).json({ valid: false, error: errMsg });
+      return res.status(200).json({ valid: true });
    } catch (error) {
       console.log('[ERROR] Validating Google Ads Integration: ', error);
       return res.status(400).json({ valid: false, error: errMsg });

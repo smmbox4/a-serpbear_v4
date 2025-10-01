@@ -5,10 +5,16 @@
 
 import toast from 'react-hot-toast';
 
+const mockOrigin = 'http://localhost:3000';
+
+jest.mock('../../utils/client/origin', () => ({
+   getClientOrigin: () => mockOrigin,
+}));
+
 // Mock window.location.origin
 Object.defineProperty(window, 'location', {
    value: {
-      origin: 'http://localhost:3000'
+      origin: mockOrigin
    },
    writable: true
 });

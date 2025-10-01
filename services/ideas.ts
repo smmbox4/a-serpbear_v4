@@ -1,5 +1,6 @@
 import toast from 'react-hot-toast';
 import { useMutation } from 'react-query';
+import { getClientOrigin } from '../utils/client/origin';
 
 type EmailIdeaKeywordPayload = {
    keyword: string;
@@ -42,7 +43,8 @@ const parseErrorMessage = async (res: Response): Promise<string> => {
 export function useEmailKeywordIdeas(onSuccess?: () => void) {
    return useMutation(async (payload: EmailKeywordIdeasPayload) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
-      const response = await fetch(`${window.location.origin}/api/ideas/email`, {
+      const origin = getClientOrigin();
+      const response = await fetch(`${origin}/api/ideas/email`, {
          method: 'POST',
          headers,
          body: JSON.stringify(payload),

@@ -18,6 +18,8 @@ import SCKeywordsTable from '../../../../components/keywords/SCKeywordsTable';
 import { useFetchSettings } from '../../../../services/settings';
 import Footer from '../../../../components/common/Footer';
 import { getBranding } from '../../../../utils/branding';
+import AddKeywords from '../../../../components/keywords/AddKeywords';
+import { useFetchKeywords } from '../../../../services/keywords';
 
 const { platformName } = getBranding();
 
@@ -25,9 +27,11 @@ const DiscoverPage: NextPage = () => {
    const router = useRouter();
    const [showDomainSettings, setShowDomainSettings] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
+   const [showAddKeywords, setShowAddKeywords] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
    const [scDateFilter, setSCDateFilter] = useState('thirtyDays');
    const { data: appSettings } = useFetchSettings();
+   const appSettingsData: SettingsType = appSettings?.settings || {};
    const { data: domainsData } = useFetchDomains(router, false);
    const theDomains: DomainType[] = (domainsData && domainsData.domains) || [];
    const activDomain: DomainType|null = useMemo(() => {
@@ -40,12 +44,20 @@ const DiscoverPage: NextPage = () => {
       const domainSc = activDomain?.search_console ? JSON.parse(activDomain.search_console) : {};
       return !!(domainSc?.client_email && domainSc?.private_key);
    }, [activDomain]);
-   const scConnected = !!(appSettings && appSettings?.settings?.search_console_integrated);
+   const scConnected = !!appSettingsData.search_console_integrated;
    const domainsLoaded = !!(domainsData?.domains?.length);
    const { data: keywordsData, isLoading: keywordsLoading, isFetching } = useFetchSCKeywords(
       router,
       domainsLoaded && scConnected,
       domainsLoaded && domainHasScAPI,
+   );
+
+   const { keywordsData: trackedKeywordsData } = useFetchKeywords(router, activDomain?.domain || '');
+   const trackedKeywords: KeywordType[] = (trackedKeywordsData?.keywords || []) as KeywordType[];
+   const { scraper_type = '', available_scapers = [] } = appSettingsData;
+   const activeScraper = useMemo(
+      () => available_scapers.find((scraper) => scraper.value === scraper_type),
+      [scraper_type, available_scapers],
    );
 
    const theKeywords: SearchAnalyticsItem[] = useMemo(() => keywordsData?.data && keywordsData.data[scDateFilter] ? keywordsData.data[scDateFilter] : [], [keywordsData, scDateFilter]);
@@ -101,7 +113,7 @@ const DiscoverPage: NextPage = () => {
                ? <DomainHeader
                   domain={activDomain}
                   domains={theDomains}
-                  showAddModal={() => console.log('XXXXX')}
+                  showAddModal={setShowAddKeywords}
                   showSettingsModal={setShowDomainSettings}
                   exportCsv={() => exportCSV(theKeywordsGrouped, activDomain.domain, scDateFilter)}
                   scFilter={scDateFilter}
@@ -131,7 +143,16 @@ const DiscoverPage: NextPage = () => {
          <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter>
              <Settings closeSettings={() => setShowSettings(false)} />
          </CSSTransition>
-         <Footer currentVersion={appSettings?.settings?.version ? appSettings.settings.version : ''} />
+         <CSSTransition in={showAddKeywords} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter>
+            <AddKeywords
+               domain={activDomain?.domain || ''}
+               scraperName={activeScraper?.label || ''}
+               keywords={trackedKeywords}
+               allowsCity={!!activeScraper?.allowsCity}
+               closeModal={() => setShowAddKeywords(false)}
+            />
+         </CSSTransition>
+         <Footer currentVersion={appSettingsData?.version ? appSettingsData.version : ''} />
       </div>
    );
 };

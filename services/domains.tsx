@@ -1,6 +1,7 @@
 import { useRouter, NextRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { useMutation, useQuery, useQueryClient, QueryClient, QueryKey } from 'react-query';
+import { getClientOrigin } from '../utils/client/origin';
 
 type UpdatePayload = {
    domainSettings: Partial<DomainSettings>,
@@ -56,7 +57,9 @@ const applyDomainCachePatch = (
 const updateDomainRequest = async ({ domainSettings, domain }: UpdatePayload) => {
    const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
    const fetchOpts = { method: 'PUT', headers, body: JSON.stringify(domainSettings) };
-   const res = await fetch(`${window.location.origin}/api/domains?domain=${domain.domain}`, fetchOpts);
+   const origin = getClientOrigin();
+   const encodedDomain = encodeURIComponent(domain.domain);
+   const res = await fetch(`${origin}/api/domains?domain=${encodedDomain}`, fetchOpts);
    const responseObj = await res.json();
    if (res.status >= 400 && res.status < 600) {
       throw new Error(responseObj?.error || 'Bad response from server');
@@ -65,7 +68,8 @@ const updateDomainRequest = async ({ domainSettings, domain }: UpdatePayload) =>
 };
 
 export async function fetchDomains(router: NextRouter, withStats:boolean): Promise<{domains: DomainType[]}> {
-   const res = await fetch(`${window.location.origin}/api/domains${withStats ? '?withstats=true' : ''}`, { method: 'GET' });
+   const origin = getClientOrigin();
+   const res = await fetch(`${origin}/api/domains${withStats ? '?withstats=true' : ''}`, { method: 'GET' });
    if (res.status >= 400 && res.status < 600) {
       if (res.status === 401) {
          console.log('Unauthorized!!');
@@ -93,8 +97,9 @@ export async function fetchDomains(router: NextRouter, withStats:boolean): Promi
 }
 
 export async function fetchDomain(router: NextRouter, domainName: string): Promise<{domain: DomainType}> {
+   const origin = getClientOrigin();
    const encodedDomain = encodeURIComponent(domainName);
-   const res = await fetch(`${window.location.origin}/api/domain?domain=${encodedDomain}`, { method: 'GET' });
+   const res = await fetch(`${origin}/api/domain?domain=${encodedDomain}`, { method: 'GET' });
    if (res.status >= 400 && res.status < 600) {
       if (res.status === 401) {
          console.log('Unauthorized!!');
@@ -196,7 +201,8 @@ export function useAddDomain(onSuccess:Function) {
    return useMutation(async (domains:string[]) => {
       const headers = new Headers({ 'Content-Type': 'application/json', Accept: 'application/json' });
       const fetchOpts = { method: 'POST', headers, body: JSON.stringify({ domains }) };
-      const res = await fetch(`${window.location.origin}/api/domains`, fetchOpts);
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/domains`, fetchOpts);
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {
@@ -292,7 +298,8 @@ export function useUpdateDomainToggles() {
 export function useDeleteDomain(onSuccess:Function) {
    const queryClient = useQueryClient();
    return useMutation(async (domain:DomainType) => {
-      const res = await fetch(`${window.location.origin}/api/domains?domain=${domain.domain}`, { method: 'DELETE' });
+      const origin = getClientOrigin();
+      const res = await fetch(`${origin}/api/domains?domain=${domain.domain}`, { method: 'DELETE' });
       if (res.status >= 400 && res.status < 600) {
          let errorMessage = 'Bad response from server';
          try {

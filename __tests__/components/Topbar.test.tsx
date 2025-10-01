@@ -6,6 +6,10 @@ import { getBranding } from '../../utils/branding';
 
 const { platformName } = getBranding();
 
+jest.mock('../../utils/client/origin', () => ({
+   getClientOrigin: () => (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'),
+}));
+
 jest.mock('next/router', () => ({
    useRouter: () => ({
       pathname: '/',

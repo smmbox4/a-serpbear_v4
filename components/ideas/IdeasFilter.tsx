@@ -31,8 +31,8 @@ const IdeasFilters = (props: IdeasFilterProps) => {
       { value: 'alpha_desc', label: 'Alphabetically(Z-A)' },
       { value: 'vol_asc', label: 'Lowest Search Volume' },
       { value: 'vol_desc', label: 'Highest Search Volume' },
-      { value: 'competition_asc', label: 'High Competition' },
-      { value: 'competition_desc', label: 'Low Competition' },
+      { value: 'competition_desc', label: 'High Competition' },
+      { value: 'competition_asc', label: 'Low Competition' },
    ];
 
    const sortItemStyle = (sortType:string) => `cursor-pointer py-2 px-3 hover:bg-[#FCFCFF] ${sortBy === sortType ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-50' : ''}`;

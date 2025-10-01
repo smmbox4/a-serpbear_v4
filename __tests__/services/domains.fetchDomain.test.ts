@@ -1,4 +1,11 @@
 import type { NextRouter } from 'next/router';
+
+const mockOrigin = 'http://localhost:3000';
+
+jest.mock('../../utils/client/origin', () => ({
+   getClientOrigin: () => mockOrigin,
+}));
+
 import { fetchDomain } from '../../services/domains';
 
 describe('fetchDomain', () => {
@@ -37,7 +44,7 @@ describe('fetchDomain', () => {
 
       const fetchMock = global.fetch as unknown as jest.Mock;
       expect(fetchMock).toHaveBeenCalledWith(
-         `${window.location.origin}/api/domain?domain=${encodeURIComponent(domainWithPath)}`,
+         `${mockOrigin}/api/domain?domain=${encodeURIComponent(domainWithPath)}`,
          { method: 'GET' },
       );
       expect(response).toBe(payload);
@@ -51,7 +58,7 @@ describe('fetchDomain', () => {
 
    const fetchMock = global.fetch as unknown as jest.Mock;
    expect(fetchMock).toHaveBeenCalledWith(
-      `${window.location.origin}/api/domain?domain=`,
+      `${mockOrigin}/api/domain?domain=`,
       { method: 'GET' },
    );
    expect(response).toBe(payload);

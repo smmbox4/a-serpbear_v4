@@ -1,10 +1,15 @@
+const mockOrigin = 'http://localhost:3000';
+
+jest.mock('../../utils/client/origin', () => ({
+   getClientOrigin: () => mockOrigin,
+}));
+
 import { fetchKeywords } from '../../services/keywords';
 
 describe('fetchKeywords normalisation', () => {
    const originalFetch = global.fetch;
    const originalLocation = window.location;
 
-   const mockOrigin = 'http://localhost:3000';
    const fetchMock = jest.fn();
 
    beforeAll(() => {
