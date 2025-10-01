@@ -1,27 +1,55 @@
 # SerpBear - Search Engine Results Position Tracking
 SerpBear is a Next.js web application for tracking search engine ranking positions with SQLite database, automated cron job scraping, email notifications, and comprehensive SEO insights. It features Google Search Console integration, keyword research capabilities, and supports multiple SERP scraping services.
 
+## Architecture & Data Flow
+
+### Core System Components
+- **Next.js App** (`pages/`, `components/`): Full-stack React application serving both UI and REST API endpoints
+- **SQLite Database** (`database/`): Custom `better-sqlite3` dialect with Sequelize ORM for data persistence
+- **Background Cron Worker** (`cron.js`): Standalone Node process for scheduled scraping, retries, and notifications
+- **SERP Scrapers** (`scrapers/`): Pluggable provider integrations (10+ services) with unified interface
+
+### Critical Data Flow Patterns
+1. **Keyword Tracking**: Domain → Keywords → Scheduled Scrapes → Position History → Email Notifications
+2. **Authentication**: Environment credentials → JWT tokens → API middleware (`verifyUser`) → Encrypted settings storage
+3. **Configuration**: Environment variables → `data/settings.json` (encrypted) → Runtime decryption via `Cryptr`
+4. **Background Jobs**: `cron.js` → Internal API calls with `APIKEY` authentication → Database updates
+
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
 ## Working Effectively
 
 ### Bootstrap, build, and test the repository:
 - **Prerequisites Check**: Verify Node.js 18.18 or newer: `node --version`
-- **Install Dependencies**: `npm install` -- takes 16 seconds. Install Python 3 and build tools first if compilation fails.
+- **Install Dependencies**: `npm ci` (preferred) or `npm install` -- takes 16 seconds. Install Python 3 and build tools first if compilation fails.
 - **Build Application**: `npm run build` -- takes 31 seconds. **NEVER CANCEL: Set timeout to 90+ seconds.**
 - **Run Tests**: `npm test` -- takes 6 seconds. **NEVER CANCEL: Set timeout to 30+ seconds.** All 136 tests must pass.
-- **Lint Code**: `npm run lint` -- takes 8.5 seconds. Always run before committing.
-- **Lint CSS**: `npm run lint:css` -- takes 0.6 seconds. Run after updating global CSS files.
+- **Lint Code**: `npm run lint` -- uses `eslint.config.mjs` flat configuration. Always run before committing.
+- **Lint CSS**: `npm run lint:css` -- uses `.stylelintrc.json` for Tailwind-aware rules
+
+### Environment Setup & Configuration:
+- **Environment File**: Copy `.env.example` to `.env.local` for development
+- **Required Variables**: `USER`, `PASSWORD`, `SECRET`, `APIKEY`, `SCREENSHOT_API`
+- **Settings Storage**: Runtime settings encrypted in `./data/settings.json` via `Cryptr(SECRET)`
+- **API Authentication**: Use `APIKEY` header for REST endpoints, JWT cookies for UI sessions
+
+### Critical Development Workflow:
+- **Database Migrations**: `npm run db:migrate` applies schema changes (auto-run in Docker)
+- **Cron Worker**: `npm run start:all` runs both web server and background worker concurrently
+- **API Logging**: All endpoints wrapped with `withApiLogging()` middleware for request/response tracking
+- **Error Handling**: Check `utils/logger.ts` settings for debugging verbose output
 
 ### Run the application:
 - **Development**: `npm run dev` -- starts in 2 seconds on http://localhost:3000 (or next available port)
 - **Production**: `npm run build && npm run start` -- requires build first, starts on http://localhost:3000
 - **With Background Jobs**: `npm run start:all` -- starts both web server and cron worker concurrently
+- **Cron Worker Only**: `node cron.js` -- runs background scraping, retries, and notifications
 
 ### Database operations:
 - **Apply Migrations**: `npm run db:migrate` -- applies pending schema changes to SQLite database
 - **Rollback Migration**: `npm run db:revert` -- rolls back the most recent migration
 - **Database Location**: `./data/database.sqlite` (auto-created on first run)
+- **Custom SQLite Dialect**: Located in `database/sqlite-dialect.js` for `better-sqlite3` compatibility
 
 ## Validation
 
