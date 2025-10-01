@@ -58,7 +58,7 @@ const serper: ScraperSettings = {
       }
     }
 
-    return { organic: extractedResult, mapPackTop3: null }; // ✅ Explicitly null
+    return { organic: extractedResult, mapPackTop3: [] }; //
   },
 };
 
