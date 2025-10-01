@@ -1,8 +1,10 @@
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 
 describe('resolveCountryCode', () => {
-   it('uppercases valid country codes', () => {
-      expect(resolveCountryCode('us')).toBe('US');
+   it('preserves casing for valid country codes', () => {
+      expect(resolveCountryCode('us')).toBe('us');
+      expect(resolveCountryCode('US')).toBe('US');
+      expect(resolveCountryCode('Ca')).toBe('Ca');
    });
 
    it('falls back to default for unsupported codes without allowed list', () => {
