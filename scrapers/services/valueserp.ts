@@ -15,6 +15,7 @@ const valueSerp:ScraperSettings = {
    name: 'Value Serp',
    website: 'valueserp.com',
    allowsCity: true,
+   timeoutMs: 35000, // ValueSerp responses often take longer, allow 35 seconds
    scrapeURL: (keyword, settings, countryData) => {
       const country = resolveCountryCode(keyword.country);
       const countryName = countries[country][0];

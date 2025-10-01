@@ -54,4 +54,8 @@ describe('valueSerp scraper', () => {
     expect(parsed.searchParams.get('include_advertiser_info')).toBe('false');
     expect(parsed.searchParams.has('num')).toBe(false);
   });
+
+  it('has a timeout override of 35 seconds to handle longer response times', () => {
+    expect(valueSerp.timeoutMs).toBe(35000);
+  });
 });

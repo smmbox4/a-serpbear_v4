@@ -278,4 +278,10 @@ interface ScraperSettings {
     * map pack visibility for tracked keywords.
     */
    supportsMapPack?: boolean,
+   /**
+    * Optional timeout override in milliseconds for this scraper.
+    * If not provided, the default timeout logic will be used.
+    * Useful for scrapers that require longer response times (e.g., ValueSerp).
+    */
+   timeoutMs?: number,
 }
