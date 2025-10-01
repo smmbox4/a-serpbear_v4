@@ -99,4 +99,41 @@ describe('valueSerp scraper', () => {
   it('has a timeout override of 35 seconds to handle longer response times', () => {
     expect(valueSerp.timeoutMs).toBe(35000);
   });
+
+  it('omits location parameter when only country is provided (no city or state)', () => {
+    const keyword: Partial<KeywordType> = {
+      keyword: 'coffee shops',
+      country: 'US',
+      device: 'desktop',
+    };
+
+    const url = valueSerp.scrapeURL!(
+      keyword as KeywordType,
+      settings as SettingsType,
+      countryData
+    );
+    const parsed = new URL(url);
+
+    expect(parsed.searchParams.get('gl')).toBe('us');
+    expect(parsed.searchParams.get('hl')).toBe('en');
+    expect(parsed.searchParams.has('location')).toBe(false);
+  });
+
+  it('includes location parameter when city is provided', () => {
+    const keyword: Partial<KeywordType> = {
+      keyword: 'coffee shops',
+      country: 'US',
+      location: 'Seattle,WA,US',
+      device: 'desktop',
+    };
+
+    const url = valueSerp.scrapeURL!(
+      keyword as KeywordType,
+      settings as SettingsType,
+      countryData
+    );
+    const parsed = new URL(url);
+
+    expect(parsed.searchParams.get('location')).toBe('Seattle,WA,United States');
+  });
 });
