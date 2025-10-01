@@ -12,7 +12,7 @@ const serper: ScraperSettings = {
   name: 'Serper.dev',
   website: 'serper.dev',
   allowsCity: true,
-  supportsMapPack: false, // ✅ Serper does NOT return map pack data
+  supportsMapPack: false,
   scrapeURL: (keyword, settings, countryData) => {
     const countryCode = resolveCountryCode(keyword.country);
     const fallbackInfo = countryData[countryCode]
