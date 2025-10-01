@@ -1,9 +1,16 @@
 import { scrapeKeywordFromGoogle } from '../../utils/scraper';
 
-// Mock fetch globally
-global.fetch = jest.fn();
+const originalFetch = global.fetch;
 
 describe('scraper error handling', () => {
+  beforeAll(() => {
+    global.fetch = jest.fn();
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset console.log mock
