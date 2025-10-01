@@ -78,6 +78,27 @@ describe('valueSerp scraper', () => {
     expect(parsed.searchParams.get('hl')).toBe('pt');
   });
 
+  it('decodes percent-encoded keyword and location values before building the URL', () => {
+    const keyword: Partial<KeywordType> = {
+      keyword: 'best%20coffee%20shop',
+      country: 'US',
+      device: 'desktop',
+      location: 'Austin%2CTX%2CUnited%20States',
+    };
+
+    const url = valueSerp.scrapeURL!(
+      keyword as KeywordType,
+      settings as SettingsType,
+      countryData
+    );
+    const parsed = new URL(url);
+
+    expect(parsed.searchParams.get('q')).toBe('best coffee shop');
+    expect(parsed.searchParams.get('location')).toBe('Austin,TX,United States');
+    expect(parsed.toString()).toContain('q=best+coffee+shop');
+    expect(parsed.toString()).toContain('location=Austin%2CTX%2CUnited+States');
+  });
+
   it('maps the United Kingdom to google.co.uk', () => {
     const keyword: Partial<KeywordType> = {
       keyword: 'holiday cottages',
