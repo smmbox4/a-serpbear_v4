@@ -21,7 +21,8 @@ const serpapi:ScraperSettings = {
       }),
    scrapeURL: (keyword, settings) => {
       const country = resolveCountryCode(keyword.country);
-      const countryName = countries[country][0];
+      const countryInfo = countries[country] ?? countries.US;
+      const countryName = countryInfo?.[0] ?? countries.US[0];
       const { city, state } = parseLocation(keyword.location, keyword.country);
       const locationParts = [city, state, countryName].filter(Boolean);
       const location = city || state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
