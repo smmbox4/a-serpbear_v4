@@ -24,25 +24,26 @@ const serper: ScraperSettings = {
     const lang = fallbackInfo?.[2] ?? "en";
     const countryName = fallbackInfo?.[0];
     const { city, state } = parseLocation(keyword.location, keyword.country);
-      const plusEncode = (str: string) => str.replace(/ /g, '+');
-      const decodeIfEncoded = (value: string): string => {
-        try {
-          return decodeURIComponent(value);
-        } catch (_error) {
-          return value;
-        }
-      };
-      const locationParts = [city, state, countryName]
-        .filter((v): v is string => Boolean(v))
-        .map((part) => plusEncode(decodeIfEncoded(part)));
-      let url = `https://google.serper.dev/search?q=${plusEncode(decodeIfEncoded(keyword.keyword))}`;
+    const plusEncode = (str: string) => str.replace(/ /g, "+");
+    const decodeIfEncoded = (value: string): string => {
+      try {
+        return decodeURIComponent(value);
+      } catch (_error) {
+        return value;
+      }
+    };
+    const locationParts = [city, state, countryName]
+      .filter((v): v is string => Boolean(v))
+      .map((part) => plusEncode(decodeIfEncoded(part)));
+    const params = new URLSearchParams();
+    params.set("q", plusEncode(decodeIfEncoded(keyword.keyword)));
     if ((city || state) && locationParts.length) {
-      url += `&location=${locationParts.join(",")}`;
+      params.set("location", locationParts.join(","));
     }
-    url += `&gl=${gl}`;
-    url += `&hl=${lang}`;
-    url += `&apiKey=${settings.scraping_api}`;
-    return url;
+    params.set("gl", gl);
+    params.set("hl", lang);
+    params.set("apiKey", settings.scraping_api ?? "");
+    return `https://google.serper.dev/search?${params.toString()}`;
   },
   resultObjectKey: "organic",
   serpExtractor: ({ result, response }) => {

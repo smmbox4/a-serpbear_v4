@@ -39,14 +39,14 @@ const serpapi: ScraperSettings = {
     const googleDomain = getGoogleDomain(country);
     const params = new URLSearchParams();
     params.set("engine", "google");
-  params.set("q", plusEncode(decodeIfEncoded(keyword.keyword)));
+    params.set("q", plusEncode(decodeIfEncoded(keyword.keyword)));
     if ((city || state) && locationParts.length) {
       params.set("location", locationParts.join(","));
     }
     params.set("google_domain", googleDomain);
     params.set("gl", country);
     params.set("hl", countryInfo?.[2] ?? "en");
-    params.set("api_key", settings.scraping_api);
+    params.set("api_key", settings.scraping_api ?? "");
     return `https://serpapi.com/search.json?${params.toString()}`;
   },
   resultObjectKey: "organic_results",
