@@ -2,6 +2,7 @@ import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
+import { getGoogleDomain } from '../../utils/googleDomains';
 
 interface SerpApiResult {
    title: string,
@@ -24,9 +25,20 @@ const serpapi:ScraperSettings = {
       const countryInfo = countries[country] ?? countries.US;
       const countryName = countryInfo?.[0] ?? countries.US[0];
       const { city, state } = parseLocation(keyword.location, keyword.country);
-      const locationParts = [city, state, countryName].filter(Boolean);
-      const location = city || state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
-      return `https://serpapi.com/search?q=${encodeURIComponent(keyword.keyword)}&num=100&gl=${country}&device=${keyword.device}${location}&api_key=${settings.scraping_api}`;
+      const plusEncode = (str: string) => str.replace(/ /g, '+');
+      const locationParts = [city, state, countryName].filter(Boolean).map(plusEncode);
+      const googleDomain = getGoogleDomain(country);
+      const params = new URLSearchParams();
+      params.set('engine', 'google');
+      params.set('q', plusEncode(keyword.keyword));
+      if ((city || state) && locationParts.length) {
+         params.set('location', locationParts.join(','));
+      }
+      params.set('google_domain', googleDomain);
+      params.set('gl', country);
+      params.set('hl', countryInfo?.[2] ?? 'en');
+      params.set('api_key', settings.scraping_api);
+      return `https://serpapi.com/search.json?${params.toString()}`;
    },
    resultObjectKey: 'organic_results',
    serpExtractor: ({ result, response, keyword }) => {
