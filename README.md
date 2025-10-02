@@ -178,7 +178,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 | SearchApi (`searchapi`) | ? | Plans from $40/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `Authorization: Bearer` or query `api_key` |
 | ValueSerp (`valueserp`) | ✅ | Pay-as-you-go 10,000 for $25 | City-level | **Yes** – extracts local map pack | 10 | Query string `api_key` |
 | Serper (`serper`) | ✅ | Credit-based 50,000 for $50 | City-level | No – organic listings only | 10 | Query string `api_key` |
-| HasData (`hasdata`) | ? | Free 1,000/mo + Plans from $49/mo | City-level | **Yes** – extracts local map pack | 10–100 via `num` | `x-api-key` |
+| HasData (`hasdata`) | ✅ | Free 1,000/mo + Plans from $49/mo | City-level | **Yes** – extracts local map pack | 10 | `x-api-key` |
 | Custom proxy (`proxy`) | ? | Bring your own | Google default locale | No – organic listings only | 10 | None |
 
 \*Pricing details are indicative; confirm current pricing with each vendor before purchasing. All managed integrations authenticate with the headers or query parameters shown in the final column, exactly as implemented in the `/scrapers/services` directory.
