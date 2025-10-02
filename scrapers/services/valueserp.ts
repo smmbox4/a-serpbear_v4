@@ -34,16 +34,18 @@ const valueSerp:ScraperSettings = {
          ? decodeIfEncoded(keyword.location)
          : keyword.location;
       const { city, state } = parseLocation(decodedLocation, keyword.country);
+      // Helper to encode spaces as +
+      const plusEncode = (str: string) => str.replace(/ /g, '+');
       const locationParts = [city, state, countryName]
          .filter((part): part is string => Boolean(part))
-         .map((part) => decodeIfEncoded(part));
+         .map((part) => plusEncode(decodeIfEncoded(part)));
       const localeInfo = countryData[country] ?? countryData.US ?? Object.values(countryData)[0];
       const lang = localeInfo?.[2] ?? 'en';
       const googleDomain = getGoogleDomain(country);
       const params = new URLSearchParams();
      
       params.set('api_key', settings.scraping_api ?? '');
-      params.set('q', decodeIfEncoded(keyword.keyword));
+      params.set('q', plusEncode(decodeIfEncoded(keyword.keyword)));
       params.set('gl', resolvedCountry.toLowerCase());
       params.set('hl', lang);
       params.set('output', 'json');
