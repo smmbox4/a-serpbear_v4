@@ -2,6 +2,7 @@ import countries from '../../utils/countries';
 import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
+import { getGoogleDomain } from '../../utils/googleDomains';
 
 interface SearchApiResult {
    title: string,
@@ -15,19 +16,58 @@ const searchapi:ScraperSettings = {
   website: 'searchapi.io',
   allowsCity: true,
   supportsMapPack: true,
-  headers: (keyword: KeywordType, settings: SettingsType) => ({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${settings.scraping_api}`,
-     }),
-  scrapeURL: (keyword) => {
-   const country = resolveCountryCode(keyword.country);
-   const countryInfo = countries[country] ?? countries.US;
-   const countryName = countryInfo?.[0] ?? countries.US[0];
-   const { city, state } = parseLocation(keyword.location, keyword.country);
-   const locationParts = [city, state, countryName].filter(Boolean);
-   const location = city || state ? `&location=${encodeURIComponent(locationParts.join(','))}` : '';
-     return `https://www.searchapi.io/api/v1/search?engine=google&q=${encodeURIComponent(keyword.keyword)}&num=100&gl=${country}&device=${keyword.device}${location}`;
-  },
+   headers: () => ({
+      'Content-Type': 'application/json',
+   }),
+   scrapeURL: (keyword, settings, countryData) => {
+      const resolvedCountry = resolveCountryCode(keyword.country);
+      const country = resolvedCountry;
+      const countryInfo = countries[country] ?? countries.US;
+      const countryName = countryInfo?.[0] ?? countries.US[0];
+      const localeInfo = countryData?.[country] ?? countryData?.US ?? Object.values(countryData ?? {})[0];
+      const lang = localeInfo?.[2] ?? "en";
+      const plusEncode = (str: string) => str.replace(/ /g, '+');
+      const decodeIfEncoded = (value: string): string => {
+         try {
+            return decodeURIComponent(value);
+         } catch (_error) {
+            return value;
+         }
+      };
+      // Support zip code if present in keyword.zip or keyword.location
+      let zip = '';
+      if (typeof keyword.location === 'string' && /^\d{5}(,|$)/.test(keyword.location)) {
+         zip = keyword.location.split(',')[0];
+      } else if (keyword.zip) {
+         zip = String(keyword.zip);
+      }
+      const decodedLocation = typeof keyword.location === 'string' ? decodeIfEncoded(keyword.location) : keyword.location;
+      const { city, state } = parseLocation(decodedLocation, keyword.country);
+      const decodePart = (part?: string) => typeof part === 'string' ? plusEncode(decodeIfEncoded(part)) : undefined;
+      const locationParts = [zip || undefined, decodePart(city), decodePart(state)]
+         .filter((v): v is string => Boolean(v));
+      if (locationParts.length && countryName) {
+         locationParts.push(plusEncode(countryName));
+      }
+      const params = new URLSearchParams();
+      // Set params in required order
+      params.set('api_key', settings.scraping_api ?? '');
+      params.set('engine', 'google');
+      params.set('q', plusEncode(decodeIfEncoded(keyword.keyword)));
+      if (locationParts.length) {
+         params.set('location', locationParts.join(','));
+      }
+      if (keyword.device === 'mobile') {
+         params.set('device', 'mobile');
+      }
+      params.set('gl', country.toLowerCase());
+      params.set('hl', lang);
+      const googleDomain = getGoogleDomain(country);
+      if (googleDomain) {
+         params.set('google_domain', googleDomain);
+      }
+      return `https://www.searchapi.io/api/v1/search?${params.toString()}`;
+   },
   resultObjectKey: 'organic_results',
   serpExtractor: ({ result, response, keyword }) => {
      const extractedResult = [];
