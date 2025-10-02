@@ -44,24 +44,18 @@ const valueSerp:ScraperSettings = {
       const lang = localeInfo?.[2] ?? 'en';
       const googleDomain = getGoogleDomain(country);
       const params = new URLSearchParams();
-     
+      // Set params in required order
       params.set('api_key', settings.scraping_api ?? '');
       params.set('q', plusEncode(decodeIfEncoded(keyword.keyword)));
-      params.set('gl', resolvedCountry.toLowerCase());
-      params.set('hl', lang);
-      params.set('output', 'json');
-      params.set('include_answer_box', 'false');
-      params.set('include_advertiser_info', 'false');
-      params.set('google_domain', googleDomain);
-
-      if (keyword.device === 'mobile') {
-         params.set('device', 'mobile');
-      }
-
       if ((city || state) && locationParts.length) {
          params.set('location', locationParts.join(','));
       }
-
+      if (keyword.device === 'mobile') {
+         params.set('device', 'mobile');
+      }
+      params.set('gl', resolvedCountry.toLowerCase());
+      params.set('hl', lang);
+      params.set('google_domain', googleDomain);
       return `https://api.valueserp.com/search?${params.toString()}`;
    },
    resultObjectKey: 'organic_results',
