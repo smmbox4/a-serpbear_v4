@@ -186,7 +186,7 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 | SerpApi (`serpapi`) | ✅ | Free 250/mo + Plans from $75/mo | City-level | **Yes** – extracts local map pack | Up to 10 | Query string `api_key` |
 | Serply (`serply`) | ? | Plans from $49/mo | City & region (supported markets) | **Yes** – extracts local map pack | Up to 100 | `X-Api-Key` + `X-Proxy-Location` |
 | SpaceSerp (`spaceserp`) | ? | Lifetime + subscription plans | City-level | **Yes** – extracts local map pack | 10 | Query string `apiKey` |
-| SearchApi (`searchapi`) | ? | Plans from $40/mo | City-level | **Yes** – extracts local map pack | 10 | `Authorization: Bearer` or query `api_key` |
+| SearchApi (`searchapi`) | ? | Plans from $40/mo | City-level | **Yes** – extracts local map pack | 10 | Query string `api_key` |
 | ValueSerp (`valueserp`) | ✅ | Pay-as-you-go 10,000 for $25 | City-level | **Yes** – extracts local map pack | 10 | Query string `api_key` |
 | Serper (`serper`) | ✅ | Credit-based 50,000 for $50 | City-level | No – organic listings only | 10 | Query string `api_key` |
 | HasData (`hasdata`) | ✅ | Free 1,000/mo + Plans from $49/mo | City-level | **Yes** – extracts local map pack | 10 | Header `x-api-key` |
