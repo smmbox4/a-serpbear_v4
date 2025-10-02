@@ -3,7 +3,7 @@ import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
 import { getGoogleDomain } from '../../utils/googleDomains';
-import type { KeywordType, SettingsType } from '../../types';
+
 
 const decodeIfEncoded = (value: string): string => {
    try {
@@ -24,11 +24,11 @@ const hasdata:ScraperSettings = {
    name: 'HasData',
    website: 'hasdata.com',
    allowsCity: true,
-   headers: (keyword: KeywordType, settings: SettingsType) => ({
+   headers: (keyword: KeywordType, settings: SettingsType) => ({ // use global types
          'Content-Type': 'application/json',
          'x-api-key': settings.scraping_api,
       }),
-   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: any) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: any) => { // use global types
       const resolvedCountry = resolveCountryCode(keyword.country);
       const country = resolvedCountry;
       const countryInfo = countries[country] ?? countries.US;

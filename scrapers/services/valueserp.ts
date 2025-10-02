@@ -3,7 +3,7 @@ import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
 import { getGoogleDomain } from '../../utils/googleDomains';
-import type { KeywordType, SettingsType } from '../../types';
+
 
 const decodeIfEncoded = (value: string): string => {
    try {
