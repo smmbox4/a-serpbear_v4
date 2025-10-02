@@ -29,6 +29,9 @@ describe('serper scraper', () => {
     expect(parsed.searchParams.get('hl')).toBe('en');
     expect(parsed.searchParams.get('location')).toBe('Austin,TX,United States');
     expect(parsed.searchParams.get('apiKey')).toBe(settings.scraping_api);
+    expect(url).toContain('q=plumber+near+me');
+    expect(url).toContain('location=Austin%2CTX%2CUnited+States');
+    expect(url).not.toContain('plumber%2Bnear%2Bme');
   });
 
   it('does not emit console.log output when generating the URL', () => {

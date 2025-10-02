@@ -39,11 +39,13 @@ const valueSerp: ScraperSettings = {
         ? decodeIfEncoded(keyword.location)
         : keyword.location;
     const { city, state } = parseLocation(decodedLocation, keyword.country);
-    // Helper to encode spaces as +
-    const plusEncode = (str: string) => str.replace(/ /g, "+");
-    const locationParts = [city, state, countryName]
-      .filter((part): part is string => Boolean(part))
-      .map((part) => plusEncode(decodeIfEncoded(part)));
+    const decodePart = (part?: string) =>
+      typeof part === "string" ? decodeIfEncoded(part) : undefined;
+    const locationParts = [decodePart(city), decodePart(state)]
+      .filter((part): part is string => Boolean(part));
+    if (locationParts.length && countryName) {
+      locationParts.push(countryName);
+    }
     const localeInfo =
       countryData[country] ?? countryData.US ?? Object.values(countryData)[0];
     const lang = localeInfo?.[2] ?? "en";
@@ -51,8 +53,11 @@ const valueSerp: ScraperSettings = {
     const params = new URLSearchParams();
     // Set params in required order
     params.set("api_key", settings.scraping_api ?? "");
-    params.set("q", plusEncode(decodeIfEncoded(keyword.keyword)));
-    if ((city || state) && locationParts.length) {
+    params.set("q", decodeIfEncoded(keyword.keyword));
+    params.set("output", "json");
+    params.set("include_answer_box", "false");
+    params.set("include_advertiser_info", "false");
+    if (locationParts.length) {
       params.set("location", locationParts.join(","));
     }
     if (keyword.device === "mobile") {

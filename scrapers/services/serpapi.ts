@@ -24,8 +24,6 @@ const serpapi: ScraperSettings = {
     const country = resolveCountryCode(keyword.country);
     const countryInfo = countries[country] ?? countries.US;
     const countryName = countryInfo?.[0] ?? countries.US[0];
-    const { city, state } = parseLocation(keyword.location, keyword.country);
-    const plusEncode = (str: string) => str.replace(/ /g, "+");
     const decodeIfEncoded = (value: string): string => {
       try {
         return decodeURIComponent(value);
@@ -33,14 +31,23 @@ const serpapi: ScraperSettings = {
         return value;
       }
     };
-    const locationParts = [city, state, countryName]
-      .filter((v): v is string => Boolean(v))
-      .map((part) => plusEncode(decodeIfEncoded(part)));
+    const decodedLocation =
+      typeof keyword.location === "string"
+        ? decodeIfEncoded(keyword.location)
+        : keyword.location;
+    const { city, state } = parseLocation(decodedLocation, keyword.country);
+    const decodePart = (part?: string) =>
+      typeof part === "string" ? decodeIfEncoded(part) : undefined;
+    const locationParts = [decodePart(city), decodePart(state)]
+      .filter((v): v is string => Boolean(v));
+    if (locationParts.length && countryName) {
+      locationParts.push(countryName);
+    }
     const googleDomain = getGoogleDomain(country);
     const params = new URLSearchParams();
     params.set("engine", "google");
-    params.set("q", plusEncode(decodeIfEncoded(keyword.keyword)));
-    if ((city || state) && locationParts.length) {
+    params.set("q", decodeIfEncoded(keyword.keyword));
+    if (locationParts.length) {
       params.set("location", locationParts.join(","));
     }
     params.set("google_domain", googleDomain);
