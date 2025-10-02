@@ -34,17 +34,11 @@ const searchapi:ScraperSettings = {
             return value;
          }
       };
-      // Support zip code if present in keyword.zip or keyword.location
-      let zip = '';
-      if (typeof keyword.location === 'string' && /^\d{5}(,|$)/.test(keyword.location)) {
-         zip = keyword.location.split(',')[0];
-      } else if (keyword.zip) {
-         zip = String(keyword.zip);
-      }
+      // Build location parts from city/state/country only (no zip)
       const decodedLocation = typeof keyword.location === 'string' ? decodeIfEncoded(keyword.location) : keyword.location;
       const { city, state } = parseLocation(decodedLocation, keyword.country);
       const decodePart = (part?: string) => typeof part === 'string' ? plusEncode(decodeIfEncoded(part)) : undefined;
-      const locationParts = [zip || undefined, decodePart(city), decodePart(state)]
+      const locationParts = [decodePart(city), decodePart(state)]
          .filter((v): v is string => Boolean(v));
       if (locationParts.length && countryName) {
          locationParts.push(plusEncode(countryName));
