@@ -1,46 +1,64 @@
-import { resolveCountryCode } from '../../utils/scraperHelpers';
-import { parseLocation } from '../../utils/location';
+import { resolveCountryCode } from "../../utils/scraperHelpers";
+import { parseLocation } from "../../utils/location";
+import { getGoogleDomain } from "../../utils/googleDomains";
 
 interface SerperResult {
-  title: string,
-  link: string,
-  position: number,
+  title: string;
+  link: string;
+  position: number;
 }
 
 const serper: ScraperSettings = {
-  id: 'serper',
-  name: 'Serper.dev',
-  website: 'serper.dev',
+  id: "serper",
+  name: "Serper.dev",
+  website: "serper.dev",
   allowsCity: true,
   supportsMapPack: false,
   scrapeURL: (keyword, settings, countryData) => {
     const countryCode = resolveCountryCode(keyword.country);
-    const fallbackInfo = countryData[countryCode]
-      ?? countryData.US
-      ?? Object.values(countryData)[0];
+    const fallbackInfo =
+      countryData[countryCode] ??
+      countryData.US ??
+      Object.values(countryData)[0];
     const gl = countryCode;
-    const lang = fallbackInfo?.[2] ?? 'en';
+    const lang = fallbackInfo?.[2] ?? "en";
     const countryName = fallbackInfo?.[0];
     const { city, state } = parseLocation(keyword.location, keyword.country);
-    const hasCityOrState = Boolean(city || state);
-    const location = hasCityOrState && countryName
-      ? `&location=${encodeURIComponent([city, state, countryName].filter(Boolean).join(','))}`
-      : '';
-
-    return `https://google.serper.dev/search?q=${encodeURIComponent(keyword.keyword)}&gl=${gl}&hl=${lang}&num=100${location}&apiKey=${settings.scraping_api}`;
+      const plusEncode = (str: string) => str.replace(/ /g, '+');
+      const decodeIfEncoded = (value: string): string => {
+        try {
+          return decodeURIComponent(value);
+        } catch (_error) {
+          return value;
+        }
+      };
+      const locationParts = [city, state, countryName]
+        .filter((v): v is string => Boolean(v))
+        .map((part) => plusEncode(decodeIfEncoded(part)));
+      let url = `https://google.serper.dev/search?q=${plusEncode(decodeIfEncoded(keyword.keyword))}`;
+    if ((city || state) && locationParts.length) {
+      url += `&location=${locationParts.join(",")}`;
+    }
+    url += `&gl=${gl}`;
+    url += `&hl=${lang}`;
+    url += `&num=100`;
+    url += `&apiKey=${settings.scraping_api}`;
+    return url;
   },
-  resultObjectKey: 'organic',
+  resultObjectKey: "organic",
   serpExtractor: ({ result, response }) => {
     const extractedResult = [];
     let results: SerperResult[] = [];
 
-    if (typeof result === 'string') {
+    if (typeof result === "string") {
       try {
         results = JSON.parse(result) as SerperResult[];
       } catch (error) {
-        throw new Error(`Invalid JSON response for Serper.dev: ${
-          error instanceof Error ? error.message : error
-        }`);
+        throw new Error(
+          `Invalid JSON response for Serper.dev: ${
+            error instanceof Error ? error.message : error
+          }`
+        );
       }
     } else if (Array.isArray(result)) {
       results = result as SerperResult[];
