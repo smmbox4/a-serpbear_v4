@@ -24,7 +24,7 @@ const hasdata:ScraperSettings = {
       const country = resolvedCountry;
       const countryInfo = countries[country] ?? countries.US;
       const countryName = countryInfo?.[0] ?? countries.US[0];
-   scrapeURL: (keyword, settings, countryData) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: any) => {
          ? decodeURIComponent(keyword.location)
          : keyword.location;
       // Helper to encode spaces as +
