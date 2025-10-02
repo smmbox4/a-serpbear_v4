@@ -3,6 +3,15 @@ import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
 import { getGoogleDomain } from '../../utils/googleDomains';
+import type { KeywordType, SettingsType } from '../../types';
+
+const decodeIfEncoded = (value: string): string => {
+   try {
+      return decodeURIComponent(value);
+   } catch (_error) {
+      return value;
+   }
+};
 
 interface HasDataResult {
    title: string,
@@ -19,31 +28,30 @@ const hasdata:ScraperSettings = {
          'Content-Type': 'application/json',
          'x-api-key': settings.scraping_api,
       }),
-   scrapeURL: (keyword, _settings, countryData) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: any) => {
       const resolvedCountry = resolveCountryCode(keyword.country);
       const country = resolvedCountry;
       const countryInfo = countries[country] ?? countries.US;
       const countryName = countryInfo?.[0] ?? countries.US[0];
-   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: any) => {
-         ? decodeURIComponent(keyword.location)
-         : keyword.location;
-      // Helper to encode spaces as +
-      const plusEncode = (str: string) => str.replace(/ /g, '+');
       const decodedLocation = typeof keyword.location === 'string'
          ? decodeIfEncoded(keyword.location)
          : keyword.location;
-         .map((part) => plusEncode(decodeURIComponent(part)));
+      // Helper to encode spaces as +
+      const plusEncode = (str: string) => str.replace(/ /g, '+');
+      const locationParts = [keyword.city, keyword.state, countryName]
+         .filter((part): part is string => Boolean(part))
+         .map((part) => plusEncode(decodeIfEncoded(part)));
       const localeInfo = countryData?.[country] ?? countryData?.US ?? Object.values(countryData ?? {})[0];
       const lang = localeInfo?.[2] ?? 'en';
       const googleDomain = getGoogleDomain(country);
       const params = new URLSearchParams();
-   params.set('q', plusEncode(decodeURIComponent(keyword.keyword)));
-      params.set('gl', country.toLowerCase());
+      params.set('q', plusEncode(decodeIfEncoded(keyword.keyword)));
+      params.set('gl', resolvedCountry.toLowerCase());
       params.set('hl', lang);
       params.set('deviceType', keyword.device || 'desktop');
       params.set('domain', googleDomain);
-      params.set('q', plusEncode(decodeIfEncoded(keyword.keyword)));
-      params.set('gl', resolvedCountry.toLowerCase());
+      if (locationParts.length) {
+         params.set('location', locationParts.join(','));
       }
       return `https://api.hasdata.com/scrape/google/serp?${params.toString()}`;
    },
