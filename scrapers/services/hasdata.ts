@@ -42,11 +42,14 @@ const hasdata: ScraperSettings = {
       typeof keyword.location === "string"
         ? decodeIfEncoded(keyword.location)
         : keyword.location;
-    // Helper to encode spaces as +
-    const plusEncode = (str: string) => str.replace(/ /g, "+");
-    const locationParts = [keyword.city, keyword.state, countryName]
-      .filter((part): part is string => Boolean(part))
-      .map((part) => plusEncode(decodeIfEncoded(part)));
+    const { city, state } = parseLocation(decodedLocation, keyword.country);
+    const decodePart = (part?: string) =>
+      typeof part === "string" ? decodeIfEncoded(part) : undefined;
+    const locationParts = [decodePart(city), decodePart(state)]
+      .filter((part): part is string => Boolean(part));
+    if (locationParts.length && countryName) {
+      locationParts.push(countryName);
+    }
     const localeInfo =
       countryData?.[country] ??
       countryData?.US ??
@@ -54,7 +57,7 @@ const hasdata: ScraperSettings = {
     const lang = localeInfo?.[2] ?? "en";
     const googleDomain = getGoogleDomain(country);
     const params = new URLSearchParams();
-    params.set("q", plusEncode(decodeIfEncoded(keyword.keyword)));
+    params.set("q", decodeIfEncoded(keyword.keyword));
     params.set("gl", resolvedCountry.toLowerCase());
     params.set("hl", lang);
     params.set("deviceType", keyword.device || "desktop");

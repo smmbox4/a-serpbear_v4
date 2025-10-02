@@ -1,6 +1,12 @@
 import { resolveCountryCode } from "../../utils/scraperHelpers";
 import { parseLocation } from "../../utils/location";
-import { getGoogleDomain } from "../../utils/googleDomains";
+const decodeIfEncoded = (value: string): string => {
+  try {
+    return decodeURIComponent(value);
+  } catch (_error) {
+    return value;
+  }
+};
 
 interface SerperResult {
   title: string;
@@ -23,21 +29,21 @@ const serper: ScraperSettings = {
     const gl = countryCode;
     const lang = fallbackInfo?.[2] ?? "en";
     const countryName = fallbackInfo?.[0];
-    const { city, state } = parseLocation(keyword.location, keyword.country);
-    const plusEncode = (str: string) => str.replace(/ /g, "+");
-    const decodeIfEncoded = (value: string): string => {
-      try {
-        return decodeURIComponent(value);
-      } catch (_error) {
-        return value;
-      }
-    };
-    const locationParts = [city, state, countryName]
-      .filter((v): v is string => Boolean(v))
-      .map((part) => plusEncode(decodeIfEncoded(part)));
+    const decodedLocation =
+      typeof keyword.location === "string"
+        ? decodeIfEncoded(keyword.location)
+        : keyword.location;
+    const { city, state } = parseLocation(decodedLocation, keyword.country);
+    const decodePart = (part?: string) =>
+      typeof part === "string" ? decodeIfEncoded(part) : undefined;
+    const locationParts = [decodePart(city), decodePart(state)]
+      .filter((v): v is string => Boolean(v));
+    if (locationParts.length && countryName) {
+      locationParts.push(countryName);
+    }
     const params = new URLSearchParams();
-    params.set("q", plusEncode(decodeIfEncoded(keyword.keyword)));
-    if ((city || state) && locationParts.length) {
+    params.set("q", decodeIfEncoded(keyword.keyword));
+    if (locationParts.length) {
       params.set("location", locationParts.join(","));
     }
     params.set("gl", gl);
