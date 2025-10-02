@@ -3,6 +3,7 @@ import { resolveCountryCode } from '../../utils/scraperHelpers';
 import { parseLocation } from '../../utils/location';
 import { computeMapPackTop3 } from '../../utils/mapPack';
 import { getGoogleDomain } from '../../utils/googleDomains';
+import type { KeywordType, SettingsType } from '../../types';
 
 const decodeIfEncoded = (value: string): string => {
    try {
@@ -25,7 +26,7 @@ const valueSerp:ScraperSettings = {
    website: 'valueserp.com',
    allowsCity: true,
    timeoutMs: 35000, // ValueSerp responses often take longer, allow 35 seconds
-   scrapeURL: (keyword, settings, countryData) => {
+   scrapeURL: (keyword: KeywordType, settings: SettingsType, countryData: any) => {
       const resolvedCountry = resolveCountryCode(keyword.country);
       const country = resolvedCountry;
       const countryInfo = countries[country] ?? countries.US;
