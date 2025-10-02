@@ -121,7 +121,8 @@ All runtime behaviour is controlled through environment variables. The tables be
 
 | Variable | Default | Required | Description |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | ✅ | Public URL of your deployment. Determines callback URLs for integrations and absolute links in email digests. |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | ✅ | Public URL of your deployment. Determines callback URLs for integrations and absolute links in email digests. Falls back to `APP_URL` when set. |
+| `APP_URL` | — | Optional | Optional server-side origin used when `NEXT_PUBLIC_APP_URL` is unset. Helpful for CLI scripts or cron contexts that cannot inject the public variable. |
 | `NEXT_PUBLIC_SCREENSHOTS` | `true` | ✅ | Toggle keyword thumbnail capture in the UI. Set to `false` to fall back to favicons. |
 | `NEXT_PUBLIC_WHITE_LABEL` | `false` | Optional | Enables white-label branding. When `true`, the platform name and logo come from the variables below. |
 | `WHITE_LABEL_LOGO_FILE` | `branding-logo.png` | Optional | File name under `/app/data` for the custom logo. Use a 96×96px PNG, SVG, or WEBP asset for best results. |
@@ -161,6 +162,16 @@ SerpBear also accepts an optional **SMTP TLS certificate hostname** override fro
 | `CRON_EMAIL_SCHEDULE` | `0 0 6 * * *` | ✅ | Cron expression for the daily notification email digest. |
 
 All cron expressions are normalised at runtime—quotes and stray whitespace are stripped automatically before scheduling jobs.
+
+### Monitoring & logging
+
+| Variable | Default | Required | Description |
+| --- | --- | --- | --- |
+| `LOG_LEVEL` | `info` | Optional | Controls log verbosity for the structured logger. Accepts `error`, `warn`, `info`, `debug`, or `verbose`. |
+| `LOG_SUCCESS_EVENTS` | `true` | Optional | Enables informational logs for successful API calls and authentication events. Set to `false` to capture only warnings and errors. |
+| `NEXT_REMOVE_CONSOLE` | `false` | Optional | Removes `console.*` calls during production builds. When enabled, the Next.js compiler still preserves error logs. |
+
+Set `ANALYZE=true` before running `next build` to generate a static bundle analysis report (`bundle-analyzer-report.html`) as configured in [`next.config.js`](./next.config.js).
 
 ---
 
