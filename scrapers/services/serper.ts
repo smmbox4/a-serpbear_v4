@@ -41,7 +41,6 @@ const serper: ScraperSettings = {
     }
     url += `&gl=${gl}`;
     url += `&hl=${lang}`;
-    url += `&num=100`;
     url += `&apiKey=${settings.scraping_api}`;
     return url;
   },
