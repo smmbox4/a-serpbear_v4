@@ -1,3 +1,4 @@
+export {};
 type DomainType = {
    ID: number,
    domain: string,
