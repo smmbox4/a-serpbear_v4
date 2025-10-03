@@ -2,9 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import { render, screen } from '@testing-library/react';
 import TopBar from '../../components/common/TopBar';
-import { getBranding } from '../../utils/branding';
+import { DEFAULT_BRANDING } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 
-const { platformName } = getBranding();
+jest.mock('../../hooks/useBranding');
+
+const mockUseBranding = useBranding as jest.MockedFunction<typeof useBranding>;
 
 jest.mock('../../utils/client/origin', () => ({
    getClientOrigin: () => (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'),
@@ -18,10 +21,24 @@ jest.mock('next/router', () => ({
 }));
 
 describe('TopBar Component', () => {
+   beforeEach(() => {
+      mockUseBranding.mockReturnValue({
+         branding: DEFAULT_BRANDING,
+         isLoading: false,
+         isError: false,
+         isFetching: false,
+         refetch: jest.fn(),
+      });
+   });
+
+   afterEach(() => {
+      jest.clearAllMocks();
+   });
+
    it('renders without crashing', async () => {
        render(<TopBar showSettings={jest.fn} showAddModal={jest.fn} />);
        expect(
-           await screen.findByText(platformName),
+           await screen.findByText(DEFAULT_BRANDING.platformName),
        ).toBeInTheDocument();
    });
 
@@ -40,15 +57,15 @@ describe('TopBar Component', () => {
       // Extract the mobile media query section for targeted testing
       const mobileMediaQueryRegex = /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{([\s\S]*?)\}/;
       const mobileMediaMatch = css.match(mobileMediaQueryRegex);
-      
+
       expect(mobileMediaMatch).toBeTruthy();
-      
+
       if (mobileMediaMatch) {
          const mobileSection = mobileMediaMatch[1];
-         
+
          // Validate topbar class exists in mobile section
          expect(mobileSection).toMatch(/\.topbar\s*\{/);
-         
+
          // Validate specific CSS properties with flexible whitespace handling
          expect(mobileSection).toMatch(/margin-left:\s*calc\(\s*-1\s*\*\s*var\(\s*--layout-inline\s*\)\s*\)\s*;/);
          expect(mobileSection).toMatch(/margin-right:\s*calc\(\s*-1\s*\*\s*var\(\s*--layout-inline\s*\)\s*\)\s*;/);
@@ -58,7 +75,7 @@ describe('TopBar Component', () => {
             /width:\s*calc\(\s*100%\s*\+\s*\(\s*var\(\s*--layout-inline\s*\)\s*\*\s*2\s*\)\s*\)\s*;/,
          );
       }
-      
+
       // Ensure no body overrides in mobile media queries (maintains body gutters)
       const mobileBodyOverride = /@media\s*\(\s*max-width:\s*767px\s*\)\s*\{[^}]*body\s*\{/;
       expect(css).not.toMatch(mobileBodyOverride);

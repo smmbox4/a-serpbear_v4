@@ -1,12 +1,14 @@
-import { getBranding } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 
 interface FooterProps {
    currentVersion: string
 }
 
-const { platformName } = getBranding();
+const Footer = ({ currentVersion = '' }: FooterProps) => {
+   const { branding } = useBranding();
+   const { platformName } = branding;
 
-const Footer = ({ currentVersion = '' }: FooterProps) => (
+   return (
       <footer className='text-center flex flex-1 justify-center pb-5 items-end'>
          <span className='text-gray-500 text-xs'>
             {platformName} v{currentVersion || '3.0.0'} by{' '}
@@ -21,5 +23,6 @@ const Footer = ({ currentVersion = '' }: FooterProps) => (
          </span>
       </footer>
    );
+};
 
 export default Footer;

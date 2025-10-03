@@ -16,12 +16,12 @@ import { useFetchKeywords } from '../../../services/keywords';
 import { useFetchSettings } from '../../../services/settings';
 import AddKeywords from '../../../components/keywords/AddKeywords';
 import Footer from '../../../components/common/Footer';
-import { getBranding } from '../../../utils/branding';
-
-const { platformName } = getBranding();
+import { useBranding } from '../../../hooks/useBranding';
 
 const SingleDomain: NextPage = () => {
    const router = useRouter();
+   const { branding } = useBranding();
+   const { platformName } = branding;
    const [showAddKeywords, setShowAddKeywords] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
    const [showDomainSettings, setShowDomainSettings] = useState(false);

@@ -7,7 +7,7 @@ import InputField from '../common/InputField';
 import Icon from '../common/Icon';
 import { useSendNotifications } from '../../services/settings';
 import { hasTrimmedLength } from '../../utils/security';
-import { getBranding } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 
 type NotificationSettingsProps = {
    settings: SettingsType,
@@ -20,7 +20,8 @@ type NotificationSettingsProps = {
 
 const NotificationSettings = ({ settings, settingsError, updateSettings }:NotificationSettingsProps) => {
    const { mutate: triggerNotifications, isLoading: sendingNotifications } = useSendNotifications();
-   const { platformName } = getBranding();
+   const { branding } = useBranding();
+   const { platformName } = branding;
 
    const sanitizedNotificationEmails = (settings.notification_email || '')
       .split(',')
