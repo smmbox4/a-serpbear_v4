@@ -61,6 +61,7 @@ I HAVE NOT CHECKED ALL SCRAERS YET! PLEASE LET ME KNOW YOUR EXPERIENCE?
 - **Integrations:** Pluggable scrapers, Google Search Console, Google Ads, and SMTP providers are all controlled via environment variables.
 
 ![Animated dashboard tour](https://serpbear.b-cdn.net/serpbear_readme_v2.gif "Animated dashboard tour")
+![New dashboard tour](screenshot.jpg "New dashboard tour")
 
 > _If the animation above does not render, imagine a 15-second screen recording that walks through adding a domain, reviewing the keyword table, and exploring rank history charts. The UI mirrors what you will see after deploying the app._
 
