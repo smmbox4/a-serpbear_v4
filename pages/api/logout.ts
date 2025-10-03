@@ -43,8 +43,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 const logout = async (req: NextApiRequest, res: NextApiResponse<logoutResponse>, startTime: number) => {
    try {
-      const cookies = new Cookies(req, res);
-      
+      const secureCookie = isRequestSecure(req);
+      const cookies = new Cookies(req, res, { secure: secureCookie });
+
       // Get user info before clearing token for logging
       let username = 'unknown_user';
       try {
@@ -59,8 +60,6 @@ const logout = async (req: NextApiRequest, res: NextApiResponse<logoutResponse>,
       }
 
       // Clear the token cookie
-      const secureCookie = isRequestSecure(req);
-
       cookies.set('token', '', {
          httpOnly: true,
          sameSite: 'lax',

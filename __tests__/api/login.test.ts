@@ -140,58 +140,64 @@ describe('Authentication cookie handling', () => {
 
       const res = createResponse();
 
-   await logoutHandler(req as NextApiRequest, res);
+      await logoutHandler(req as NextApiRequest, res);
 
-   expect(verifyUser).toHaveBeenCalledWith(req, res);
-   expect(setCookieMock).toHaveBeenCalledWith('token', '', expect.objectContaining({
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-      expires: new Date(0),
-      secure: false,
-   }));
-   expect(res.status).toHaveBeenCalledWith(200);
-   expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
-  });
+      expect(verifyUser).toHaveBeenCalledWith(req, res);
+      expect(setCookieMock).toHaveBeenCalledWith('token', '', expect.objectContaining({
+         httpOnly: true,
+         sameSite: 'lax',
+         maxAge: 0,
+         path: '/',
+         expires: new Date(0),
+         secure: false,
+      }));
+      const [cookiesReq, cookiesRes, cookiesOptions] = CookiesMock.mock.calls[0];
+      expect(cookiesReq).toBe(req);
+      expect(cookiesRes).toBe(res);
+      expect(cookiesOptions).toEqual({ secure: false });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ success: true, error: null });
+   });
 
-  it('sets secure cookies when requests are served over HTTPS', async () => {
-    (process.env as MutableEnv).SESSION_DURATION = '1';
+   it('sets secure cookies when requests are served over HTTPS', async () => {
+      (process.env as MutableEnv).SESSION_DURATION = '1';
 
-    const loginReq = {
-      method: 'POST',
-      headers: {
-        'x-forwarded-for': '127.0.0.1',
-        'user-agent': 'secure-test-agent',
-        'x-forwarded-proto': 'https',
-      },
-      body: { username: 'admin', password: 'password' },
-    } as Partial<NextApiRequest>;
+      const loginReq = {
+         method: 'POST',
+         headers: {
+            'x-forwarded-for': '127.0.0.1',
+            'user-agent': 'secure-test-agent',
+            'x-forwarded-proto': 'https',
+         },
+         body: { username: 'admin', password: 'password' },
+      } as Partial<NextApiRequest>;
 
-    const loginRes = createResponse();
+      const loginRes = createResponse();
 
-    await loginHandler(loginReq as NextApiRequest, loginRes);
+      await loginHandler(loginReq as NextApiRequest, loginRes);
 
-    const [, , loginOptions] = setCookieMock.mock.calls[0];
-    expect(loginOptions.secure).toBe(true);
+      const [, , loginOptions] = setCookieMock.mock.calls[0];
+      expect(loginOptions.secure).toBe(true);
 
-    const loginCookieConstructorCall = CookiesMock.mock.calls.find(([reqArg]) => reqArg === loginReq);
-    expect(loginCookieConstructorCall?.[2]).toEqual({ secure: true });
+      const loginCookieConstructorCall = CookiesMock.mock.calls.find(([reqArg]) => reqArg === loginReq);
+      expect(loginCookieConstructorCall?.[2]).toEqual({ secure: true });
 
-    const logoutReq = {
-      method: 'POST',
-      headers: {
-        'x-forwarded-for': '127.0.0.1',
-        'user-agent': 'secure-test-agent',
-        'x-forwarded-proto': 'https',
-      },
-    } as Partial<NextApiRequest>;
+      const logoutReq = {
+         method: 'POST',
+         headers: {
+            'x-forwarded-for': '127.0.0.1',
+            'user-agent': 'secure-test-agent',
+            'x-forwarded-proto': 'https',
+         },
+      } as Partial<NextApiRequest>;
 
-    const logoutRes = createResponse();
+      const logoutRes = createResponse();
 
-    await logoutHandler(logoutReq as NextApiRequest, logoutRes);
+      await logoutHandler(logoutReq as NextApiRequest, logoutRes);
 
-    const logoutOptions = setCookieMock.mock.calls.find((call) => call[0] === 'token' && call[1] === '');
-    expect(logoutOptions?.[2].secure).toBe(true);
-  });
+      const logoutOptions = setCookieMock.mock.calls.find((call) => call[0] === 'token' && call[1] === '');
+      expect(logoutOptions?.[2].secure).toBe(true);
+      const logoutCookieConstructorCall = CookiesMock.mock.calls.find(([reqArg]) => reqArg === logoutReq);
+      expect(logoutCookieConstructorCall?.[2]).toEqual({ secure: true });
+   });
 });
