@@ -102,7 +102,14 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
    const start = performance.now();
    const updatedKeywords: KeywordType[] = [];
 
-   if (['scrapingant', 'serpapi', 'searchapi'].includes(settings.scraper_type)) {
+   // Determine if all keywords can be scraped in parallel by checking effective settings
+   const parallelScrapers = ['scrapingant', 'serpapi', 'searchapi'];
+   const canScrapeInParallel = keywords.every((keyword) => {
+      const effectiveSettings = domainSpecificSettings.get(keyword.domain) ?? settings;
+      return parallelScrapers.includes(effectiveSettings.scraper_type);
+   });
+
+   if (canScrapeInParallel) {
       const refreshedResults = await refreshParallel(keywords, settings, domainSpecificSettings);
       if (refreshedResults.length > 0) {
          for (const keyword of rawkeyword) {
