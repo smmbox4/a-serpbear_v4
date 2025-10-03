@@ -128,6 +128,8 @@ All runtime behaviour is controlled through environment variables. The tables be
 | `WHITE_LABEL_LOGO_FILE` | `branding-logo.png` | Optional | File name under `/app/data` for the custom logo. Use a 96×96px PNG, SVG, or WEBP asset for best results. |
 | `NEXT_PUBLIC_PLATFORM_NAME` | `SerpBear` | Optional | Display name for the application and notification emails in white-label mode. |
 
+> **Runtime branding.** Changes to `NEXT_PUBLIC_WHITE_LABEL`, `NEXT_PUBLIC_PLATFORM_NAME`, or your logo asset are loaded on-demand by the UI. Update the environment values or files and refresh the browser—no container rebuild is required.
+
 ### Google integrations
 
 | Variable | Default | Required | Description |

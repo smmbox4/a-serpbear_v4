@@ -11,33 +11,34 @@ import { logger } from '../../utils/logger';
 import { trimStringProperties } from '../../utils/security';
 import { getBranding } from '../../utils/branding';
 
-const { platformName } = getBranding();
-
-const SETTINGS_DEFAULTS: SettingsType = {
-   scraper_type: 'none',
-   scraping_api: '',
-   proxy: '',
-   notification_interval: 'never',
-   notification_email: '',
-   notification_email_from: '',
-   notification_email_from_name: platformName,
-   smtp_server: '',
-   smtp_port: '',
-   smtp_tls_servername: '',
-   smtp_username: '',
-   smtp_password: '',
-   scrape_interval: '',
-   scrape_delay: '',
-   scrape_retry: false,
-   search_console: true,
-   search_console_client_email: '',
-   search_console_private_key: '',
-   adwords_client_id: '',
-   adwords_client_secret: '',
-   adwords_refresh_token: '',
-   adwords_developer_token: '',
-   adwords_account_id: '',
-   keywordsColumns: ['Best', 'History', 'Volume', 'Search Console'],
+const buildSettingsDefaults = (): SettingsType => {
+   const { platformName } = getBranding();
+   return {
+      scraper_type: 'none',
+      scraping_api: '',
+      proxy: '',
+      notification_interval: 'never',
+      notification_email: '',
+      notification_email_from: '',
+      notification_email_from_name: platformName,
+      smtp_server: '',
+      smtp_port: '',
+      smtp_tls_servername: '',
+      smtp_username: '',
+      smtp_password: '',
+      scrape_interval: '',
+      scrape_delay: '',
+      scrape_retry: false,
+      search_console: true,
+      search_console_client_email: '',
+      search_console_private_key: '',
+      adwords_client_id: '',
+      adwords_client_secret: '',
+      adwords_refresh_token: '',
+      adwords_developer_token: '',
+      adwords_account_id: '',
+      keywordsColumns: ['Best', 'History', 'Volume', 'Search Console'],
+   };
 };
 
 type SettingsGetResponse = {
@@ -146,7 +147,7 @@ export const getAppSettings = async () : Promise<SettingsType> => {
    try {
       const settingsRaw = await readFile(settingsPath, { encoding: 'utf-8' });
       const settings: Partial<SettingsType> = settingsRaw ? JSON.parse(settingsRaw) : {};
-      const baseSettings: SettingsType = { ...SETTINGS_DEFAULTS, ...settings };
+      const baseSettings: SettingsType = { ...buildSettingsDefaults(), ...settings };
       let decryptedSettings: SettingsType = baseSettings;
 
       try {
@@ -174,6 +175,8 @@ export const getAppSettings = async () : Promise<SettingsType> => {
       } catch (error) {
          console.log('Error Decrypting Settings API Keys!', error);
       }
+
+      const { platformName } = getBranding();
 
       const normalizedSettings: SettingsType = {
          ...decryptedSettings,
@@ -210,7 +213,7 @@ export const getAppSettings = async () : Promise<SettingsType> => {
       };
    } catch (error) {
       console.log('[ERROR] Getting App Settings. ', error);
-      const defaults = { ...SETTINGS_DEFAULTS };
+      const defaults = { ...buildSettingsDefaults() };
       await writeFile(settingsPath, JSON.stringify(defaults), { encoding: 'utf-8' });
       await writeFile(failedQueuePath, JSON.stringify([]), { encoding: 'utf-8' });
       return {

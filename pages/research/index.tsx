@@ -14,12 +14,12 @@ import SelectField from '../../components/common/SelectField';
 import allCountries, { adwordsLanguages } from '../../utils/countries';
 import Footer from '../../components/common/Footer';
 import { BrandTitle } from '../../components/common/Branding';
-import { getBranding } from '../../utils/branding';
-
-const { platformName } = getBranding();
+import { useBranding } from '../../hooks/useBranding';
 
 const Research: NextPage = () => {
    const router = useRouter();
+   const { branding } = useBranding();
+   const { platformName } = branding;
    const [showSettings, setShowSettings] = useState(false);
    const [showFavorites, setShowFavorites] = useState(false);
    const [language, setLanguage] = useState('1000');

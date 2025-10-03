@@ -1,16 +1,29 @@
 import { render } from '@testing-library/react';
+import { DEFAULT_BRANDING, BrandingConfig } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 
-const ORIGINAL_ENV = { ...process.env };
+jest.mock('../../hooks/useBranding');
+
+const mockUseBranding = useBranding as jest.MockedFunction<typeof useBranding>;
+
+const buildBrandingState = (branding: BrandingConfig) => ({
+   branding,
+   isLoading: false,
+   isError: false,
+   isFetching: false,
+   refetch: jest.fn(),
+});
 
 describe('Branding components', () => {
+   beforeEach(() => {
+      mockUseBranding.mockReturnValue(buildBrandingState(DEFAULT_BRANDING));
+   });
+
    afterEach(() => {
-      process.env = { ...ORIGINAL_ENV };
-      jest.resetModules();
+      jest.clearAllMocks();
    });
 
    it('falls back to the default icon when white-label is disabled', async () => {
-      jest.resetModules();
-      process.env = { ...ORIGINAL_ENV, NEXT_PUBLIC_WHITE_LABEL: 'false', NEXT_PUBLIC_PLATFORM_NAME: '' };
       const brandingModule = await import('../../components/common/Branding');
       const { BrandTitle } = brandingModule;
       const { container } = render(<BrandTitle />);
@@ -18,13 +31,16 @@ describe('Branding components', () => {
    });
 
    it('renders the custom logo and platform name when white-label is enabled', async () => {
-      jest.resetModules();
-      process.env = {
-         ...ORIGINAL_ENV,
-         NEXT_PUBLIC_WHITE_LABEL: 'true',
-         NEXT_PUBLIC_PLATFORM_NAME: 'Acme Rankings',
-         WHITE_LABEL_LOGO_FILE: 'brand.svg',
+      const customBranding: BrandingConfig = {
+         ...DEFAULT_BRANDING,
+         whiteLabelEnabled: true,
+         platformName: 'Acme Rankings',
+         logoFile: 'brand.svg',
+         logoMimeType: 'image/svg+xml',
+         hasCustomLogo: true,
       };
+      mockUseBranding.mockReturnValue(buildBrandingState(customBranding));
+
       const brandingModule = await import('../../components/common/Branding');
       const { BrandTitle } = brandingModule;
       const { getByAltText } = render(<BrandTitle />);

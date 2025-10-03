@@ -17,14 +17,14 @@ import { useFetchSCKeywords } from '../../../../services/searchConsole';
 import SCKeywordsTable from '../../../../components/keywords/SCKeywordsTable';
 import { useFetchSettings } from '../../../../services/settings';
 import Footer from '../../../../components/common/Footer';
-import { getBranding } from '../../../../utils/branding';
+import { useBranding } from '../../../../hooks/useBranding';
 import AddKeywords from '../../../../components/keywords/AddKeywords';
 import { useFetchKeywords } from '../../../../services/keywords';
 
-const { platformName } = getBranding();
-
 const DiscoverPage: NextPage = () => {
    const router = useRouter();
+   const { branding } = useBranding();
+   const { platformName } = branding;
    const [showDomainSettings, setShowDomainSettings] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
    const [showAddKeywords, setShowAddKeywords] = useState(false);

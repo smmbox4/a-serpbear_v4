@@ -3,12 +3,13 @@ import { useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Icon from '../components/common/Icon';
-import { getBranding } from '../utils/branding';
-
-const { platformName } = getBranding();
+import { useBranding } from '../hooks/useBranding';
 
 const Home: NextPage = () => {
    const router = useRouter();
+   const { branding } = useBranding();
+   const { platformName } = branding;
+
    useEffect(() => {
       if (router) router.push('/domains');
    }, [router]);

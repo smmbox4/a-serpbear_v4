@@ -7,7 +7,8 @@ import NotificationSettings from './NotificationSettings';
 import ScraperSettings from './ScraperSettings';
 import useOnKey from '../../hooks/useOnKey';
 import IntegrationSettings from './IntegrationSettings';
-import { getBranding } from '../../utils/branding';
+import { DEFAULT_BRANDING } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 
 type SettingsProps = {
    closeSettings: Function,
@@ -19,9 +20,7 @@ type SettingsError = {
    msg: string
 }
 
-const { platformName } = getBranding();
-
-export const defaultSettings: SettingsType = {
+export const createDefaultSettings = (platformName: string): SettingsType => ({
    scraper_type: 'none',
    scrape_delay: 'none',
    scrape_retry: false,
@@ -38,9 +37,12 @@ export const defaultSettings: SettingsType = {
    search_console_client_email: '',
    search_console_private_key: '',
    keywordsColumns: ['Best', 'History', 'Volume', 'Search Console'],
-};
+});
+
+export const defaultSettings: SettingsType = createDefaultSettings(DEFAULT_BRANDING.platformName);
 
 const Settings = ({ closeSettings }:SettingsProps) => {
+   const { branding } = useBranding();
    const [currentTab, setCurrentTab] = useState<string>('scraper');
    const [settings, setSettings] = useState<SettingsType>(defaultSettings);
    const [settingsError, setSettingsError] = useState<SettingsError|null>(null);
@@ -53,6 +55,21 @@ const Settings = ({ closeSettings }:SettingsProps) => {
          setSettings(appSettings.settings);
       }
    }, [appSettings]);
+
+   useEffect(() => {
+      if (!appSettings?.settings) {
+         setSettings((currentSettings) => {
+            if (currentSettings.notification_email_from_name === DEFAULT_BRANDING.platformName
+               && branding.platformName !== DEFAULT_BRANDING.platformName) {
+               return {
+                  ...currentSettings,
+                  notification_email_from_name: branding.platformName,
+               };
+            }
+            return currentSettings;
+         });
+      }
+   }, [appSettings?.settings, branding.platformName]);
 
    const closeOnBGClick = (e:React.SyntheticEvent) => {
       e.stopPropagation();

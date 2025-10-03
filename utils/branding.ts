@@ -1,4 +1,15 @@
-const DEFAULT_PLATFORM_NAME = 'SerpBear';
+export type BrandingConfig = {
+   defaultPlatformName: string;
+   whiteLabelEnabled: boolean;
+   platformName: string;
+   logoFile: string;
+   hasCustomLogo: boolean;
+   logoMimeType: string;
+   logoApiPath: string;
+};
+
+export const DEFAULT_PLATFORM_NAME = 'SerpBear';
+const DEFAULT_LOGO_FILE = 'branding-logo.png';
 
 const LOGO_MIME_TYPES: Record<string, string> = {
    '.png': 'image/png',
@@ -15,6 +26,16 @@ const trimString = (value?: string | null): string => (value || '').trim();
 
 const stripTrailingSlash = (value: string): string => (value.endsWith('/') ? value.slice(0, -1) : value);
 
+export const DEFAULT_BRANDING: BrandingConfig = {
+   defaultPlatformName: DEFAULT_PLATFORM_NAME,
+   whiteLabelEnabled: false,
+   platformName: DEFAULT_PLATFORM_NAME,
+   logoFile: DEFAULT_LOGO_FILE,
+   hasCustomLogo: false,
+   logoMimeType: '',
+   logoApiPath: '/api/branding/logo',
+};
+
 export const getLogoMimeType = (fileName: string): string => {
    const lastDot = fileName.lastIndexOf('.');
    if (lastDot === -1) {
@@ -25,10 +46,10 @@ export const getLogoMimeType = (fileName: string): string => {
    return LOGO_MIME_TYPES[extension] || '';
 };
 
-export const getBranding = () => {
+export const getBranding = (): BrandingConfig => {
    const whiteLabelEnabled = normalizeBoolean(process.env.NEXT_PUBLIC_WHITE_LABEL);
    const platformNameSetting = trimString(process.env.NEXT_PUBLIC_PLATFORM_NAME);
-   const logoFileSetting = trimString(process.env.WHITE_LABEL_LOGO_FILE || 'branding-logo.png');
+   const logoFileSetting = trimString(process.env.WHITE_LABEL_LOGO_FILE || DEFAULT_LOGO_FILE);
    const logoMimeType = getLogoMimeType(logoFileSetting);
    const hasCustomLogo = whiteLabelEnabled && !!logoMimeType && !!logoFileSetting;
 
@@ -47,16 +68,26 @@ export const getBranding = () => {
    } as const;
 };
 
-export const branding = getBranding();
-
 export const getPlatformName = (): string => getBranding().platformName;
 
-export const buildLogoUrl = (origin = ''): string => {
-   const { hasCustomLogo, logoApiPath } = getBranding();
-   if (!hasCustomLogo) {
+type BuildLogoUrlFirstArg = BrandingConfig | string | undefined;
+
+export const buildLogoUrl = (brandingOrOrigin?: BuildLogoUrlFirstArg, originOverride = ''): string => {
+   const branding = typeof brandingOrOrigin === 'string' || brandingOrOrigin === undefined
+      ? getBranding()
+      : brandingOrOrigin;
+
+   const origin = typeof brandingOrOrigin === 'string' || brandingOrOrigin === undefined
+      ? (brandingOrOrigin || '')
+      : originOverride;
+
+   if (!branding.hasCustomLogo) {
       return '';
    }
 
    const sanitizedOrigin = origin ? stripTrailingSlash(origin) : '';
-   return `${sanitizedOrigin}${logoApiPath}`;
+   return `${sanitizedOrigin}${branding.logoApiPath}`;
 };
+
+export const buildLogoUrlFromBranding = (branding: BrandingConfig, origin = ''): string => buildLogoUrl(branding, origin);
+
