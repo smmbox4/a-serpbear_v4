@@ -61,6 +61,7 @@ I HAVE NOT CHECKED ALL SCRAERS YET! PLEASE LET ME KNOW YOUR EXPERIENCE?
 - **Integrations:** Pluggable scrapers, Google Search Console, Google Ads, and SMTP providers are all controlled via environment variables.
 
 ![Animated dashboard tour](https://serpbear.b-cdn.net/serpbear_readme_v2.gif "Animated dashboard tour")
+![New dashboard tour](./screenshot.jpg "New dashboard tour")
 
 > _If the animation above does not render, imagine a 15-second screen recording that walks through adding a domain, reviewing the keyword table, and exploring rank history charts. The UI mirrors what you will see after deploying the app._
 
@@ -193,6 +194,10 @@ SerpBear integrates with several managed APIs in addition to a "bring your own p
 | HasData (`hasdata`) | ✅ | Free 1,000/mo + Plans from $49/mo | City-level | **Yes** – extracts local map pack | 10 | Header `x-api-key` |
 
 \*Pricing details are indicative; confirm current pricing with each vendor before purchasing. All managed integrations authenticate with the headers or query parameters shown in the final column, exactly as implemented in the `/scrapers/services` directory.
+
+### Per-domain scraper overrides
+
+Every domain can opt into its own scraping provider without changing the global default. Open the **Domains** page, click a domain, and switch to the **Scraper** tab in the settings modal to reveal the override controls. Use the drop-down to choose a provider or revert to **System Scraper**, then supply the API key in the masked input when the provider requires one. Stored keys are encrypted before they are persisted, and the helper keeps the latest key for the same provider unless you explicitly clear it. Domains that keep the **System Scraper** option inherit the global configuration, matching how the refresh pipeline falls back when no override exists. Because overrides change the effective scraper per domain, they also influence whether a refresh job can run keywords in parallel—the pipeline checks each domain’s final scraper settings before opting into the faster path.
 
 ---
 
