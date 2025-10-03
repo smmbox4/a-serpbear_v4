@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Icon from '../common/Icon';
 import Modal from '../common/Modal';
 import SelectField from '../common/SelectField';
@@ -24,7 +24,13 @@ type KeywordsInput = {
    state?:string,
 }
 
-const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCity = false }: AddKeywordsProps) => {
+const AddKeywords = forwardRef<HTMLDivElement, AddKeywordsProps>(({
+   closeModal,
+   domain,
+   keywords,
+   scraperName = '',
+   allowsCity = false,
+}: AddKeywordsProps, ref) => {
    const inputRef = useRef(null);
    const [error, setError] = useState<string>('');
    const [showTagSuggestions, setShowTagSuggestions] = useState(false);
@@ -131,7 +137,7 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
    const deviceTabStyle = 'cursor-pointer px-2 py-2 rounded';
 
    return (
-      <Modal closeModal={() => { closeModal(false); }} title={'Add New Keywords'} width="[420px]">
+      <Modal ref={ref} closeModal={() => { closeModal(false); }} title={'Add New Keywords'} width="[420px]">
          <div data-testid="addkeywords_modal">
             <div>
                <div>
@@ -260,6 +266,8 @@ const AddKeywords = ({ closeModal, domain, keywords, scraperName = '', allowsCit
          </div>
       </Modal>
    );
-};
+});
+
+AddKeywords.displayName = 'AddKeywords';
 
 export default AddKeywords;

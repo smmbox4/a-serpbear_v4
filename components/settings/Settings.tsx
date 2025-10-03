@@ -1,6 +1,6 @@
 /// <reference path="../../types.d.ts" />
 
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { useFetchSettings, useUpdateSettings } from '../../services/settings';
 import Icon from '../common/Icon';
 import NotificationSettings from './NotificationSettings';
@@ -41,7 +41,7 @@ export const createDefaultSettings = (platformName: string): SettingsType => ({
 
 export const defaultSettings: SettingsType = createDefaultSettings(DEFAULT_BRANDING.platformName);
 
-const Settings = ({ closeSettings }:SettingsProps) => {
+const Settings = forwardRef<HTMLDivElement, SettingsProps>(({ closeSettings }:SettingsProps, ref) => {
    const { branding } = useBranding();
    const [currentTab, setCurrentTab] = useState<string>('scraper');
    const [settings, setSettings] = useState<SettingsType>(defaultSettings);
@@ -137,7 +137,7 @@ const Settings = ({ closeSettings }:SettingsProps) => {
    const tabStyleActive = 'bg-white text-blue-600 border-slate-200';
 
    return (
-       <div className="settings fixed w-full h-dvh top-0 left-0 z-[9999]" onClick={closeOnBGClick}>
+       <div ref={ref} className="settings fixed w-full h-dvh top-0 left-0 z-[9999]" onClick={closeOnBGClick}>
             <div className="absolute w-full max-w-md bg-white customShadow top-0 right-0 h-dvh overflow-y-auto" data-loading={isLoading} >
                {isLoading && <div className='absolute flex content-center items-center h-full'><Icon type="loading" size={24} /></div>}
                <div className='settings__header px-5 py-4 text-slate-500'>
@@ -193,6 +193,8 @@ const Settings = ({ closeSettings }:SettingsProps) => {
             </div>
        </div>
    );
-};
+});
+
+Settings.displayName = 'Settings';
 
 export default Settings;
