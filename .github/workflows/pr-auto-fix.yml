@@ -22,10 +22,10 @@ jobs:
         with:
           node-version: 20.18.1
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies (with dev)
+        run: npm ci --include=dev
 
-      # ESLint Fix — recursive search, correct paths/extensions, explicit config
+      # ESLint Fix
       - name: ESLint Fix
         shell: bash
         run: |
@@ -44,7 +44,7 @@ jobs:
             echo "ESLint not installed locally. Skipping."
           fi
 
-      # Stylelint Fix — correct paths/extensions
+      # Stylelint Fix
       - name: Stylelint Fix
         shell: bash
         run: |
