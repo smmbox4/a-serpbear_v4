@@ -4,20 +4,29 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import NotificationSettings from '../../../components/settings/NotificationSettings';
 import { useSendNotifications } from '../../../services/settings';
-import { getBranding } from '../../../utils/branding';
+import { useBranding } from '../../../hooks/useBranding';
+import { DEFAULT_BRANDING, BrandingConfig } from '../../../utils/branding';
 
 jest.mock('../../../services/settings');
+jest.mock('../../../hooks/useBranding');
 
 const useSendNotificationsMock = useSendNotifications as jest.Mock;
+const mockUseBranding = useBranding as jest.MockedFunction<typeof useBranding>;
 
-const { platformName } = getBranding();
+const buildBrandingState = (branding: BrandingConfig) => ({
+   branding,
+   isLoading: false,
+   isError: false,
+   isFetching: false,
+   refetch: jest.fn(),
+});
 
 const buildSettings = (overrides: Partial<SettingsType> = {}): SettingsType => ({
    scraper_type: 'none',
    notification_interval: 'daily',
    notification_email: 'notify@example.com',
    notification_email_from: 'no-reply@example.com',
-   notification_email_from_name: platformName,
+   notification_email_from_name: DEFAULT_BRANDING.platformName,
    smtp_server: 'smtp.example.com',
    smtp_port: '587',
    smtp_tls_servername: '',
@@ -31,6 +40,10 @@ const buildSettings = (overrides: Partial<SettingsType> = {}): SettingsType => (
 });
 
 describe('NotificationSettings manual trigger', () => {
+   beforeEach(() => {
+      mockUseBranding.mockReturnValue(buildBrandingState(DEFAULT_BRANDING));
+   });
+
    afterEach(() => {
       jest.clearAllMocks();
    });
@@ -52,6 +65,27 @@ describe('NotificationSettings manual trigger', () => {
       expect(triggerButton).toHaveAttribute('aria-busy', 'false');
       expect(screen.getByText(/Send a notification email immediately/i)).toBeInTheDocument();
       expect(screen.getByText(/Ready to send notifications immediately\./i)).toBeInTheDocument();
+   });
+
+   it('prefills the From Name field with the runtime branding name when empty', () => {
+      const mutate = jest.fn();
+      useSendNotificationsMock.mockReturnValue({ mutate, isLoading: false });
+      const customBranding: BrandingConfig = {
+         ...DEFAULT_BRANDING,
+         platformName: 'Acme Ranker',
+         whiteLabelEnabled: true,
+      };
+      mockUseBranding.mockReturnValue(buildBrandingState(customBranding));
+
+      render(
+         <NotificationSettings
+            settings={buildSettings({ notification_email_from_name: '' })}
+            settingsError={null}
+            updateSettings={jest.fn()}
+         />,
+      );
+
+      expect(screen.getByDisplayValue('Acme Ranker')).toBeInTheDocument();
    });
 
    it('calls the send notifications mutation when the button is clicked', () => {
@@ -157,7 +191,7 @@ describe('NotificationSettings manual trigger', () => {
       // Verify component renders and button is enabled (if all required fields are present)
       const button = screen.getByRole('button', { name: /send notifications now/i });
       expect(button).toBeInTheDocument();
-      
+
       // Since we have all required fields, button should be enabled
       expect(button).toBeEnabled();
    });

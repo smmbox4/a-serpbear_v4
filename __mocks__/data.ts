@@ -1,6 +1,6 @@
-import { getBranding } from '../utils/branding';
+import { DEFAULT_BRANDING } from '../utils/branding';
 
-const { platformName } = getBranding();
+const { platformName } = DEFAULT_BRANDING;
 
 export const dummyDomain = {
    ID: 1,

@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { BrandTitle } from '../../components/common/Branding';
-import { getBranding } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 import { getClientOrigin } from '../../utils/client/origin';
 
 type LoginError = {
@@ -11,13 +11,13 @@ type LoginError = {
    msg: string,
 }
 
-const { platformName } = getBranding();
-
 const Login: NextPage = () => {
    const [error, setError] = useState<LoginError|null>(null);
    const [username, setUsername] = useState<string>('');
    const [password, setPassword] = useState<string>('');
    const router = useRouter();
+   const { branding } = useBranding();
+   const { platformName } = branding;
 
    const loginuser = async () => {
       let loginError: LoginError |null = null;

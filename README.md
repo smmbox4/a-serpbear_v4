@@ -1,10 +1,10 @@
 # SerpBear
 
-> Open-source search engine results page (SERP) monitoring, keyword research, and reporting for agencies and in-house marketers.
+## What is SerpBear?
 
-![SerpBear hero banner](https://i.imgur.com/0S2zIH3.png "SerpBear hero banner")
+SerpBear is a full-stack Next.js application that tracks where your pages rank on Google, enriches those rankings with Google Search Console and Google Ads data, and keeps stakeholders informed with scheduled email digests. The project ships as a production-ready Docker image, a conventional Node.js application, and a programmable REST API so you can integrate SERP intelligence wherever you need it.
 
-> _Some GitHub and self-hosted markdown viewers block remote images._ The hero banner above shows the SerpBear dashboard with keyword trend charts and key performance indicators for a sample domain. Even if the image fails to load, the rest of this README describes the same experience in detail.
+I HAVE NOT CHECKED ALL SCRAERS YET! PLEASE LET ME KNOW YOUR EXPERIENCE?
 
 > ### ✨ Why v-serpbear outperforms upstream SerpBear
 >
@@ -19,6 +19,8 @@
 > **7. Performance & caching** – Smarter SERP caching, batched keyword refreshes, and fewer redundant calls drive faster crawls while reducing API spend.
 >
 > **8. Google Map Pack:** Now marks keywords that show up in the map pack.
+>
+> **9. White Labeling:** Easy whitelabling.
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7e7a0030c3f84c6fb56a3ce6273fbc1d)](https://app.codacy.com/gh/djav1985/v-serpbear/dashboard) ![License](https://img.shields.io/github/license/djav1985/v-serpbear) ![Version](https://img.shields.io/github/package-json/v/djav1985/v-serpbear) ![Docker pulls](https://img.shields.io/docker/pulls/vontainment/v-serpbear)
 
@@ -33,12 +35,6 @@
 - 🛟 **Community support:** [GitHub Discussions](https://github.com/djav1985/v-serpbear/discussions)
 
 ---
-
-## What is SerpBear?
-
-SerpBear is a full-stack Next.js application that tracks where your pages rank on Google, enriches those rankings with Google Search Console and Google Ads data, and keeps stakeholders informed with scheduled email digests. The project ships as a production-ready Docker image, a conventional Node.js application, and a programmable REST API so you can integrate SERP intelligence wherever you need it.
-
-I HAVE NOT CHECKED ALL SCRAERS YET! PLEASE LET ME KNOW YOUR EXPERIENCE?
 
 ### Core capabilities
 
@@ -127,6 +123,8 @@ All runtime behaviour is controlled through environment variables. The tables be
 | `NEXT_PUBLIC_WHITE_LABEL` | `false` | Optional | Enables white-label branding. When `true`, the platform name and logo come from the variables below. |
 | `WHITE_LABEL_LOGO_FILE` | `branding-logo.png` | Optional | File name under `/app/data` for the custom logo. Use a 96×96px PNG, SVG, or WEBP asset for best results. |
 | `NEXT_PUBLIC_PLATFORM_NAME` | `SerpBear` | Optional | Display name for the application and notification emails in white-label mode. |
+
+> **Runtime branding.** Changes to `NEXT_PUBLIC_WHITE_LABEL`, `NEXT_PUBLIC_PLATFORM_NAME`, or your logo asset are loaded on-demand by the UI. Update the environment values or files and refresh the browser—no container rebuild is required.
 
 ### Google integrations
 

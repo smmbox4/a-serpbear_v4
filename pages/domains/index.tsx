@@ -13,14 +13,14 @@ import DomainItem from '../../components/domains/DomainItem';
 import Footer from '../../components/common/Footer';
 import { withAuth } from '../../hooks/useAuth';
 import PageLoader from '../../components/common/PageLoader';
-import { getBranding } from '../../utils/branding';
-
-const { platformName } = getBranding();
+import { useBranding } from '../../hooks/useBranding';
 
 type thumbImages = { [domain:string] : string }
 
 const Domains: NextPage = () => {
    const router = useRouter();
+   const { branding } = useBranding();
+   const { platformName } = branding;
    // const [noScrapprtError, setNoScrapprtError] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);

@@ -5,12 +5,16 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Settings, { defaultSettings } from '../../components/settings/Settings';
 import { useClearFailedQueue, useFetchSettings, useUpdateSettings } from '../../services/settings';
+import { useBranding } from '../../hooks/useBranding';
+import { DEFAULT_BRANDING } from '../../utils/branding';
 
 jest.mock('../../services/settings');
+jest.mock('../../hooks/useBranding');
 
 const useFetchSettingsMock = useFetchSettings as jest.Mock;
 const useUpdateSettingsMock = useUpdateSettings as jest.Mock;
 const useClearFailedQueueMock = useClearFailedQueue as jest.Mock;
+const mockUseBranding = useBranding as jest.MockedFunction<typeof useBranding>;
 
 describe('Settings scraper reload behaviour', () => {
    const closeSettings = jest.fn();
@@ -23,6 +27,13 @@ describe('Settings scraper reload behaviour', () => {
 
    beforeEach(() => {
       queryClient = new QueryClient();
+      mockUseBranding.mockReturnValue({
+         branding: DEFAULT_BRANDING,
+         isLoading: false,
+         isError: false,
+         isFetching: false,
+         refetch: jest.fn(),
+      });
       const settingsData: SettingsType = {
          ...defaultSettings,
          notification_interval: 'never',

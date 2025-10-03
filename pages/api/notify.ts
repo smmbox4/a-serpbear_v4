@@ -14,8 +14,6 @@ import { getAppSettings } from './settings';
 import { trimStringProperties } from '../../utils/security';
 import { getBranding } from '../../utils/branding';
 
-const { platformName } = getBranding();
-
 type NotifyResponse = {
    success?: boolean
    error?: string|null,
@@ -120,6 +118,8 @@ const sendNotificationEmail = async (domain: DomainType | Domain, settings: Sett
       console.log(`[EMAIL_THROTTLE] Skipping email for ${domainName}: ${throttleCheck.reason}`);
       return;
    }
+
+   const { platformName } = getBranding();
 
    const {
       smtp_server = '',

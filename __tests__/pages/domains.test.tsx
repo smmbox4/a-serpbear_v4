@@ -4,9 +4,12 @@ import * as ReactQuery from 'react-query';
 import { dummyDomain } from '../../__mocks__/data';
 import Domains from '../../pages/domains';
 import router from 'next-router-mock';
-import { getBranding } from '../../utils/branding';
+import { DEFAULT_BRANDING } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 
-const { platformName } = getBranding();
+jest.mock('../../hooks/useBranding');
+
+const mockUseBranding = useBranding as jest.MockedFunction<typeof useBranding>;
 
 // Mock the useAuth hook to always return authenticated state
 jest.mock('../../hooks/useAuth', () => ({
@@ -33,9 +36,9 @@ const asUrlString = (input: RequestInfo | URL): string => {
    return String(input);
 };
 
-const footerTextMatcher = (version: string) => (_: string, element?: Element | null) =>
-   element?.tagName === 'SPAN' &&
-   element.textContent?.replace(/\s+/g, ' ').includes(`${platformName} v${version} by Vontainment`);
+const footerTextMatcher = (version: string, platformName = DEFAULT_BRANDING.platformName) => (_: string, element?: Element | null) =>
+   element?.tagName === 'SPAN'
+   && element.textContent?.replace(/\s+/g, ' ').includes(`${platformName} v${version} by Vontainment`);
 
 function createJsonResponse<T>(payload: T, status = 200): Response {
    return {
@@ -91,6 +94,13 @@ afterAll(() => {
 
 beforeEach(() => {
    router.isReady = true;
+   mockUseBranding.mockReturnValue({
+      branding: DEFAULT_BRANDING,
+      isLoading: false,
+      isError: false,
+      isFetching: false,
+      refetch: jest.fn(),
+   });
    useQuerySpy.mockImplementation(buildUseQueryImplementation());
    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
       const url = asUrlString(input);

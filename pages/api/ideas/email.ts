@@ -8,8 +8,6 @@ import { trimStringProperties } from '../../../utils/security';
 import generateKeywordIdeasEmail, { KeywordIdeasEmailKeyword } from '../../../utils/generateKeywordIdeasEmail';
 import { getBranding } from '../../../utils/branding';
 
-const { platformName } = getBranding();
-
 type EmailKeywordIdeasRequest = {
    domain?: string;
    keywords?: KeywordIdeasEmailKeyword[];
@@ -71,6 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 const emailKeywordIdeas = async (req: NextApiRequest, res: NextApiResponse<EmailKeywordIdeasResponse>) => {
    const body = (req.body || {}) as EmailKeywordIdeasRequest;
+   const { platformName } = getBranding();
    const targetDomain = trimString(body.domain);
    if (!targetDomain) {
       return res.status(400).json({ success: false, error: 'A domain is required to email keyword ideas.' });

@@ -1,7 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Icon from './Icon';
-import { getBranding, buildLogoUrl } from '../../utils/branding';
+import { buildLogoUrl } from '../../utils/branding';
+import { useBranding } from '../../hooks/useBranding';
 
 type BrandMarkProps = {
    size?: number;
@@ -18,8 +19,9 @@ type BrandTitleProps = {
 const DEFAULT_MARK_CLASS = 'relative top-[3px] mr-1';
 
 export const BrandMark: React.FC<BrandMarkProps> = ({ size = 24, className = '' }) => {
-   const { hasCustomLogo, platformName } = getBranding();
-   const logoUrl = buildLogoUrl();
+   const { branding } = useBranding();
+   const { hasCustomLogo, platformName } = branding;
+   const logoUrl = buildLogoUrl(branding);
    const wrapperClassName = ['inline-flex items-center', className].filter(Boolean).join(' ');
 
    if (hasCustomLogo && logoUrl) {
@@ -50,7 +52,8 @@ export const BrandTitle: React.FC<BrandTitleProps> = ({
    markClassName = DEFAULT_MARK_CLASS,
    markSize = 24,
 }) => {
-   const { platformName } = getBranding();
+   const { branding } = useBranding();
+   const { platformName } = branding;
    const titleClassName = ['inline-flex items-center', className].filter(Boolean).join(' ');
 
    return (
@@ -60,4 +63,3 @@ export const BrandTitle: React.FC<BrandTitleProps> = ({
       </span>
    );
 };
-
