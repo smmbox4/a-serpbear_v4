@@ -63,7 +63,6 @@ const refreshTheKeywords = async (req: NextApiRequest, res: NextApiResponse<Keyw
 
    try {
       const settings = await getAppSettings();
-      console.log('[REFRESH] Scraper type:', settings?.scraper_type || 'none');
       
       if (!settings || (settings && settings.scraper_type === 'none')) {
          console.log('[REFRESH] ERROR: Scraper not configured');
