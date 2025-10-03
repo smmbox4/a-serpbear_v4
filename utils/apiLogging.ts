@@ -103,46 +103,5 @@ export function withApiLogging(
   };
 }
 
-/**
- * Higher-order function to wrap API handlers with authentication and logging
- */
-export function withApiAuthAndLogging(
-  handler: NextApiHandler,
-  options: {
-    logBody?: boolean;
-    name?: string;
-    allowedMethods?: string[];
-    logSuccess?: boolean;
-  } = {}
-) {
-  const { allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'] } = options;
-
-  return withApiLogging(async (req: NextApiRequest, res: NextApiResponse) => {
-    // Method validation
-    if (!allowedMethods.includes(req.method || '')) {
-      logger.warn(`Method not allowed${options.name ? ` [${options.name}]` : ''}`, {
-        method: req.method,
-        url: req.url,
-        allowedMethods,
-      });
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    // Import verifyUser here to avoid circular imports
-    const verifyUser = (await import('./verifyUser')).default;
-    
-    const authorized = verifyUser(req, res);
-    if (authorized !== 'authorized') {
-      logger.warn(`Authentication failed${options.name ? ` [${options.name}]` : ''}`, {
-        method: req.method,
-        url: req.url,
-        reason: authorized,
-      });
-      return res.status(401).json({ error: authorized });
-    }
-
-    return handler(req, res);
-  }, { ...options, skipAuth: true }); // skipAuth since we handle it manually above
-}
 
 export default withApiLogging;

@@ -68,8 +68,6 @@ export const getBranding = (): BrandingConfig => {
    } as const;
 };
 
-export const getPlatformName = (): string => getBranding().platformName;
-
 type BuildLogoUrlFirstArg = BrandingConfig | string | undefined;
 
 export const buildLogoUrl = (brandingOrOrigin?: BuildLogoUrlFirstArg, originOverride = ''): string => {
@@ -88,6 +86,4 @@ export const buildLogoUrl = (brandingOrOrigin?: BuildLogoUrlFirstArg, originOver
    const sanitizedOrigin = origin ? stripTrailingSlash(origin) : '';
    return `${sanitizedOrigin}${branding.logoApiPath}`;
 };
-
-export const buildLogoUrlFromBranding = (branding: BrandingConfig, origin = ''): string => buildLogoUrl(branding, origin);
 
