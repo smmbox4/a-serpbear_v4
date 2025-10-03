@@ -13,6 +13,60 @@ import { serializeError } from './errorSerialization';
 import { updateDomainStats } from './updateDomainStats';
 import { decryptDomainScraperSettings, parseDomainScraperSettings } from './domainScraperSettings';
 
+const describeScraperType = (scraperType?: SettingsType['scraper_type']): string => {
+   if (!scraperType || scraperType.length === 0) {
+      return 'none';
+   }
+
+   return scraperType;
+};
+
+const describeScrapingApiState = (settings: SettingsType): string => {
+   if (!settings?.scraping_api) {
+      return 'scraping API not configured';
+   }
+
+   return 'scraping API configured';
+};
+
+const logScraperSelectionSummary = (
+   globalSettings: SettingsType,
+   domainSpecificSettings: Map<string, SettingsType>,
+   requestedDomains: string[],
+) => {
+   const fallbackScraper = describeScraperType(globalSettings?.scraper_type);
+   console.log(`[REFRESH] Global scraper fallback: ${fallbackScraper}`);
+
+   if (domainSpecificSettings.size === 0) {
+      if (requestedDomains.length === 0) {
+         console.log('[REFRESH] No domains requested for refresh.');
+      } else {
+         console.log('[REFRESH] No domain-specific scraper overrides configured.');
+      }
+   } else {
+      for (const [domain, domainSettings] of domainSpecificSettings.entries()) {
+         const overrideScraper = describeScraperType(domainSettings.scraper_type);
+         const apiState = describeScrapingApiState(domainSettings);
+         console.log(`[REFRESH] Override for ${domain}: ${overrideScraper} (${apiState})`);
+      }
+   }
+
+   const fallbackDomains = requestedDomains.filter((domain) => !domainSpecificSettings.has(domain));
+   if (fallbackDomains.length > 0) {
+      fallbackDomains.forEach((domain) => {
+         console.log(`[REFRESH] Domain ${domain} using global scraper fallback: ${fallbackScraper}`);
+      });
+   } else if (requestedDomains.length > 0 && domainSpecificSettings.size > 0) {
+      console.log('[REFRESH] All requested domains use scraper overrides.');
+   }
+};
+
+const resolveEffectiveSettings = (
+   domain: string,
+   globalSettings: SettingsType,
+   domainSpecificSettings: Map<string, SettingsType>,
+): SettingsType => domainSpecificSettings.get(domain) ?? globalSettings;
+
 /**
  * Refreshes the Keywords position by Scraping Google Search Result by
  * Determining whether the keywords should be scraped in Parallel or not
@@ -58,6 +112,8 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
          return [domainPlain.domain, isEnabled];
       }));
    }
+
+   logScraperSelectionSummary(settings, domainSpecificSettings, domainNames);
 
    const skippedKeywords: Keyword[] = [];
    const eligibleKeywordModels = rawkeyword.filter((keyword) => {
@@ -105,7 +161,7 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
    // Determine if all keywords can be scraped in parallel by checking effective settings
    const parallelScrapers = ['scrapingant', 'serpapi', 'searchapi'];
    const canScrapeInParallel = keywords.every((keyword) => {
-      const effectiveSettings = domainSpecificSettings.get(keyword.domain) ?? settings;
+      const effectiveSettings = resolveEffectiveSettings(keyword.domain, settings, domainSpecificSettings);
       return parallelScrapers.includes(effectiveSettings.scraper_type);
    });
 
@@ -160,7 +216,7 @@ const refreshAndUpdateKeyword = async (
    domainSpecificSettings: Map<string, SettingsType>,
 ): Promise<KeywordType> => {
    const currentkeyword = keyword.get({ plain: true });
-   const effectiveSettings = domainSpecificSettings.get(currentkeyword.domain) ?? settings;
+   const effectiveSettings = resolveEffectiveSettings(currentkeyword.domain, settings, domainSpecificSettings);
    let refreshedkeywordData: RefreshResult | false = false;
    let scraperError: string | false = false;
 
@@ -360,7 +416,7 @@ const refreshParallel = async (
    domainSpecificSettings: Map<string, SettingsType>,
 ): Promise<ParallelKeywordRefresh[]> => {
    const promises = keywords.map(async (keyword) => {
-      const effectiveSettings = domainSpecificSettings.get(keyword.domain) ?? settings;
+      const effectiveSettings = resolveEffectiveSettings(keyword.domain, settings, domainSpecificSettings);
       try {
          const result = await scrapeKeywordFromGoogle(keyword, effectiveSettings);
          if (result === false) {
