@@ -4,12 +4,14 @@ import { performance } from 'perf_hooks';
 import { setTimeout as sleep } from 'timers/promises';
 import { Op } from 'sequelize';
 import { readFile, writeFile } from 'fs/promises';
+import Cryptr from 'cryptr';
 import { RefreshResult, removeFromRetryQueue, retryScrape, scrapeKeywordFromGoogle } from './scraper';
 import parseKeywords from './parseKeywords';
 import Keyword from '../database/models/keyword';
 import Domain from '../database/models/domain';
 import { serializeError } from './errorSerialization';
 import { updateDomainStats } from './updateDomainStats';
+import { decryptDomainScraperSettings, parseDomainScraperSettings } from './domainScraperSettings';
 
 /**
  * Refreshes the Keywords position by Scraping Google Search Result by
@@ -23,12 +25,37 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
 
    const domainNames = Array.from(new Set(rawkeyword.map((el) => el.domain).filter(Boolean)));
    let scrapePermissions = new Map<string, boolean>();
+   const domainSpecificSettings = new Map<string, SettingsType>();
 
    if (domainNames.length > 0) {
-      const domains = await Domain.findAll({ where: { domain: domainNames }, attributes: ['domain', 'scrapeEnabled'] });
+      const domains = await Domain.findAll({
+         where: { domain: domainNames },
+         attributes: ['domain', 'scrapeEnabled', 'scraper_settings'],
+      });
+      const secret = process.env.SECRET;
+      const cryptr = secret ? new Cryptr(secret) : null;
       scrapePermissions = new Map(domains.map((domain) => {
-         const domainPlain = domain.get({ plain: true }) as DomainType;
-         return [domainPlain.domain, domainPlain.scrapeEnabled !== false];
+         const domainPlain = domain.get({ plain: true }) as DomainType & { scraper_settings?: any };
+         const isEnabled = domainPlain.scrapeEnabled !== false;
+
+         if (cryptr) {
+            const persistedOverride = parseDomainScraperSettings(domainPlain?.scraper_settings);
+            const decryptedOverride = decryptDomainScraperSettings(persistedOverride, cryptr);
+            if (decryptedOverride?.scraper_type) {
+               const effectiveSettings: SettingsType = {
+                  ...settings,
+                  scraper_type: decryptedOverride.scraper_type,
+               };
+
+               if (typeof decryptedOverride.scraping_api === 'string') {
+                  effectiveSettings.scraping_api = decryptedOverride.scraping_api;
+               }
+
+               domainSpecificSettings.set(domainPlain.domain, effectiveSettings);
+            }
+         }
+
+         return [domainPlain.domain, isEnabled];
       }));
    }
 
@@ -76,12 +103,12 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
    const updatedKeywords: KeywordType[] = [];
 
    if (['scrapingant', 'serpapi', 'searchapi'].includes(settings.scraper_type)) {
-      const refreshedResults = await refreshParallel(keywords, settings);
+      const refreshedResults = await refreshParallel(keywords, settings, domainSpecificSettings);
       if (refreshedResults.length > 0) {
          for (const keyword of rawkeyword) {
-            const refreshedkeywordData = refreshedResults.find((k) => k && k.ID === keyword.ID);
-            if (refreshedkeywordData) {
-               const updatedkeyword = await updateKeywordPosition(keyword, refreshedkeywordData, settings);
+            const refreshedEntry = refreshedResults.find((entry) => entry && entry.keywordId === keyword.ID);
+            if (refreshedEntry) {
+               const updatedkeyword = await updateKeywordPosition(keyword, refreshedEntry.result, refreshedEntry.settings);
                updatedKeywords.push(updatedkeyword);
             }
          }
@@ -89,7 +116,7 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
    } else {
       for (const keyword of eligibleKeywordModels) {
          console.log('START SCRAPE: ', keyword.keyword);
-         const updatedkeyword = await refreshAndUpdateKeyword(keyword, settings);
+         const updatedkeyword = await refreshAndUpdateKeyword(keyword, settings, domainSpecificSettings);
          updatedKeywords.push(updatedkeyword);
          if (keywords.length > 0 && settings.scrape_delay && settings.scrape_delay !== '0') {
             const delay = parseInt(settings.scrape_delay, 10);
@@ -120,13 +147,18 @@ const refreshAndUpdateKeywords = async (rawkeyword:Keyword[], settings:SettingsT
  * @param {SettingsType} settings - The App Settings that contain the Scraper settings
  * @returns {Promise<KeywordType>}
  */
-const refreshAndUpdateKeyword = async (keyword: Keyword, settings: SettingsType): Promise<KeywordType> => {
+const refreshAndUpdateKeyword = async (
+   keyword: Keyword,
+   settings: SettingsType,
+   domainSpecificSettings: Map<string, SettingsType>,
+): Promise<KeywordType> => {
    const currentkeyword = keyword.get({ plain: true });
+   const effectiveSettings = domainSpecificSettings.get(currentkeyword.domain) ?? settings;
    let refreshedkeywordData: RefreshResult | false = false;
    let scraperError: string | false = false;
 
    try {
-      refreshedkeywordData = await scrapeKeywordFromGoogle(currentkeyword, settings);
+      refreshedkeywordData = await scrapeKeywordFromGoogle(currentkeyword, effectiveSettings);
       // If scraper returns false or has an error, capture the error
       if (!refreshedkeywordData) {
          scraperError = 'Scraper returned no data';
@@ -149,7 +181,7 @@ const refreshAndUpdateKeyword = async (keyword: Keyword, settings: SettingsType)
             updateData.lastUpdateError = JSON.stringify({
                date: theDate.toJSON(),
                error: scraperError,
-               scraper: settings.scraper_type,
+               scraper: effectiveSettings.scraper_type,
             });
          }
 
@@ -161,12 +193,12 @@ const refreshAndUpdateKeyword = async (keyword: Keyword, settings: SettingsType)
    }
 
    if (refreshedkeywordData) {
-      const updatedkeyword = await updateKeywordPosition(keyword, refreshedkeywordData, settings);
+      const updatedkeyword = await updateKeywordPosition(keyword, refreshedkeywordData, effectiveSettings);
       return updatedkeyword;
    }
 
    try {
-      if (settings?.scrape_retry) {
+      if (effectiveSettings?.scrape_retry) {
          await retryScrape(keyword.ID);
       } else {
          await removeFromRetryQueue(keyword.ID);
@@ -309,22 +341,33 @@ const buildErrorResult = (keyword: KeywordType, error: unknown): RefreshResult =
    error: typeof error === 'string' ? error : serializeError(error),
 });
 
-const refreshParallel = async (keywords:KeywordType[], settings:SettingsType) : Promise<RefreshResult[]> => {
+type ParallelKeywordRefresh = {
+   keywordId: number;
+   result: RefreshResult;
+   settings: SettingsType;
+};
+
+const refreshParallel = async (
+   keywords:KeywordType[],
+   settings:SettingsType,
+   domainSpecificSettings: Map<string, SettingsType>,
+): Promise<ParallelKeywordRefresh[]> => {
    const promises = keywords.map(async (keyword) => {
+      const effectiveSettings = domainSpecificSettings.get(keyword.domain) ?? settings;
       try {
-         const result = await scrapeKeywordFromGoogle(keyword, settings);
+         const result = await scrapeKeywordFromGoogle(keyword, effectiveSettings);
          if (result === false) {
-            return buildErrorResult(keyword, 'Scraper returned no data');
+            return { keywordId: keyword.ID, result: buildErrorResult(keyword, 'Scraper returned no data'), settings: effectiveSettings };
          }
 
          if (result) {
-            return result;
+            return { keywordId: keyword.ID, result, settings: effectiveSettings };
          }
 
-         return buildErrorResult(keyword, 'Unknown scraper response');
+         return { keywordId: keyword.ID, result: buildErrorResult(keyword, 'Unknown scraper response'), settings: effectiveSettings };
       } catch (error) {
          console.log('[ERROR] Parallel scrape failed for keyword:', keyword.keyword, error);
-         return buildErrorResult(keyword, error);
+         return { keywordId: keyword.ID, result: buildErrorResult(keyword, error), settings: effectiveSettings };
       }
    });
 

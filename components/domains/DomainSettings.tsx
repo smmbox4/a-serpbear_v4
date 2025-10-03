@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Icon from '../common/Icon';
 import Modal from '../common/Modal';
 import { useDeleteDomain, useFetchDomain, useUpdateDomain } from '../../services/domains';
@@ -7,10 +7,13 @@ import InputField from '../common/InputField';
 import SelectField from '../common/SelectField';
 import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
 import { isValidEmail } from '../../utils/client/validators';
+import SecretField from '../common/SecretField';
 
 type DomainSettingsProps = {
    domain:DomainType|null,
-   closeModal: Function
+   closeModal: Function,
+   availableScrapers?: SettingsType['available_scapers'],
+   systemScraperType?: string,
 }
 
 type DomainSettingsError = {
@@ -24,12 +27,14 @@ const deriveDomainActiveState = (domainData?: DomainType | null) => {
    return (scrapeEnabled !== false) && (notification !== false);
 };
 
-const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
+const DomainSettings = ({ domain, closeModal, availableScrapers = [], systemScraperType = '' }: DomainSettingsProps) => {
    const router = useRouter();
-   const [currentTab, setCurrentTab] = useState<'notification'|'searchconsole'>('notification');
+   const [currentTab, setCurrentTab] = useState<'notification'|'searchconsole'|'scraper'>('notification');
    const [showRemoveDomain, setShowRemoveDomain] = useState<boolean>(false);
    const [settingsError, setSettingsError] = useState<DomainSettingsError>({ type: '', msg: '' });
    const initialActiveState = deriveDomainActiveState(domain);
+   const initialScraperType = domain?.scraper_settings?.scraper_type ?? null;
+   const initialScraperHasKey = domain?.scraper_settings?.has_api_key ?? false;
    const [domainSettings, setDomainSettings] = useState<DomainSettings>(() => ({
       notification_interval: domain?.notification_interval ?? 'never',
       notification_emails: domain?.notification_emails ?? '',
@@ -37,7 +42,29 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
          property_type: 'domain', url: '', client_email: '', private_key: '',
       },
       scrapeEnabled: initialActiveState,
+      scraper_settings: {
+         scraper_type: initialScraperType,
+         has_api_key: initialScraperHasKey,
+         scraping_api: '',
+      },
    }));
+
+   const scraperOptions = useMemo(() => ([
+      { label: 'System Scraper', value: '__system__' },
+      ...availableScrapers.map((scraper) => ({ label: scraper.label, value: scraper.value })),
+   ]), [availableScrapers]);
+
+   const selectedScraperValues = domainSettings.scraper_settings?.scraper_type
+      ? [domainSettings.scraper_settings.scraper_type]
+      : ['__system__'];
+   const hasScraperOverride = Boolean(domainSettings.scraper_settings?.scraper_type);
+   const hasStoredScraperKey = domainSettings.scraper_settings?.has_api_key === true;
+   const scraperKeyInput = domainSettings.scraper_settings?.scraping_api ?? '';
+   const systemScraperLabel = useMemo(() => {
+      if (!systemScraperType) { return ''; }
+      const matched = availableScrapers.find((scraper) => scraper.value === systemScraperType);
+      return matched?.label || systemScraperType;
+   }, [availableScrapers, systemScraperType]);
 
    const { mutate: updateMutate, error: domainUpdateError, isLoading: isUpdating } = useUpdateDomain(() => closeModal(false));
    const { mutate: deleteMutate } = useDeleteDomain(() => { closeModal(false); router.push('/domains'); });
@@ -46,11 +73,21 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    useFetchDomain(router, domain?.domain || '', (domainObj:DomainType) => {
       const currentSearchConsoleSettings = domainObj.search_console && JSON.parse(domainObj.search_console);
       const nextActive = deriveDomainActiveState(domainObj);
-      setDomainSettings(prevSettings => ({
-         ...prevSettings,
-         search_console: currentSearchConsoleSettings || prevSettings.search_console,
-         scrapeEnabled: nextActive,
-      }));
+      const fetchedScraperSettings = domainObj.scraper_settings || null;
+      setDomainSettings(prevSettings => {
+         const prevScraper = prevSettings.scraper_settings || { scraper_type: null, scraping_api: '', has_api_key: false };
+         const nextScraper = {
+            scraper_type: fetchedScraperSettings?.scraper_type ?? null,
+            scraping_api: prevScraper.scraping_api ?? '',
+            has_api_key: fetchedScraperSettings?.has_api_key ?? false,
+         };
+         return ({
+            ...prevSettings,
+            search_console: currentSearchConsoleSettings || prevSettings.search_console,
+            scrapeEnabled: nextActive,
+            scraper_settings: nextScraper,
+         });
+      });
    });
 
    const updateDomainActiveState = (next: boolean) => {
@@ -61,6 +98,60 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
    };
 
    const isDomainActive = domainSettings.scrapeEnabled !== false;
+
+   const handleScraperSelect = (updated: string[]) => {
+      const nextValue = updated[0] || '__system__';
+      const scraperType = nextValue === '__system__' ? null : nextValue;
+      setDomainSettings(prevSettings => {
+         const prevScraper = prevSettings.scraper_settings || { scraper_type: null, scraping_api: '', has_api_key: false };
+         const keepExisting = prevScraper.scraper_type === scraperType;
+         return ({
+            ...prevSettings,
+            scraper_settings: {
+               scraper_type: scraperType,
+               scraping_api: keepExisting ? prevScraper.scraping_api ?? '' : '',
+               has_api_key: keepExisting ? prevScraper.has_api_key === true : false,
+            },
+         });
+      });
+   };
+
+   const handleScraperKeyChange = (value: string) => {
+      setDomainSettings(prevSettings => ({
+         ...prevSettings,
+         scraper_settings: {
+            ...(prevSettings.scraper_settings || { scraper_type: null, has_api_key: false }),
+            scraping_api: value,
+         },
+      }));
+   };
+
+   const buildDomainSettingsPayload = (): Partial<DomainSettings> => {
+      const { scraper_settings, ...rest } = domainSettings;
+      const payload: Partial<DomainSettings> = { ...rest };
+
+      if (scraper_settings) {
+         const nextType = typeof scraper_settings.scraper_type === 'string' && scraper_settings.scraper_type
+            ? scraper_settings.scraper_type
+            : null;
+
+         if (!nextType) {
+            payload.scraper_settings = { scraper_type: null };
+         } else {
+            const sanitized: DomainScraperSettings = { scraper_type: nextType };
+            const trimmedKey = (scraper_settings.scraping_api || '').trim();
+            if (trimmedKey) {
+               sanitized.scraping_api = trimmedKey;
+            }
+            if (!trimmedKey && scraper_settings.clear_api_key) {
+               sanitized.clear_api_key = true;
+            }
+            payload.scraper_settings = sanitized;
+         }
+      }
+
+      return payload;
+   };
 
    const updateDomain = () => {
       let error: DomainSettingsError | null = null;
@@ -74,13 +165,24 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
             error = { type: 'email', msg: 'Invalid Email' };
          }
       }
+      if (!error && domainSettings.scraper_settings?.scraper_type) {
+         const hasInput = typeof domainSettings.scraper_settings.scraping_api === 'string'
+            && domainSettings.scraper_settings.scraping_api.trim().length > 0;
+         if (!hasInput && !hasStoredScraperKey) {
+            error = { type: 'scraper', msg: 'API key is required for the selected scraper.' };
+         }
+      }
       if (error && error.type) {
          setSettingsError(error);
+         if (error.type === 'scraper') {
+            setCurrentTab('scraper');
+         }
          setTimeout(() => {
             setSettingsError({ type: '', msg: '' });
          }, 3000);
       } else if (domain) {
-         updateMutate({ domainSettings, domain });
+         const payload = buildDomainSettingsPayload();
+         updateMutate({ domainSettings: payload, domain });
       }
    };
 
@@ -102,6 +204,11 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
                      className={`${tabStyle} ${currentTab === 'searchconsole' ? ' bg-white text-blue-600 border-slate-200' : 'border-transparent'}`}
                      onClick={() => setCurrentTab('searchconsole')}>
                         <Icon type='google' /> Search Console
+                     </li>
+                     <li
+                     className={`${tabStyle} ${currentTab === 'scraper' ? ' bg-white text-blue-600 border-slate-200' : 'border-transparent'}`}
+                     onClick={() => setCurrentTab('scraper')}>
+                        <Icon type='settings-alt' /> Scraper
                      </li>
                   </ul>
                </div>
@@ -188,6 +295,42 @@ const DomainSettings = ({ domain, closeModal }: DomainSettingsProps) => {
                                  search_console: { ...(domainSettings.search_console as DomainSearchConsole), private_key: event.target.value },
                               })}
                            />
+                        </div>
+                     </>
+                  )}
+                  {currentTab === 'scraper' && (
+                     <>
+                        <div className="mb-4 flex justify-between items-center w-full">
+                           <SelectField
+                              label='Scraper'
+                              options={scraperOptions}
+                              selected={selectedScraperValues}
+                              defaultLabel="Select Scraper"
+                              updateField={(updated: string[]) => handleScraperSelect(updated)}
+                              multiple={false}
+                              rounded={'rounded'}
+                              fullWidth
+                           />
+                        </div>
+                        <div className="mb-4 flex flex-col justify-between items-center w-full">
+                           <SecretField
+                              label='API Key'
+                              value={scraperKeyInput}
+                              onChange={handleScraperKeyChange}
+                              placeholder={hasStoredScraperKey ? 'API key stored (leave blank to keep existing)' : 'Enter API key'}
+                              disabled={!hasScraperOverride}
+                              hasError={settingsError.type === 'scraper'}
+                           />
+                           {!hasScraperOverride && systemScraperLabel && (
+                              <p className='text-xs text-gray-500 mt-2 w-full text-left'>
+                                 Using system scraper: {systemScraperLabel}
+                              </p>
+                           )}
+                           {hasScraperOverride && hasStoredScraperKey && !scraperKeyInput && (
+                              <p className='text-xs text-gray-500 mt-2 w-full text-left'>
+                                 An API key is already stored for this domain.
+                              </p>
+                           )}
                         </div>
                      </>
                   )}

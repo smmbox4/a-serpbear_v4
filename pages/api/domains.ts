@@ -11,6 +11,11 @@ import { checkSearchConsoleIntegration, removeLocalSCData } from '../../utils/se
 import { withApiLogging } from '../../utils/apiLogging';
 import { logger } from '../../utils/logger';
 import { validateHostname } from '../../utils/validators/hostname';
+import {
+   buildPersistedScraperSettings,
+   maskDomainScraperSettings,
+   parseDomainScraperSettings,
+} from '../../utils/domainScraperSettings';
 
 type DomainsGetRes = {
    domains: DomainType[]
@@ -65,11 +70,22 @@ export const getDomains = async (req: NextApiRequest, res: NextApiResponse<Domai
       
       const allDomains: Domain[] = await Domain.findAll();
       const formattedDomains: DomainType[] = allDomains.map((el) => {
-         const domainItem:DomainType = el.get({ plain: true });
-         const scData = domainItem?.search_console ? JSON.parse(domainItem.search_console) : {};
-         const { client_email, private_key } = scData;
-         const searchConsoleData = scData ? { ...scData, client_email: client_email ? 'true' : '', private_key: private_key ? 'true' : '' } : {};
-         return { ...domainItem, search_console: JSON.stringify(searchConsoleData) };
+         const domainPlain = el.get({ plain: true }) as any;
+         const scData = domainPlain?.search_console ? JSON.parse(domainPlain.search_console) : {};
+         const { client_email, private_key } = scData || {};
+         const searchConsoleData = scData
+            ? {
+               ...scData,
+               client_email: client_email ? 'true' : '',
+               private_key: private_key ? 'true' : '',
+            }
+            : {};
+         const persistedScraperSettings = parseDomainScraperSettings(domainPlain?.scraper_settings);
+         return {
+            ...domainPlain,
+            search_console: JSON.stringify(searchConsoleData),
+            scraper_settings: maskDomainScraperSettings(persistedScraperSettings),
+         } as DomainType;
       });
       const theDomains: DomainType[] = withStats ? await getdomainStats(formattedDomains) : formattedDomains;
       return res.status(200).json({ domains: theDomains });
@@ -159,6 +175,7 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
       notification_emails,
       search_console,
       scrapeEnabled,
+      scraper_settings,
    } = payload;
 
    try {
@@ -168,10 +185,11 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
          return res.status(404).json({ domain: null, error: 'Domain not found' });
       }
 
+      const domainPlain = domainToUpdate.get({ plain: true });
+
       // Validate Search Console API Data
       if (search_console?.client_email && search_console?.private_key) {
-         const theDomainObj = domainToUpdate.get({ plain: true });
-         const isSearchConsoleAPIValid = await checkSearchConsoleIntegration({ ...theDomainObj, search_console: JSON.stringify(search_console) });
+         const isSearchConsoleAPIValid = await checkSearchConsoleIntegration({ ...domainPlain, search_console: JSON.stringify(search_console) });
          if (!isSearchConsoleAPIValid.isValid) {
             return res.status(400).json({ domain: null, error: isSearchConsoleAPIValid.error });
          }
@@ -190,6 +208,12 @@ export const updateDomain = async (req: NextApiRequest, res: NextApiResponse<Dom
       }
       if (search_console) {
          updates.search_console = JSON.stringify(search_console);
+      }
+      if (Object.prototype.hasOwnProperty.call(payload, 'scraper_settings')) {
+         const existingScraperSettings = parseDomainScraperSettings(domainPlain?.scraper_settings);
+         const cryptr = new Cryptr(process.env.SECRET as string);
+         const persistedOverride = buildPersistedScraperSettings(scraper_settings ?? null, existingScraperSettings, cryptr);
+         updates.scraper_settings = persistedOverride ? JSON.stringify(persistedOverride) : null;
       }
       domainToUpdate.set(updates);
       await domainToUpdate.save();

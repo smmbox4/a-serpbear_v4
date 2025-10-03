@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'fs/promises';
 import { Op } from 'sequelize';
+import Cryptr from 'cryptr';
 import Domain from '../../database/models/domain';
 import Keyword from '../../database/models/keyword';
 import refreshAndUpdateKeywords, { updateKeywordPosition } from '../../utils/refresh';
@@ -29,6 +30,7 @@ describe('refreshAndUpdateKeywords', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    process.env.SECRET = 'test-secret';
   });
 
   it('forces updating reset when scrape fails before updateKeywordPosition', async () => {
@@ -132,6 +134,73 @@ describe('refreshAndUpdateKeywords', () => {
     expect(keywordModel.set).toHaveBeenCalledWith(expect.objectContaining({ updating: false }));
     expect(removeFromRetryQueue).toHaveBeenCalledWith(42);
     expect(retryScrape).not.toHaveBeenCalled();
+  });
+
+  it('applies per-domain scraper overrides when scraping keywords', async () => {
+    const cryptr = new Cryptr(process.env.SECRET as string);
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      {
+        get: () => ({
+          domain: 'override.com',
+          scrapeEnabled: true,
+          scraper_settings: JSON.stringify({
+            scraper_type: 'scrapingant',
+            scraping_api: cryptr.encrypt('domain-key'),
+          }),
+        }),
+      },
+    ]);
+
+    const keywordPlain = {
+      ID: 77,
+      keyword: 'override keyword',
+      domain: 'override.com',
+      device: 'desktop',
+      country: 'US',
+      location: '',
+      position: 0,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdateError: 'false',
+      lastUpdated: '2024-01-01T00:00:00.000Z',
+      added: '2024-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      mapPackTop3: 0,
+    };
+
+    const keywordModel = {
+      ID: keywordPlain.ID,
+      keyword: keywordPlain.keyword,
+      domain: keywordPlain.domain,
+      get: jest.fn().mockReturnValue(keywordPlain),
+      set: jest.fn(),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    (Keyword.update as jest.Mock).mockResolvedValue([1]);
+    (scrapeKeywordFromGoogle as jest.Mock).mockResolvedValueOnce({
+      ID: keywordPlain.ID,
+      position: 3,
+      result: [],
+      mapPackTop3: false,
+      error: false,
+    } as RefreshResult);
+
+    const settings = {
+      scraper_type: 'custom-scraper',
+      scrape_retry: false,
+    } as SettingsType;
+
+    await refreshAndUpdateKeywords([keywordModel], settings);
+
+    expect(scrapeKeywordFromGoogle).toHaveBeenCalledWith(
+      expect.objectContaining({ keyword: 'override keyword' }),
+      expect.objectContaining({ scraper_type: 'scrapingant', scraping_api: 'domain-key' }),
+    );
   });
 
   it('clears updating state when parallel scraping rejects for a keyword', async () => {
