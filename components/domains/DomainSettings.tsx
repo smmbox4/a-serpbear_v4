@@ -311,10 +311,10 @@ const DomainSettings = forwardRef<HTMLDivElement, DomainSettingsProps>(
                               updateField={(updated: string[]) => handleScraperSelect(updated)}
                               multiple={false}
                               rounded={'rounded'}
-                              fullWidth
+                              minWidth={210}
                            />
                         </div>
-                        <div className="mb-4 flex flex-col justify-between items-center w-full">
+                        <div className="mb-4 flex flex-col items-start gap-2 w-full">
                            <SecretField
                               label='API Key'
                               value={scraperKeyInput}
