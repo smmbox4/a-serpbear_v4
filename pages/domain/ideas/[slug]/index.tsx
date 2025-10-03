@@ -19,8 +19,9 @@ import Modal from '../../../../components/common/Modal';
 import Footer from '../../../../components/common/Footer';
 import AddKeywords from '../../../../components/keywords/AddKeywords';
 import { useFetchKeywords } from '../../../../services/keywords';
+import { withAuth } from '../../../../hooks/useAuth';
 
-const DiscoverPage: NextPage = () => {
+export const DomainIdeasPage: NextPage = () => {
    const router = useRouter();
    const [showDomainSettings, setShowDomainSettings] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
@@ -140,4 +141,4 @@ const DiscoverPage: NextPage = () => {
    );
 };
 
-export default DiscoverPage;
+export default withAuth(DomainIdeasPage);

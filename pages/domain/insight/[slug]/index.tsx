@@ -20,8 +20,9 @@ import Footer from '../../../../components/common/Footer';
 import { useBranding } from '../../../../hooks/useBranding';
 import AddKeywords from '../../../../components/keywords/AddKeywords';
 import { useFetchKeywords } from '../../../../services/keywords';
+import { withAuth } from '../../../../hooks/useAuth';
 
-const InsightPage: NextPage = () => {
+export const DomainInsightPage: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
@@ -120,4 +121,4 @@ const InsightPage: NextPage = () => {
    );
 };
 
-export default InsightPage;
+export default withAuth(DomainInsightPage);

@@ -20,8 +20,9 @@ import Footer from '../../../../components/common/Footer';
 import { useBranding } from '../../../../hooks/useBranding';
 import AddKeywords from '../../../../components/keywords/AddKeywords';
 import { useFetchKeywords } from '../../../../services/keywords';
+import { withAuth } from '../../../../hooks/useAuth';
 
-const DiscoverPage: NextPage = () => {
+export const DomainConsolePage: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
@@ -157,4 +158,4 @@ const DiscoverPage: NextPage = () => {
    );
 };
 
-export default DiscoverPage;
+export default withAuth(DomainConsolePage);
