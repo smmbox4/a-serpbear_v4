@@ -1,7 +1,3 @@
-import { isValidHostname } from '../validators/hostname';
-
-export const isValidDomain = (domain:string): boolean => isValidHostname(domain);
-
 export const isValidUrl = (str: string) => {
    let url;
 

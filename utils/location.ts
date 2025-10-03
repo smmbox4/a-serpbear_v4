@@ -80,11 +80,3 @@ export const hasValidCityStatePair = (city?: string, state?: string): boolean =>
    return (hasCity && hasState) || (!hasCity && !hasState);
 };
 
-export const sameLocation = (
-   a?: string | null,
-   b?: string | null,
-): boolean => {
-   const normalizedA = formatLocation(parseLocation(a));
-   const normalizedB = formatLocation(parseLocation(b));
-   return normalizedA === normalizedB;
-};
