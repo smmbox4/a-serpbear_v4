@@ -382,5 +382,4 @@ const deriveDomainActiveState = (domainData?: DomainType | null) => {
 }
 
 DomainSettings.displayName = 'DomainSettings';
-
 export default DomainSettings;
