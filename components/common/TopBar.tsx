@@ -39,9 +39,15 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
        ${isDomainsPage ? 'lg:justify-between' : 'lg:justify-end'} bg-white lg:bg-transparent`}
       >
 
-         <h3 className={`p-4 text-base font-bold text-blue-700 ${isDomainsPage ? 'lg:pl-0' : 'lg:hidden'}`}>
-            <BrandTitle />
-            <button className='px-3 py-1 font-bold text-blue-700  lg:hidden ml-3 text-lg' onClick={() => showAddModal()}>+</button>
+         <h3
+            className={`flex items-center gap-3 p-4 text-base font-bold text-blue-700 ${isDomainsPage ? 'lg:pl-0' : 'lg:hidden'}`}
+         >
+            <BrandTitle
+               className="text-base font-bold text-blue-700"
+               markSize={64}
+               markClassName="mr-2"
+            />
+            <button className='px-3 py-1 font-bold text-blue-700 lg:hidden text-lg' onClick={() => showAddModal()}>+</button>
          </h3>
          {!isDomainsPage && router.asPath !== '/research' && (
             <Link
