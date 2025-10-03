@@ -114,6 +114,8 @@ export const DomainIdeasPage: NextPage = () => {
             ref={domainSettingsNodeRef}
             domain={showDomainSettings && theDomains && activDomain && activDomain.domain ? activDomain : null}
             closeModal={setShowDomainSettings}
+            availableScrapers={available_scapers || []}
+            systemScraperType={scraper_type}
             />
          </CSSTransition>
 

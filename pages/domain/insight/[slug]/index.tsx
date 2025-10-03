@@ -107,6 +107,8 @@ export const DomainInsightPage: NextPage = () => {
             ref={domainSettingsNodeRef}
             domain={showDomainSettings && theDomains && activDomain && activDomain.domain ? activDomain : null}
             closeModal={setShowDomainSettings}
+            availableScrapers={available_scapers || []}
+            systemScraperType={scraper_type}
             />
          </CSSTransition>
          <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter nodeRef={settingsNodeRef}>

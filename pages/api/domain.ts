@@ -5,6 +5,7 @@ import Cryptr from 'cryptr';
 import db from '../../database/database';
 import Domain from '../../database/models/domain';
 import verifyUser from '../../utils/verifyUser';
+import { maskDomainScraperSettings, parseDomainScraperSettings } from '../../utils/domainScraperSettings';
 
 type DomainGetResponse = {
    domain?: DomainType | null
@@ -33,7 +34,7 @@ const getDomain = async (req: NextApiRequest, res: NextApiResponse<DomainGetResp
          return res.status(404).json({ domain: null, error: 'Domain not found' });
       }
 
-      const parsedDomain = foundDomain.get({ plain: true }) as DomainType;
+      const parsedDomain = foundDomain.get({ plain: true }) as DomainType & { scraper_settings?: any };
 
       if (parsedDomain.search_console) {
          try {
@@ -46,6 +47,11 @@ const getDomain = async (req: NextApiRequest, res: NextApiResponse<DomainGetResp
             console.log('[Error] Parsing Search Console Keys.');
          }
       }
+
+      const parsedScraperSettings = maskDomainScraperSettings(
+         parseDomainScraperSettings(parsedDomain?.scraper_settings),
+      );
+      parsedDomain.scraper_settings = parsedScraperSettings;
 
       return res.status(200).json({ domain: parsedDomain });
    } catch (error) {

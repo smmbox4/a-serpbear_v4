@@ -1,3 +1,10 @@
+type DomainScraperSettings = {
+   scraper_type?: string | null,
+   scraping_api?: string | null,
+   has_api_key?: boolean,
+   clear_api_key?: boolean,
+}
+
 type DomainType = {
    ID: number,
    domain: string,
@@ -18,6 +25,7 @@ type DomainType = {
    scPosition?: number,
    search_console?: string,
    ideas_settings?: string,
+   scraper_settings?: DomainScraperSettings | null,
 }
 
 type KeywordHistory = {
@@ -81,6 +89,7 @@ type DomainSettings = {
    notification_emails: string,
    search_console?: DomainSearchConsole,
    scrapeEnabled?: boolean,
+   scraper_settings?: DomainScraperSettings | null,
 }
 
 type SettingsType = {

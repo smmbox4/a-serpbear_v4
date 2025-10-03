@@ -8,9 +8,10 @@ type SecretFieldProps = {
    placeholder?: string;
    classNames?: string;
    hasError?: boolean;
+   disabled?: boolean;
 }
 
-const SecretField = ({ label = '', value = '', placeholder = '', onChange, hasError = false }: SecretFieldProps) => {
+const SecretField = ({ label = '', value = '', placeholder = '', onChange, hasError = false, disabled = false }: SecretFieldProps) => {
    const [showValue, setShowValue] = useState(false);
    const labelStyle = 'mb-2 font-semibold inline-block text-sm text-gray-700 capitalize';
    return (
@@ -22,13 +23,14 @@ const SecretField = ({ label = '', value = '', placeholder = '', onChange, hasEr
             <Icon type={showValue ? 'eye-closed' : 'eye'} size={18} />
          </span>
          <input
-            className={`w-[210px] p-2 border border-gray-200 rounded focus:outline-none 
-             focus:border-blue-200 ${hasError ? ' border-red-400 focus:border-red-400' : ''} `}
+            className={`w-[210px] p-2 border border-gray-200 rounded focus:outline-none
+            focus:border-blue-200 ${hasError ? ' border-red-400 focus:border-red-400' : ''} ${disabled ? ' bg-gray-100 text-gray-500 cursor-not-allowed' : ''} `}
             type={showValue ? 'text' : 'password'}
             value={value}
             onChange={(event) => onChange(event.target.value)}
             autoComplete="off"
             placeholder={placeholder}
+            disabled={disabled}
          />
       </div>
    );

@@ -47,6 +47,9 @@ class Domain extends Model {
 
    @Column({ type: DataType.INTEGER, allowNull: true, defaultValue: 0 })
    mapPackKeywords!: number;
+
+   @Column({ type: DataType.TEXT, allowNull: true, defaultValue: null })
+   scraper_settings!: string | null;
 }
 
 export default Domain;

@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import Cryptr from 'cryptr';
 import handler from '../../pages/api/domains';
 import db from '../../database/database';
 import Domain from '../../database/models/domain';
@@ -47,6 +48,37 @@ const createMockResponse = () => ({
   status: jest.fn().mockReturnThis(),
   json: jest.fn(),
 }) as unknown as NextApiResponse;
+
+describe('GET /api/domains', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    verifyUserMock.mockReturnValue('authorized');
+    dbMock.sync.mockResolvedValue(undefined);
+  });
+
+  it('masks scraper overrides when returning the domain list', async () => {
+    DomainMock.findAll.mockResolvedValue([
+      {
+        get: jest.fn().mockReturnValue({
+          ID: 1,
+          domain: 'example.com',
+          slug: 'example-com',
+          search_console: null,
+          scraper_settings: JSON.stringify({ scraper_type: 'serpapi', scraping_api: 'encrypted-value' }),
+        }),
+      },
+    ]);
+
+    const req = { method: 'GET', headers: {}, query: {} } as unknown as NextApiRequest;
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.domains[0].scraper_settings).toEqual({ scraper_type: 'serpapi', has_api_key: true });
+  });
+});
 
 describe('POST /api/domains', () => {
   beforeEach(() => {
@@ -108,6 +140,7 @@ describe('PUT /api/domains', () => {
     slug: string;
     scrapeEnabled: boolean;
     notification: boolean;
+    scraper_settings: string | null;
   };
   let domainInstance: {
     get: jest.Mock;
@@ -120,6 +153,7 @@ describe('PUT /api/domains', () => {
     jest.clearAllMocks();
     verifyUserMock.mockReturnValue('authorized');
     dbMock.sync.mockResolvedValue(undefined);
+    process.env.SECRET = 'test-secret';
 
     persistedSnapshots = [];
     domainState = {
@@ -127,6 +161,7 @@ describe('PUT /api/domains', () => {
       slug: 'toggle-test-slug',
       scrapeEnabled: true,
       notification: true,
+      scraper_settings: null,
     };
 
     domainInstance = {
@@ -213,6 +248,51 @@ describe('PUT /api/domains', () => {
 
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({ domain: null, error: 'Domain not found' });
+  });
+
+  it('persists scraper override selections with encrypted API keys', async () => {
+    const cryptr = new Cryptr(process.env.SECRET as string);
+    domainState.scraper_settings = JSON.stringify({
+      scraper_type: 'serpapi',
+      scraping_api: cryptr.encrypt('old-key'),
+    });
+
+    const req = {
+      method: 'PUT',
+      query: { domain: domainState.domain },
+      body: { scraper_settings: { scraper_type: 'serpapi', scraping_api: 'new-key' } },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    const updatePayload = domainInstance.set.mock.calls[domainInstance.set.mock.calls.length - 1][0];
+    expect(updatePayload.scraper_settings).toEqual(expect.any(String));
+    const persisted = JSON.parse(updatePayload.scraper_settings);
+    expect(persisted.scraper_type).toBe('serpapi');
+    expect(persisted.scraping_api).not.toBe('new-key');
+    expect(cryptr.decrypt(persisted.scraping_api)).toBe('new-key');
+  });
+
+  it('removes scraper overrides when reverting to the system scraper', async () => {
+    domainState.scraper_settings = JSON.stringify({ scraper_type: 'serpapi', scraping_api: 'value' });
+
+    const req = {
+      method: 'PUT',
+      query: { domain: domainState.domain },
+      body: { scraper_settings: { scraper_type: null } },
+      headers: {},
+    } as unknown as NextApiRequest;
+
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    const updatePayload = domainInstance.set.mock.calls[domainInstance.set.mock.calls.length - 1][0];
+    expect(updatePayload.scraper_settings).toBeNull();
   });
 });
 

@@ -15,7 +15,10 @@ export const normalizeEnvFlag = (value: string | undefined) => {
 
 export const SCREENSHOTS_ENABLED = normalizeEnvFlag(process.env.NEXT_PUBLIC_SCREENSHOTS);
 
-const normalizeDomainPatch = (patch: Partial<DomainSettings>): Partial<DomainType> => {
+const normalizeDomainPatch = (
+   patch: Partial<DomainSettings>,
+   domain?: DomainType,
+): Partial<DomainType> => {
    const updates: Partial<DomainType> = {};
    if (typeof patch.scrapeEnabled === 'boolean') {
       updates.scrapeEnabled = patch.scrapeEnabled;
@@ -28,6 +31,36 @@ const normalizeDomainPatch = (patch: Partial<DomainSettings>): Partial<DomainTyp
    if (typeof patch.notification_emails === 'string') {
       updates.notification_emails = patch.notification_emails;
    }
+   if (Object.prototype.hasOwnProperty.call(patch, 'scraper_settings')) {
+      const incoming = patch.scraper_settings;
+      const currentType = domain?.scraper_settings?.scraper_type;
+      const currentHasKey = domain?.scraper_settings?.has_api_key === true;
+
+      if (!incoming || incoming.scraper_type === null || incoming.scraper_type === '') {
+         updates.scraper_settings = null;
+      } else {
+         const nextType = typeof incoming.scraper_type === 'string' && incoming.scraper_type
+            ? incoming.scraper_type
+            : currentType ?? null;
+
+         if (!nextType) {
+            updates.scraper_settings = null;
+         } else {
+            let hasKey = currentHasKey && currentType === nextType;
+            if (typeof incoming.scraping_api === 'string' && incoming.scraping_api.trim().length > 0) {
+               hasKey = true;
+            }
+            if (incoming.clear_api_key) {
+               hasKey = false;
+            }
+
+            updates.scraper_settings = {
+               scraper_type: nextType,
+               has_api_key: hasKey,
+            };
+         }
+      }
+   }
    return updates;
 };
 
@@ -36,7 +69,7 @@ const applyDomainCachePatch = (
    domain: DomainType,
    patch: Partial<DomainSettings>
 ) => {
-   const normalizedPatch = normalizeDomainPatch(patch);
+   const normalizedPatch = normalizeDomainPatch(patch, domain);
    if (Object.keys(normalizedPatch).length === 0) { return; }
 
    const domainListQueries = queryClient.getQueriesData<{ domains: DomainType[] }>({ queryKey: ['domains'] });

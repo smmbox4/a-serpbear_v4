@@ -44,7 +44,16 @@ const mockDomain: DomainType = {
    }),
    notifications: '',
    keywordsTracked: 0,
+   scraper_settings: {
+      scraper_type: null,
+      has_api_key: false,
+   },
 };
+
+const defaultAvailableScrapers = [
+   { label: 'SerpAPI', value: 'serpapi' },
+   { label: 'ScrapingAnt', value: 'scrapingant' },
+];
 
 describe('DomainSettings Component', () => {
    let queryClient: QueryClient;
@@ -90,16 +99,28 @@ describe('DomainSettings Component', () => {
          </QueryClientProvider>,
       );
 
+   const renderDomainSettings = (
+      domainOverride: DomainType = mockDomain,
+      props: Partial<React.ComponentProps<typeof DomainSettings>> = {},
+   ) => renderWithQueryClient(
+         <DomainSettings
+            domain={domainOverride}
+            closeModal={mockCloseModal}
+            availableScrapers={defaultAvailableScrapers}
+            systemScraperType="serpapi"
+            {...props}
+         />,
+      );
+
    it('renders without crashing', () => {
       mockUseFetchDomain.mockImplementation(() => {});
 
-      renderWithQueryClient(
-         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
-      );
+      renderDomainSettings();
 
       expect(screen.getByText('Domain Settings')).toBeInTheDocument();
       expect(screen.getByText('Notification')).toBeInTheDocument();
       expect(screen.getByText('Search Console')).toBeInTheDocument();
+      expect(screen.getByText('Scraper')).toBeInTheDocument();
    });
 
    it('syncs scrape and notify flags when toggling the unified active control', async () => {
@@ -111,9 +132,7 @@ describe('DomainSettings Component', () => {
          isLoading: false,
       });
 
-      renderWithQueryClient(
-         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
-      );
+      renderDomainSettings();
 
       expect(screen.getByText('Active')).toBeInTheDocument();
       const toggle = screen.getByLabelText('Toggle domain active status');
@@ -147,9 +166,7 @@ describe('DomainSettings Component', () => {
          isLoading: false,
       });
 
-      renderWithQueryClient(
-         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
-      );
+      renderDomainSettings();
 
       const emailInput = screen.getByDisplayValue('test@example.com');
       fireEvent.change(emailInput, {
@@ -183,9 +200,7 @@ describe('DomainSettings Component', () => {
          isLoading: false,
       });
 
-      renderWithQueryClient(
-         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
-      );
+      renderDomainSettings();
 
       const emailInput = screen.getByDisplayValue('test@example.com');
       fireEvent.change(emailInput, {
@@ -200,7 +215,9 @@ describe('DomainSettings Component', () => {
       expect(mutateMock).not.toHaveBeenCalled();
       expect(await screen.findByText('Invalid Email')).toBeInTheDocument();
 
-      jest.runOnlyPendingTimers();
+      act(() => {
+         jest.runOnlyPendingTimers();
+      });
       jest.useRealTimers();
    });
 
@@ -212,9 +229,7 @@ describe('DomainSettings Component', () => {
          capturedCallback = onSuccess;
       });
 
-      renderWithQueryClient(
-         <DomainSettings domain={mockDomain} closeModal={mockCloseModal} />,
-      );
+      renderDomainSettings();
 
       // Verify useFetchDomain was called with a callback
       expect(mockUseFetchDomain).toHaveBeenCalled();
@@ -264,6 +279,107 @@ describe('DomainSettings Component', () => {
       await waitFor(() => {
          expect(screen.getByDisplayValue('fetched@example.com')).toBeInTheDocument();
          expect(screen.getByDisplayValue('fetched-key')).toBeInTheDocument();
+      });
+   });
+
+   it('renders the scraper tab and toggles API key enablement based on selection', () => {
+      mockUseFetchDomain.mockImplementation(() => {});
+
+      renderDomainSettings();
+
+      const scraperTab = screen.getByText('Scraper');
+      fireEvent.click(scraperTab);
+
+      const apiInput = screen.getByPlaceholderText('Enter API key') as HTMLInputElement;
+      expect(apiInput.disabled).toBe(true);
+
+      fireEvent.click(screen.getByText('System Scraper'));
+      fireEvent.click(screen.getByText('SerpAPI'));
+
+      const enabledInput = screen.getByPlaceholderText('Enter API key') as HTMLInputElement;
+      expect(enabledInput.disabled).toBe(false);
+   });
+
+   it('requires an API key when selecting a scraper override without a stored key', async () => {
+      mockUseFetchDomain.mockImplementation(() => {});
+      const mutateMock = jest.fn();
+      mockUseUpdateDomain.mockReturnValue({ mutate: mutateMock, error: null, isLoading: false });
+
+      renderDomainSettings();
+
+      fireEvent.click(screen.getByText('Scraper'));
+      fireEvent.click(screen.getByText('System Scraper'));
+      fireEvent.click(screen.getByText('SerpAPI'));
+
+      fireEvent.click(screen.getByText('Update Settings'));
+
+      expect(mutateMock).not.toHaveBeenCalled();
+      expect(await screen.findByText('API key is required for the selected scraper.')).toBeInTheDocument();
+   });
+
+   it('submits a scraper override with a provided API key', async () => {
+      mockUseFetchDomain.mockImplementation(() => {});
+      const mutateMock = jest.fn();
+      mockUseUpdateDomain.mockReturnValue({ mutate: mutateMock, error: null, isLoading: false });
+
+      renderDomainSettings();
+
+      fireEvent.click(screen.getByText('Scraper'));
+      fireEvent.click(screen.getByText('System Scraper'));
+      fireEvent.click(screen.getByText('SerpAPI'));
+
+      const apiInput = screen.getByPlaceholderText('Enter API key');
+      fireEvent.change(apiInput, { target: { value: 'abc-123 ' } });
+
+      fireEvent.click(screen.getByText('Update Settings'));
+
+      await waitFor(() => {
+         expect(mutateMock).toHaveBeenCalled();
+      });
+
+      expect(mutateMock).toHaveBeenCalledWith({
+         domain: mockDomain,
+         domainSettings: expect.objectContaining({
+            scraper_settings: {
+               scraper_type: 'serpapi',
+               scraping_api: 'abc-123',
+            },
+         }),
+      });
+   });
+
+   it('retains stored scraper keys without forcing re-entry', async () => {
+      mockUseFetchDomain.mockImplementation(() => {});
+      const mutateMock = jest.fn();
+      mockUseUpdateDomain.mockReturnValue({ mutate: mutateMock, error: null, isLoading: false });
+
+      const domainWithOverride: DomainType = {
+         ...mockDomain,
+         scraper_settings: {
+            scraper_type: 'serpapi',
+            has_api_key: true,
+         },
+      };
+
+      renderDomainSettings(domainWithOverride);
+
+      fireEvent.click(screen.getByText('Scraper'));
+      const storedPlaceholder = screen.getByPlaceholderText('API key stored (leave blank to keep existing)');
+      expect(storedPlaceholder).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('Update Settings'));
+
+      await waitFor(() => {
+         expect(mutateMock).toHaveBeenCalled();
+      });
+
+      expect(mutateMock).toHaveBeenCalledWith({
+         domain: domainWithOverride,
+         domainSettings: expect.objectContaining({
+            scraper_settings: {
+               scraper_type: 'serpapi',
+            },
+         }),
       });
    });
 
