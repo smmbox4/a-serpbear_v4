@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import Icon from '../../components/common/Icon';
 import TopBar from '../../components/common/TopBar';
@@ -25,6 +25,7 @@ const Research: NextPage = () => {
    const [language, setLanguage] = useState('1000');
    const [country, setCountry] = useState('US');
    const [seedKeywords, setSeedKeywords] = useState('');
+   const settingsNodeRef = useRef<HTMLDivElement>(null);
 
    const { data: appSettings } = useFetchSettings();
    const adwordsConnected = Boolean(
@@ -144,8 +145,8 @@ const Research: NextPage = () => {
                />
             </div>
          </div>
-         <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter>
-             <Settings closeSettings={() => setShowSettings(false)} />
+         <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter nodeRef={settingsNodeRef}>
+             <Settings ref={settingsNodeRef} closeSettings={() => setShowSettings(false)} />
          </CSSTransition>
          <Footer currentVersion={appSettings?.settings?.version ? appSettings.settings.version : ''} />
       </div>

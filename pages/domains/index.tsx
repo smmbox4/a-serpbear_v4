@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -24,7 +24,9 @@ const Domains: NextPage = () => {
    // const [noScrapprtError, setNoScrapprtError] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
+   const addDomainNodeRef = useRef<HTMLDivElement>(null);
    const [domainThumbs, setDomainThumbs] = useState<thumbImages>({});
+   const settingsNodeRef = useRef<HTMLDivElement>(null);
    const { data: appSettingsData, isLoading: isAppSettingsLoading } = useFetchSettings();
    const { data: domainsData, isLoading: isDomainsLoading } = useFetchDomains(router, true);
 
@@ -155,11 +157,11 @@ const Domains: NextPage = () => {
             </div>
          </div>
 
-         <CSSTransition in={showAddDomain} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter>
-            <AddDomain closeModal={() => setShowAddDomain(false)} domains={domainsData?.domains || []} />
+         <CSSTransition in={showAddDomain} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter nodeRef={addDomainNodeRef}>
+            <AddDomain ref={addDomainNodeRef} closeModal={() => setShowAddDomain(false)} domains={domainsData?.domains || []} />
          </CSSTransition>
-         <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter>
-             <Settings closeSettings={() => setShowSettings(false)} />
+         <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter nodeRef={settingsNodeRef}>
+             <Settings ref={settingsNodeRef} closeSettings={() => setShowSettings(false)} />
          </CSSTransition>
          <Footer currentVersion={appSettings?.version ? appSettings.version : ''} />
       </PageLoader>

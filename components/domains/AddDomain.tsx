@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import Modal from '../common/Modal';
 import { useAddDomain } from '../../services/domains';
 import { isValidUrl } from '../../utils/client/validators';
@@ -8,7 +8,7 @@ type AddDomainProps = {
    closeModal: Function
 }
 
-const AddDomain = ({ closeModal, domains = [] }: AddDomainProps) => {
+const AddDomain = forwardRef<HTMLDivElement, AddDomainProps>(({ closeModal, domains = [] }: AddDomainProps, ref) => {
    const [newDomain, setNewDomain] = useState<string>('');
    const [newDomainError, setNewDomainError] = useState('');
    const { mutate: addMutate, isLoading: isAdding } = useAddDomain(() => closeModal());
@@ -56,7 +56,7 @@ const AddDomain = ({ closeModal, domains = [] }: AddDomainProps) => {
    };
 
    return (
-      <Modal closeModal={() => { closeModal(false); }} title={'Add New Domain'}>
+      <Modal ref={ref} closeModal={() => { closeModal(false); }} title={'Add New Domain'}>
          <div data-testid="adddomain_modal">
             <h4 className='text-sm mt-4 pb-2'>Website URL(s)</h4>
             <textarea
@@ -77,6 +77,8 @@ const AddDomain = ({ closeModal, domains = [] }: AddDomainProps) => {
          </div>
       </Modal>
    );
-};
+});
+
+AddDomain.displayName = 'AddDomain';
 
 export default AddDomain;
