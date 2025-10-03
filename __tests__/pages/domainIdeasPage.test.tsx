@@ -2,7 +2,7 @@
 
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import DomainIdeasPage from '../../pages/domain/ideas/[slug]';
+import { DomainIdeasPage } from '../../pages/domain/ideas/[slug]';
 import { useFetchDomains } from '../../services/domains';
 import { useFetchKeywordIdeas } from '../../services/adwords';
 import { useFetchSettings } from '../../services/settings';

@@ -17,8 +17,9 @@ import { useFetchSettings } from '../../../services/settings';
 import AddKeywords from '../../../components/keywords/AddKeywords';
 import Footer from '../../../components/common/Footer';
 import { useBranding } from '../../../hooks/useBranding';
+import { withAuth } from '../../../hooks/useAuth';
 
-const SingleDomain: NextPage = () => {
+export const DomainPage: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
@@ -115,4 +116,4 @@ const SingleDomain: NextPage = () => {
    );
 };
 
-export default SingleDomain;
+export default withAuth(DomainPage);
