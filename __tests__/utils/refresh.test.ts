@@ -675,6 +675,228 @@ describe('refreshAndUpdateKeywords', () => {
     }
   });
 
+  it('respects domain scraper overrides when determining parallel vs sequential mode', async () => {
+    const cryptr = new Cryptr(process.env.SECRET as string);
+    
+    // Setup: global settings use parallel-friendly scraper (serpapi)
+    // but domain override uses custom scraper (not parallel-friendly)
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      {
+        get: () => ({
+          domain: 'parallel.com',
+          scrapeEnabled: true,
+          scraper_settings: null, // No override - will use global serpapi
+        }),
+      },
+      {
+        get: () => ({
+          domain: 'sequential.com',
+          scrapeEnabled: true,
+          scraper_settings: JSON.stringify({
+            scraper_type: 'custom-scraper',
+            scraping_api: cryptr.encrypt('custom-key'),
+          }),
+        }),
+      },
+    ]);
+
+    const keyword1Plain = {
+      ID: 100,
+      keyword: 'keyword1',
+      domain: 'parallel.com',
+      device: 'desktop',
+      country: 'US',
+      location: '',
+      position: 1,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdateError: 'false',
+      lastUpdated: '2024-01-01T00:00:00.000Z',
+      added: '2024-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      mapPackTop3: 0,
+    };
+
+    const keyword2Plain = {
+      ID: 101,
+      keyword: 'keyword2',
+      domain: 'sequential.com', // Has override to custom-scraper
+      device: 'desktop',
+      country: 'US',
+      location: '',
+      position: 2,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdateError: 'false',
+      lastUpdated: '2024-01-01T00:00:00.000Z',
+      added: '2024-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      mapPackTop3: 0,
+    };
+
+    const keywordModel1 = {
+      ID: keyword1Plain.ID,
+      keyword: keyword1Plain.keyword,
+      domain: keyword1Plain.domain,
+      get: jest.fn().mockReturnValue(keyword1Plain),
+      set: jest.fn(),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    const keywordModel2 = {
+      ID: keyword2Plain.ID,
+      keyword: keyword2Plain.keyword,
+      domain: keyword2Plain.domain,
+      get: jest.fn().mockReturnValue(keyword2Plain),
+      set: jest.fn(),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    (Keyword.update as jest.Mock).mockResolvedValue([2]);
+    (scrapeKeywordFromGoogle as jest.Mock).mockResolvedValue({
+      ID: keyword1Plain.ID,
+      position: 1,
+      result: [],
+      mapPackTop3: false,
+      error: false,
+    } as RefreshResult);
+
+    const settings = {
+      scraper_type: 'serpapi', // Global setting is parallel-friendly
+      scrape_retry: false,
+    } as SettingsType;
+
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    await refreshAndUpdateKeywords([keywordModel1, keywordModel2], settings);
+
+    // Should use sequential mode because keyword2 has a custom-scraper override
+    // which is not in the parallel-friendly list
+    expect(consoleSpy).toHaveBeenCalledWith('START SCRAPE: ', 'keyword1');
+    expect(consoleSpy).toHaveBeenCalledWith('START SCRAPE: ', 'keyword2');
+    expect(consoleSpy).not.toHaveBeenCalledWith('ALL DONE!!!'); // This is only logged in parallel mode
+
+    consoleSpy.mockRestore();
+  });
+
+  it('uses parallel mode when all domain overrides are parallel-friendly', async () => {
+    const cryptr = new Cryptr(process.env.SECRET as string);
+    
+    // Setup: domain overrides use parallel-friendly scrapers
+    (Domain.findAll as jest.Mock).mockResolvedValue([
+      {
+        get: () => ({
+          domain: 'domain1.com',
+          scrapeEnabled: true,
+          scraper_settings: JSON.stringify({
+            scraper_type: 'scrapingant',
+            scraping_api: cryptr.encrypt('key1'),
+          }),
+        }),
+      },
+      {
+        get: () => ({
+          domain: 'domain2.com',
+          scrapeEnabled: true,
+          scraper_settings: JSON.stringify({
+            scraper_type: 'searchapi',
+            scraping_api: cryptr.encrypt('key2'),
+          }),
+        }),
+      },
+    ]);
+
+    const keyword1Plain = {
+      ID: 200,
+      keyword: 'parallel-keyword1',
+      domain: 'domain1.com',
+      device: 'desktop',
+      country: 'US',
+      location: '',
+      position: 1,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdateError: 'false',
+      lastUpdated: '2024-01-01T00:00:00.000Z',
+      added: '2024-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      mapPackTop3: 0,
+    };
+
+    const keyword2Plain = {
+      ID: 201,
+      keyword: 'parallel-keyword2',
+      domain: 'domain2.com',
+      device: 'desktop',
+      country: 'US',
+      location: '',
+      position: 2,
+      volume: 0,
+      updating: true,
+      sticky: false,
+      history: '{}',
+      lastResult: '[]',
+      lastUpdateError: 'false',
+      lastUpdated: '2024-01-01T00:00:00.000Z',
+      added: '2024-01-01T00:00:00.000Z',
+      url: '',
+      tags: '[]',
+      mapPackTop3: 0,
+    };
+
+    const keywordModel1 = {
+      ID: keyword1Plain.ID,
+      keyword: keyword1Plain.keyword,
+      domain: keyword1Plain.domain,
+      get: jest.fn().mockReturnValue(keyword1Plain),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    const keywordModel2 = {
+      ID: keyword2Plain.ID,
+      keyword: keyword2Plain.keyword,
+      domain: keyword2Plain.domain,
+      get: jest.fn().mockReturnValue(keyword2Plain),
+      update: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Keyword;
+
+    (Keyword.update as jest.Mock).mockResolvedValue([2]);
+    (scrapeKeywordFromGoogle as jest.Mock).mockResolvedValue({
+      ID: keyword1Plain.ID,
+      position: 1,
+      result: [],
+      mapPackTop3: false,
+      error: false,
+    } as RefreshResult);
+
+    const settings = {
+      scraper_type: 'custom-scraper', // Global is NOT parallel-friendly
+      scrape_retry: false,
+    } as SettingsType;
+
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    await refreshAndUpdateKeywords([keywordModel1, keywordModel2], settings);
+
+    // Should use parallel mode because both domain overrides are parallel-friendly
+    expect(consoleSpy).toHaveBeenCalledWith('ALL DONE!!!'); // This is only logged in parallel mode
+    expect(consoleSpy).not.toHaveBeenCalledWith('START SCRAPE: ', expect.anything());
+
+    consoleSpy.mockRestore();
+  });
+
   it('handles various position input types correctly with simplified logic', async () => {
     // Test the simplified newPos logic: Number(updatedKeyword.position ?? keyword.position ?? 0) || 0
     const baseKeyword = {
