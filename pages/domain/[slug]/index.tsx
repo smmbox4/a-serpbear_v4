@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -27,6 +27,10 @@ export const DomainPage: NextPage = () => {
    const [showAddDomain, setShowAddDomain] = useState(false);
    const [showDomainSettings, setShowDomainSettings] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
+   const addDomainNodeRef = useRef<HTMLDivElement>(null);
+   const domainSettingsNodeRef = useRef<HTMLDivElement>(null);
+   const settingsNodeRef = useRef<HTMLDivElement>(null);
+   const addKeywordsNodeRef = useRef<HTMLDivElement>(null);
    const [keywordSPollInterval, setKeywordSPollInterval] = useState<undefined|number>(undefined);
    const { data: appSettingsData, isLoading: isAppSettingsLoading } = useFetchSettings();
    const { data: domainsData } = useFetchDomains(router, false);
@@ -89,23 +93,25 @@ export const DomainPage: NextPage = () => {
             </div>
          </div>
 
-         <CSSTransition in={showAddDomain} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter>
-            <AddDomain closeModal={() => setShowAddDomain(false)} domains={domainsData?.domains || []} />
+         <CSSTransition in={showAddDomain} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter nodeRef={addDomainNodeRef}>
+            <AddDomain ref={addDomainNodeRef} closeModal={() => setShowAddDomain(false)} domains={domainsData?.domains || []} />
          </CSSTransition>
 
-         <CSSTransition in={showDomainSettings} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter>
+         <CSSTransition in={showDomainSettings} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter nodeRef={domainSettingsNodeRef}>
             <DomainSettings
+            ref={domainSettingsNodeRef}
             domain={showDomainSettings && theDomains && activDomain && activDomain.domain ? activDomain : null}
             closeModal={setShowDomainSettings}
             availableScrapers={available_scapers || []}
             systemScraperType={scraper_type}
             />
          </CSSTransition>
-         <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter>
-             <Settings closeSettings={() => setShowSettings(false)} />
+         <CSSTransition in={showSettings} timeout={300} classNames="settings_anim" unmountOnExit mountOnEnter nodeRef={settingsNodeRef}>
+             <Settings ref={settingsNodeRef} closeSettings={() => setShowSettings(false)} />
          </CSSTransition>
-         <CSSTransition in={showAddKeywords} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter>
+         <CSSTransition in={showAddKeywords} timeout={300} classNames="modal_anim" unmountOnExit mountOnEnter nodeRef={addKeywordsNodeRef}>
             <AddKeywords
+               ref={addKeywordsNodeRef}
                domain={activDomain?.domain || ''}
                scraperName={activeScraper?.label || ''}
                keywords={theKeywords}

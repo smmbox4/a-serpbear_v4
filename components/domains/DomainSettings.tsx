@@ -27,7 +27,7 @@ const deriveDomainActiveState = (domainData?: DomainType | null) => {
    return (scrapeEnabled !== false) && (notification !== false);
 };
 
-const DomainSettings = ({ domain, closeModal, availableScrapers = [], systemScraperType = '' }: DomainSettingsProps) => {
+ const DomainSettings = ({ domain, closeModal, availableScrapers = [], systemScraperType = '' }: DomainSettingsProps) => {
    const router = useRouter();
    const [currentTab, setCurrentTab] = useState<'notification'|'searchconsole'|'scraper'>('notification');
    const [showRemoveDomain, setShowRemoveDomain] = useState<boolean>(false);
@@ -189,7 +189,7 @@ const DomainSettings = ({ domain, closeModal, availableScrapers = [], systemScra
    const tabStyle = `inline-block px-4 py-2 rounded-md mr-3 cursor-pointer text-sm select-none z-10
                      text-gray-600 border border-b-0 relative top-[1px] rounded-b-none`;
    return (
-      <div>
+      <div ref={ref}>
          <Modal closeModal={() => closeModal(false)} title={'Domain Settings'} width="[500px]" verticalCenter={currentTab === 'searchconsole'} >
             <div data-testid="domain_settings" className=" text-sm">
                <div className=' mt-3 mb-5 border  border-slate-200 px-2 py-4 pb-0
@@ -378,6 +378,8 @@ const DomainSettings = ({ domain, closeModal, availableScrapers = [], systemScra
          )}
       </div>
    );
-};
+});
+
+DomainSettings.displayName = 'DomainSettings';
 
 export default DomainSettings;

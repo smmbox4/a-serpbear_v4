@@ -104,6 +104,29 @@ describe('SingleDomain Page', () => {
       if (button) fireEvent.click(button);
       expect(screen.getByTestId('adddomain_modal')).toBeVisible();
    });
+
+   it('toggles the AddDomain modal without transition errors', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
+
+      const openButton = screen.getByTestId('add_domain');
+      expect(() => fireEvent.click(openButton)).not.toThrow();
+
+      await waitFor(() => {
+         expect(screen.getByTestId('adddomain_modal')).toBeVisible();
+      });
+
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
+      expect(() => fireEvent.click(cancelButton)).not.toThrow();
+
+      await waitFor(() => {
+         expect(screen.queryByTestId('adddomain_modal')).not.toBeInTheDocument();
+      });
+
+      expect(errorSpy).not.toHaveBeenCalled();
+      errorSpy.mockRestore();
+   });
    it('Should Display the AddKeywords Modal on Add Keyword Button Click.', async () => {
       render(<QueryClientProvider client={queryClient}><SingleDomain /></QueryClientProvider>);
       const button = screen.getByTestId('add_keyword');
