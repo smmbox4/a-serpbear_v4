@@ -124,6 +124,7 @@ type SettingsType = {
    white_label_enabled?: boolean,
    white_label_logo_file?: string,
    platform_name?: string,
+   language?: 'en' | 'ru',
 }
 
 type KeywordSCDataChild = {

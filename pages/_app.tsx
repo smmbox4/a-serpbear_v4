@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Toaster } from 'react-hot-toast';
 import { getBranding, type BrandingConfig } from '../utils/branding';
+import { LanguageProvider } from '../i18n/LanguageContext';
 
 type CustomAppProps = AppProps & {
    pageProps: {
@@ -22,9 +23,11 @@ function MyApp({ Component, pageProps }: CustomAppProps) {
       },
     }));
    return <QueryClientProvider client={queryClient}>
-            <Component {...pageProps} />
-            <ReactQueryDevtools initialIsOpen={false} />
-            <Toaster position="bottom-center" containerClassName="react_toaster" />
+            <LanguageProvider>
+              <Component {...pageProps} />
+              <ReactQueryDevtools initialIsOpen={false} />
+              <Toaster position="bottom-center" containerClassName="react_toaster" />
+            </LanguageProvider>
           </QueryClientProvider>;
 }
 

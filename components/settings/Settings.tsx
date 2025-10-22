@@ -7,8 +7,10 @@ import NotificationSettings from './NotificationSettings';
 import ScraperSettings from './ScraperSettings';
 import useOnKey from '../../hooks/useOnKey';
 import IntegrationSettings from './IntegrationSettings';
+import LanguageSettings from './LanguageSettings';
 import { DEFAULT_BRANDING } from '../../utils/branding';
 import { useBranding } from '../../hooks/useBranding';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 type SettingsProps = {
    closeSettings: Function,
@@ -43,6 +45,7 @@ export const defaultSettings: SettingsType = createDefaultSettings(DEFAULT_BRAND
 
 const Settings = forwardRef<HTMLDivElement, SettingsProps>(({ closeSettings }:SettingsProps, ref) => {
    const { branding } = useBranding();
+   const { t } = useTranslation();
    const [currentTab, setCurrentTab] = useState<string>('scraper');
    const [settings, setSettings] = useState<SettingsType>(defaultSettings);
    const [settingsError, setSettingsError] = useState<SettingsError|null>(null);
@@ -141,7 +144,7 @@ const Settings = forwardRef<HTMLDivElement, SettingsProps>(({ closeSettings }:Se
             <div className="absolute w-full max-w-md bg-white customShadow top-0 right-0 h-dvh overflow-y-auto" data-loading={isLoading} >
                {isLoading && <div className='absolute flex content-center items-center h-full'><Icon type="loading" size={24} /></div>}
                <div className='settings__header px-5 py-4 text-slate-500'>
-                  <h3 className=' text-black text-lg font-bold'>Settings</h3>
+                  <h3 className=' text-black text-lg font-bold'>{t.settings.title}</h3>
                   <button
                   className=' absolute top-2 right-2 p-2 px- text-gray-400 hover:text-gray-700 transition-all hover:rotate-90'
                   onClick={() => closeSettings()}>
@@ -153,17 +156,22 @@ const Settings = forwardRef<HTMLDivElement, SettingsProps>(({ closeSettings }:Se
                      <li
                      className={`${tabStyle} ${currentTab === 'scraper' ? tabStyleActive : 'border-transparent '}`}
                      onClick={() => setCurrentTab('scraper')}>
-                       <Icon type='scraper' /> Scraper
+                       <Icon type='scraper' /> {t.settings.tabs.scraper}
                      </li>
                      <li
                      className={`${tabStyle} ${currentTab === 'notification' ? tabStyleActive : 'border-transparent'}`}
                      onClick={() => setCurrentTab('notification')}>
-                        <Icon type='email' /> Notification
+                        <Icon type='email' /> {t.settings.tabs.notification}
                      </li>
                      <li
                      className={`${tabStyle} ${currentTab === 'integrations' ? tabStyleActive : 'border-transparent'}`}
                      onClick={() => setCurrentTab('integrations')}>
-                       <Icon type='integration' size={14} /> Integrations
+                       <Icon type='integration' size={14} /> {t.settings.tabs.integrations}
+                     </li>
+                     <li
+                     className={`${tabStyle} ${currentTab === 'language' ? tabStyleActive : 'border-transparent'}`}
+                     onClick={() => setCurrentTab('language')}>
+                       <Icon type='settings-alt' size={14} /> {t.settings.tabs.language}
                      </li>
                   </ul>
                </div>
@@ -183,11 +191,17 @@ const Settings = forwardRef<HTMLDivElement, SettingsProps>(({ closeSettings }:Se
                   closeSettings={closeSettings}
                    />
                )}
+               {currentTab === 'language' && settings && (
+                  <LanguageSettings
+                  settings={settings}
+                  updateSettings={updateSettings}
+                   />
+               )}
                <div className=' border-t-[1px] border-gray-200 p-2 px-3'>
                   <button
                   onClick={() => performUpdate()}
                   className=' py-3 px-5 w-full rounded cursor-pointer bg-blue-700 text-white font-semibold text-sm'>
-                  {isUpdating && <Icon type="loading" size={14} />} Update Settings
+                  {isUpdating && <Icon type="loading" size={14} />} {t.settings.updateSettings}
                   </button>
                </div>
             </div>

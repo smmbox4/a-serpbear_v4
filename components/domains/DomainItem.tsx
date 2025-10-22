@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import Icon from '../common/Icon';
 import { useUpdateDomainToggles } from '../../services/domains';
 import { TOGGLE_TRACK_CLASS_NAME } from '../common/toggleStyles';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 const COMPACT_NUMBER_FORMATTER = new Intl.NumberFormat('en-US', {
    notation: 'compact',
@@ -45,6 +46,7 @@ const DomainItem = ({
    screenshotsEnabled = true,
    showMapPackStat = false,
 }: DomainItemProps) => {
+   const { t } = useTranslation();
    const {
       keywordsUpdated,
       slug,
@@ -74,7 +76,7 @@ const DomainItem = ({
       const payload: Partial<DomainSettings> = { scrapeEnabled: nextValue };
       try {
          await updateDomainToggle({ domain, domainSettings: payload });
-         const message = `${domain.domain} ${nextValue ? 'marked as Active' : 'marked as Deactive'}.`;
+         const message = `${domain.domain} ${nextValue ? t.domains.markedActive : t.domains.markedDeactive}.`;
          toast(message, { icon: '✔️' });
       } catch (error) {
          console.log('Error updating domain toggle', error);
@@ -91,7 +93,7 @@ const DomainItem = ({
                      <button
                         className=' absolute right-1 top-0 text-gray-400 p-1 transition-all
                         invisible opacity-0 group-hover:visible group-hover:opacity-100 hover:text-gray-600 z-10'
-                        title='Reload Website Screenshot'
+                        title={t.domains.reloadScreenshot}
                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); updateThumb(domain.domain); }}
                      >
                         <Icon type="reload" size={12} />
@@ -107,16 +109,16 @@ const DomainItem = ({
                  <div className='flex items-center justify-between gap-3 text-xs text-gray-600'>
                     {keywordsUpdated ? (
                        <span>
-                          Updated <TimeAgo title={dayjs(keywordsUpdated).format('DD-MMM-YYYY, hh:mm:ss A')} date={keywordsUpdated} />
+                          {t.domains.updated} <TimeAgo title={dayjs(keywordsUpdated).format('DD-MMM-YYYY, hh:mm:ss A')} date={keywordsUpdated} />
                        </span>
                     ) : (
-                       <span>Status</span>
+                       <span>{t.domains.status}</span>
                     )}
                     <label
                        className={`relative inline-flex items-center cursor-pointer gap-2 ${isToggleUpdating ? 'opacity-70 cursor-not-allowed' : ''}`}
                        onClick={(event) => { event.stopPropagation(); }}
                     >
-                       <span className='font-medium text-gray-700'>{isDomainActive ? 'Active' : 'Deactive'}</span>
+                       <span className='font-medium text-gray-700'>{isDomainActive ? t.common.active : t.common.deactive}</span>
                        <input
                           type='checkbox'
                           className='sr-only peer'
@@ -138,18 +140,18 @@ const DomainItem = ({
            </div>
             <div className='flex-1 flex flex-col p-4'>
                <div className=' bg-indigo-50 p-1 px-2 text-xs rounded-full absolute ml-3 mt-[-8px]'>
-                  <Icon type="tracking" size={13} color="#364aff" /> Tracker
+                  <Icon type="tracking" size={13} color="#364aff" /> {t.domains.tracker}
                </div>
                <div className='dom_stats flex flex-1 font-semibold text-2xl p-4 pt-5 rounded border border-[#E9EBFF] text-center'>
                   <div className="flex-1 relative">
-                     <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Keywords</span>{keywordsTracked}
+                     <span className='block text-xs lg:text-sm text-gray-500 mb-1'>{t.domains.keywords}</span>{keywordsTracked}
                   </div>
                   <div className="flex-1 relative">
-                     <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Avg position</span>{avgPosition}
+                     <span className='block text-xs lg:text-sm text-gray-500 mb-1'>{t.domains.avgPosition}</span>{avgPosition}
                   </div>
                   {showMapPackStat && (
                      <div className="flex-1 relative">
-                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Map Pack</span>{mapPackKeywords}
+                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>{t.domains.mapPack}</span>{mapPackKeywords}
                      </div>
                   )}
                </div>
@@ -157,19 +159,19 @@ const DomainItem = ({
             {isConsoleIntegrated && (
                <div className='flex-1 flex-col p-4 lg:basis-56'>
                   <div className=' bg-indigo-50 p-1 px-2 text-xs rounded-full absolute ml-3 mt-[-8px]'>
-                     <Icon type="google" size={13} /> Search Console (7d)
+                     <Icon type="google" size={13} /> {t.domains.searchConsole} (7d)
                   </div>
                   <div className='dom_sc_stats flex flex-1 h-full font-semibold text-2xl p-4 pt-5 rounded border border-[#E9EBFF] text-center'>
                      <div className="flex-1 relative">
-                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Visits</span>
+                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>{t.domains.visits}</span>
                         {renderCompactMetric(scVisits)}
                      </div>
                      <div className="flex-1 relative">
-                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Impressions</span>
+                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>{t.domains.impressions}</span>
                         {renderCompactMetric(scImpressions)}
                      </div>
                      <div className="flex-1 relative">
-                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>Avg position</span>
+                        <span className='block text-xs lg:text-sm text-gray-500 mb-1'>{t.domains.avgPosition}</span>
                         {scPosition}
                      </div>
                   </div>

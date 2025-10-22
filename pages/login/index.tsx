@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { BrandTitle } from '../../components/common/Branding';
 import { useBranding } from '../../hooks/useBranding';
 import { getClientOrigin } from '../../utils/client/origin';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 type LoginError = {
    type: string,
@@ -18,6 +19,7 @@ const Login: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
+   const { t } = useTranslation();
 
    const loginuser = async () => {
       let loginError: LoginError |null = null;
@@ -68,7 +70,7 @@ const Login: NextPage = () => {
    return (
       <div className={'Login'}>
          <Head>
-            <title>Login - {platformName}</title>
+            <title>{t.login.title} - {platformName}</title>
          </Head>
          <div className='flex items-center justify-center w-full min-h-screen overflow-y-auto'>
             <div className='w-80'>
@@ -77,7 +79,7 @@ const Login: NextPage = () => {
                </h3>
                <div className='relative bg-[white] rounded-md text-sm border p-5'>
                   <div className="settings__section__input mb-5">
-                     <label className={labelStyle}>Username</label>
+                     <label className={labelStyle}>{t.login.username}</label>
                      <input
                         className={`
                            ${inputStyle} 
@@ -89,7 +91,7 @@ const Login: NextPage = () => {
                      />
                   </div>
                   <div className="settings__section__input mb-5">
-                     <label className={labelStyle}>Password</label>
+                     <label className={labelStyle}>{t.login.password}</label>
                      <input
                         className={`
                            ${inputStyle} 
@@ -103,7 +105,7 @@ const Login: NextPage = () => {
                   <button
                   onClick={() => loginuser()}
                   className={'py-3 px-5 w-full rounded cursor-pointer bg-blue-700 text-white font-semibold text-sm'}>
-                     Login
+                     {t.login.loginButton}
                   </button>
                   {error && error.msg
                   && <div

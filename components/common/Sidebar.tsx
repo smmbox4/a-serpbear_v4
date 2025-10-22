@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { BrandTitle } from './Branding';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 type SidebarProps = {
    domains: DomainType[],
@@ -11,6 +12,7 @@ type SidebarProps = {
 
 const Sidebar = ({ domains, showAddModal } : SidebarProps) => {
    const router = useRouter();
+   const { t } = useTranslation();
 
    return (
       <div className="sidebar pt-44 w-1/5 hidden lg:block" data-testid="sidebar">
@@ -39,7 +41,7 @@ const Sidebar = ({ domains, showAddModal } : SidebarProps) => {
             </ul>
          </div>
          <div className='sidebar_add border-t font-semibold text-sm text-center mt-6 w-[80%] ml-3 text-zinc-500'>
-            <button data-testid="add_domain" onClick={() => showAddModal(true)} className='p-4 hover:text-blue-600'>+ Add Domain</button>
+            <button data-testid="add_domain" onClick={() => showAddModal(true)} className='p-4 hover:text-blue-600'>+ {t.navigation.addDomain}</button>
          </div>
     </div>
    );

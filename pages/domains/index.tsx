@@ -14,6 +14,7 @@ import Footer from '../../components/common/Footer';
 import { withAuth } from '../../hooks/useAuth';
 import PageLoader from '../../components/common/PageLoader';
 import { useBranding } from '../../hooks/useBranding';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 type thumbImages = { [domain:string] : string }
 
@@ -21,6 +22,7 @@ const Domains: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
+   const { t } = useTranslation();
    // const [noScrapprtError, setNoScrapprtError] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
@@ -113,18 +115,18 @@ const Domains: NextPage = () => {
       >
          {(!isAppSettingsLoading && scraper_type === 'none') && (
                <div className=' p-3 bg-red-600 text-white text-sm text-center'>
-                  A Scrapper/Proxy has not been set up Yet. Open Settings to set it up and start using the app.
+                  {t.domains.scraperNotSetup}
                </div>
          )}
          <Head>
-            <title>Domains - {platformName}</title>
+            <title>{t.domains.title} - {platformName}</title>
          </Head>
          <TopBar showSettings={() => setShowSettings(true)} showAddModal={() => setShowAddDomain(true)} />
 
          <div className="flex flex-col desktop-container py-6 lg:mt-24">
             <div className='flex justify-between mb-2 items-center'>
                <div className=' text-sm text-gray-600'>
-                  {domainsData?.domains?.length || 0} Domains <span className=' text-gray-300 ml-1 mr-1'>|</span> {totalKeywords} keywords
+                  {domainsData?.domains?.length || 0} {t.domains.domainCount} <span className=' text-gray-300 ml-1 mr-1'>|</span> {totalKeywords} {t.domains.keywordCount}
                </div>
                <div>
                   <button
@@ -133,7 +135,7 @@ const Domains: NextPage = () => {
                   onClick={() => setShowAddDomain(true)}>
                      <span
                      className='text-center leading-4 mr-2 inline-block rounded-full w-7 h-7 pt-1 bg-blue-700 text-white font-bold text-lg'>+</span>
-                     <i className=' not-italic hidden lg:inline-block'>Add Domain</i>
+                     <i className=' not-italic hidden lg:inline-block'>{t.domains.addDomain}</i>
                   </button>
                </div>
             </div>
@@ -151,7 +153,7 @@ const Domains: NextPage = () => {
                            />)}
                {!isDomainsLoading && domainsData && domainsData.domains && domainsData.domains.length === 0 && (
                   <div className='noDomains mt-4 p-5 py-12 rounded border text-center bg-white text-sm'>
-                     No Domains Found. Add a Domain to get started!
+                     {t.domains.noDomains}
                   </div>
                )}
             </div>

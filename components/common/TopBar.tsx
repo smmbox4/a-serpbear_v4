@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import Icon from './Icon';
 import { BrandTitle } from './Branding';
 import { getClientOrigin } from '../../utils/client/origin';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 type TopbarProps = {
    showSettings: Function,
@@ -15,6 +16,7 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
    const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false);
    const router = useRouter();
    const isDomainsPage = router.pathname === '/domains';
+   const { t } = useTranslation();
 
    const logoutUser = async () => {
       try {
@@ -68,27 +70,27 @@ const TopBar = ({ showSettings, showAddModal }:TopbarProps) => {
             >
                <li className={`block lg:inline-block lg:ml-5 ${router.asPath === '/domains' ? ' text-blue-700' : ''}`}>
                   <Link href={'/domains'} className='block px-3 py-2 cursor-pointer'>
-                     <Icon type="domains" color={router.asPath === '/domains' ? '#1d4ed8' : '#888'} size={14} /> Domains
+                     <Icon type="domains" color={router.asPath === '/domains' ? '#1d4ed8' : '#888'} size={14} /> {t.navigation.domains}
                   </Link>
                </li>
                <li className={`block lg:inline-block lg:ml-5 ${router.asPath === '/research' ? ' text-blue-700' : ''}`}>
                   <Link href={'/research'} className='block px-3 py-2 cursor-pointer'>
-                     <Icon type="research" color={router.asPath === '/research' ? '#1d4ed8' : '#888'} size={14} /> Research
+                     <Icon type="research" color={router.asPath === '/research' ? '#1d4ed8' : '#888'} size={14} /> {t.navigation.research}
                   </Link>
                </li>
                <li className='block lg:inline-block lg:ml-5'>
                   <a className='block px-3 py-2 cursor-pointer' onClick={() => showSettings()}>
-                     <Icon type="settings-alt" color={'#888'} size={14} /> Settings
+                     <Icon type="settings-alt" color={'#888'} size={14} /> {t.navigation.settings}
                   </a>
                </li>
                <li className='block lg:inline-block lg:ml-5'>
                   <a className='block px-3 py-2 cursor-pointer' href='https://docs.serpbear.com/' target="_blank" rel='noreferrer'>
-                     <Icon type="question" color={'#888'} size={14} /> Help
+                     <Icon type="question" color={'#888'} size={14} /> {t.navigation.help}
                   </a>
                </li>
                <li className='block lg:inline-block lg:ml-5'>
                   <a className='block px-3 py-2 cursor-pointer' onClick={() => logoutUser()}>
-                     <Icon type="logout" color={'#888'} size={14} /> Logout
+                     <Icon type="logout" color={'#888'} size={14} /> {t.navigation.logout}
                   </a>
                </li>
             </ul>
