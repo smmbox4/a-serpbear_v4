@@ -45,3 +45,4 @@ data/database.sqlite
 data/verify-fix.js
 SARIF test files
 *.sarif
+.env
