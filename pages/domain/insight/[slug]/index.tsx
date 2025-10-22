@@ -21,11 +21,13 @@ import { useBranding } from '../../../../hooks/useBranding';
 import AddKeywords from '../../../../components/keywords/AddKeywords';
 import { useFetchKeywords } from '../../../../services/keywords';
 import { withAuth } from '../../../../hooks/useAuth';
+import { useTranslation } from '../../../../i18n/LanguageContext';
 
 export const DomainInsightPage: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
+   const { t } = useTranslation();
    const [showDomainSettings, setShowDomainSettings] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
    const [showAddKeywords, setShowAddKeywords] = useState(false);

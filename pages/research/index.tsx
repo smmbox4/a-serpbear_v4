@@ -15,11 +15,13 @@ import allCountries, { adwordsLanguages } from '../../utils/countries';
 import Footer from '../../components/common/Footer';
 import { BrandTitle } from '../../components/common/Branding';
 import { useBranding } from '../../hooks/useBranding';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 const Research: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
+   const { t } = useTranslation();
    const [showSettings, setShowSettings] = useState(false);
    const [showFavorites, setShowFavorites] = useState(false);
    const [language, setLanguage] = useState('1000');
@@ -65,7 +67,7 @@ const Research: NextPage = () => {
    return (
       <div className='Research'>
          <Head>
-            <title>Research Keywords - {platformName}</title>
+            <title>{t.research.title} - {platformName}</title>
          </Head>
          <TopBar showSettings={() => setShowSettings(true)} showAddModal={() => null } />
          <div className="desktop-container lg:flex lg:flex-row">
@@ -76,20 +78,20 @@ const Research: NextPage = () => {
                <div className={`sidebar_menu domKeywords max-h-96 overflow-auto styled-scrollbar p-4
                 bg-white border border-gray-200 rounded lg:rounded-none lg:rounded-s lg:border-r-0`}>
                   <div className={'mb-3'}>
-                     <label className={labelStyle}>Generate Ideas from given Keywords (Max 20)</label>
+                     <label className={labelStyle}>{t.research.generateIdeasLabel}</label>
                      <textarea
                      className='w-full border border-solid border-gray-300 focus:border-blue-100 p-3 rounded outline-none text-sm'
                      value={seedKeywords}
                      onChange={(event) => setSeedKeywords(event.target.value)}
-                     placeholder="keyword1, keyword2.."
+                     placeholder={t.research.generatePlaceholder}
                      />
                   </div>
                   <div className={'mb-3'}>
-                     <label className={labelStyle}>Country</label>
+                     <label className={labelStyle}>{t.research.countries}</label>
                      <SelectField
                         selected={[country]}
                         options={countryOptions}
-                        defaultLabel='All Countries'
+                        defaultLabel={t.research.allCountries}
                         updateField={(updated:string[]) => setCountry(updated[0])}
                         flags={true}
                         multiple={false}
@@ -99,7 +101,7 @@ const Research: NextPage = () => {
                      />
                   </div>
                   <div className={'mb-3'}>
-                     <label className={labelStyle}>Language</label>
+                     <label className={labelStyle}>{t.research.language}</label>
                      <SelectField
                         selected={[language]}
                         options={languageOptions}
@@ -112,24 +114,24 @@ const Research: NextPage = () => {
                      />
                   </div>
                   <button
-                  className={`w-full py-2 px-5 mt-2 rounded bg-blue-700 text-white 
+                  className={`w-full py-2 px-5 mt-2 rounded bg-blue-700 text-white
                   font-semibold ${!adwordsConnected ? ' cursor-not-allowed opacity-40' : 'cursor-pointer'}`}
-                  title={!adwordsConnected ? 'Please Connect Google Ads account to generate Keyword Ideas..' : ''}
+                  title={!adwordsConnected ? t.research.adwordsNotConnected : ''}
                   onClick={() => !isUpdatingIdeas && adwordsConnected && reloadKeywordIdeas()}>
-                        <Icon type={isUpdatingIdeas ? 'loading' : 'download'} size={14} /> {isUpdatingIdeas ? 'Loading....' : 'Load Ideas'}
+                        <Icon type={isUpdatingIdeas ? 'loading' : 'download'} size={14} /> {isUpdatingIdeas ? t.common.loading : t.research.getIdeas}
                   </button>
                </div>
             </div>
             <div className="domain_kewywords px-5 lg:px-0 lg:pt-8 w-full">
                <div className='domain_kewywords_head w-full '>
                   <div className=' flex mt-12 mb-0 justify-between'>
-                     <h1 className=" font-bold mb-0 mt-0 pt-2 lg:text-xl lg:mb-6" data-testid="domain-header">Research Keywords</h1>
+                     <h1 className=" font-bold mb-0 mt-0 pt-2 lg:text-xl lg:mb-6" data-testid="domain-header">{t.research.title}</h1>
                      <button
                      className={`domheader_action_button relative mb-3 
                      ${buttonStyle} ${keywordIdeas.length === 0 ? 'cursor-not-allowed opacity-60' : ''}`}
                      aria-pressed="false"
                      onClick={() => exportKeywordIdeas(showFavorites ? favorites : keywordIdeas, 'research')}>
-                        <Icon type='download' size={20} /><i className={`${buttonLabelStyle}`}>Export as csv</i>
+                        <Icon type='download' size={20} /><i className={`${buttonLabelStyle}`}>{t.keywords.exportCSV}</i>
                      </button>
                   </div>
                </div>

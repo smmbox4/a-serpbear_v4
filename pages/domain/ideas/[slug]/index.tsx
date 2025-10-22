@@ -20,9 +20,14 @@ import Footer from '../../../../components/common/Footer';
 import AddKeywords from '../../../../components/keywords/AddKeywords';
 import { useFetchKeywords } from '../../../../services/keywords';
 import { withAuth } from '../../../../hooks/useAuth';
+import { useTranslation } from '../../../../i18n/LanguageContext';
+import { useBranding } from '../../../../hooks/useBranding';
 
 export const DomainIdeasPage: NextPage = () => {
    const router = useRouter();
+   const { t } = useTranslation();
+   const { branding } = useBranding();
+   const { platformName } = branding;
    const [showDomainSettings, setShowDomainSettings] = useState(false);
    const [showSettings, setShowSettings] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
@@ -75,7 +80,7 @@ export const DomainIdeasPage: NextPage = () => {
       <div className="Domain ">
          {activDomain && activDomain.domain
          && <Head>
-               <title>{`${activDomain.domain} - Keyword Ideas` } </title>
+               <title>{`${activDomain.domain} - ${t.ideas.title}` } </title>
             </Head>
          }
          <TopBar showSettings={() => setShowSettings(true)} showAddModal={() => setShowAddDomain(true)} />
@@ -124,7 +129,7 @@ export const DomainIdeasPage: NextPage = () => {
          </CSSTransition>
 
          {showUpdateModal && activDomain?.domain && (
-            <Modal closeModal={() => setShowUpdateModal(false) } title={'Load Keyword Ideas from Google Ads'} verticalCenter={true}>
+            <Modal closeModal={() => setShowUpdateModal(false) } title={t.research.getIdeas} verticalCenter={true}>
                <KeywordIdeasUpdater
                domain={activDomain}
                onUpdate={() => setShowUpdateModal(false)}

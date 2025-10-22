@@ -18,11 +18,13 @@ import AddKeywords from '../../../components/keywords/AddKeywords';
 import Footer from '../../../components/common/Footer';
 import { useBranding } from '../../../hooks/useBranding';
 import { withAuth } from '../../../hooks/useAuth';
+import { useTranslation } from '../../../i18n/LanguageContext';
 
 export const DomainPage: NextPage = () => {
    const router = useRouter();
    const { branding } = useBranding();
    const { platformName } = branding;
+   const { t } = useTranslation();
    const [showAddKeywords, setShowAddKeywords] = useState(false);
    const [showAddDomain, setShowAddDomain] = useState(false);
    const [showDomainSettings, setShowDomainSettings] = useState(false);
@@ -59,7 +61,7 @@ export const DomainPage: NextPage = () => {
       <div className="Domain">
          {(!isAppSettingsLoading && scraper_type === 'none') && (
                <div className=' p-3 bg-red-600 text-white text-sm text-center'>
-                  A Scrapper/Proxy has not been set up Yet. Open Settings to set it up and start using the app.
+                  {t.domains.scraperNotSetup}
                </div>
          )}
          {activDomain && activDomain.domain
